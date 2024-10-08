@@ -83,6 +83,15 @@ Once the above is completed, build EON client with the ASE interface enabled::
 If the compilation is successful, you should see a line containing ``+ASE`` at the very bottom
 of the terminal.
 
+For most installations, the binary ``eonclient`` can be copied to a directory in your
+``$PATH``. If you added ``$HOME/eon/bin`` to your path during the server installation the following command will install the client::
+
+    $ cp eonclient ../bin/eonclient
+
+Otherwise you will need to give the path to the client binary in your
+``config.ini``. 
+
+
 Using the ASE interface
 =======================
 
