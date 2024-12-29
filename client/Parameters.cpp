@@ -238,6 +238,9 @@ Parameters::Parameters() {
     monteCarloStepSize = 0.005;
     monteCarloSteps = 1000;
 
+    log_close();
+    log_init(this, (char *)"client.log");
+
     // [BGSD] //
     alpha = 10.0;
     beta = 0.2;
