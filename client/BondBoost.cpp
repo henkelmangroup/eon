@@ -120,7 +120,7 @@ void BondBoost::initialize() {
 
 double BondBoost::boost() {
     long RMDS;
-    double biasPot ; // , AVE_Boost_Fact;
+    double biasPot;
     Matrix<double, Eigen::Dynamic, 1> TABL_tmp(nTABs, 1);
     bool flag = 0;
 
@@ -147,7 +147,7 @@ double BondBoost::boost() {
         // TEST END
     } else {
         //    printf("nreg = %ld; RMDS=%ld\n", nReg,RMDS);
-        if( nReg == RMDS + 1){
+        if (nReg == RMDS + 1) {
             nBBs = BondSelect();
 
            //   for (long i = 0; i < nBBs; i++) {
@@ -167,10 +167,10 @@ double BondBoost::boost() {
 
 double BondBoost::Booststeps()
 {
-    long i, j; //,Mi;
+    long i, j;
     long AtomI_1, AtomI_2;
     double QRR, PRR, Epsr_MAX, A_EPS_M, Sum_V, Boost_Fact, DVMAX;
-    double Dforce, Fact_1, Fact_2; //, Mforce
+    double Dforce, Fact_1, Fact_2;
     double Ri[3] = {0.0} , R = 0.0;
 
     AtomMatrix Free(nAtoms, 3);
@@ -191,11 +191,10 @@ double BondBoost::Booststeps()
     Boost_Fact = 0.0;
     Sum_V = 0.0;
     Dforce = 0.0;
-    //Mforce = 0.0;
     Fact_1 = 0.0;
     Fact_2 = 0.0;
 
-    for (i = 0; i < nBBs; i++){
+    for (i = 0; i < nBBs; i++) {
         AtomI_1 = BBAList[2 * i];
         AtomI_2 = BBAList[2 * i + 1];
         CBBLList(i, 0) = matter->distance(AtomI_1, AtomI_2);
@@ -205,7 +204,6 @@ double BondBoost::Booststeps()
         Epsr_Q[i] = (CBBLList(i, 0) - EBBLList(i, 0)) / EBBLList(i, 0) / QRR;
         if (abs(Epsr_Q[i]) >= Epsr_MAX ) {
             Epsr_MAX = abs(Epsr_Q[i]);
-            // Mi = i;
         }
     }
 
@@ -221,8 +219,8 @@ double BondBoost::Booststeps()
             Epsr_MAX, BBAList[2*Mi], BBAList[2*Mi+1]);
     printf("Boost::A_EPS_M= %lf\n", A_EPS_M);
 */
-    if(Epsr_MAX < 1.0) {
-        for(i = 0; i < nBBs; i++) {
+    if (Epsr_MAX < 1.0) {
+        for (i = 0; i < nBBs; i++) {
             Sum_V += DVMAX * (1.0 - Epsr_Q[i] * Epsr_Q[i]) / double(nBBs);
         }
     } else if (Epsr_MAX >= 1.0) {
@@ -242,13 +240,13 @@ double BondBoost::Booststeps()
             double Fact_tmp1 = (1.0 - PRR * PRR * Epsr_Q[i] * Epsr_Q[i]);
             double Fact_tmp2 = (1.0 - Epsr_Q[i] * Epsr_Q[i]);
             Fact_2 = 2.0 * Fact_tmp2 * Epsr_Q[i] *
-                     (2.0 * Fact_tmp1 - PRR * PRR * Fact_tmp2) / QRR /
+                    (2.0 * Fact_tmp1 - PRR * PRR * Fact_tmp2) / QRR /
                      EBBLList(i, 0) / Fact_tmp1 / Fact_tmp1;
             Dforce = Fact_1 + Sum_V * Fact_2;
         }
 
-        AtomI_1 = BBAList[2 * i];
-        AtomI_2 = BBAList[2 * i + 1];
+        AtomI_1 = BBAList[2*i];
+        AtomI_2 = BBAList[2*i+1];
 
         R = CBBLList(i, 0);
         //    matter->distance(AtomI_1, AtomI_2);
@@ -352,8 +350,8 @@ long BondBoost::BondSelect()
     long count = 0, i ,nBBs_tmp = 0;
     double Qcutoff = parameters->bondBoostQcut;
 
-    for(i = 0; i < nTABs; i++){
-        if(TABLList(i, 0) <= Qcutoff){
+    for (i = 0; i < nTABs; i++){
+        if (TABLList(i, 0) <= Qcutoff){
             count++;
         }
     }
@@ -361,11 +359,11 @@ long BondBoost::BondSelect()
     EBBLList.setZero(nBBs_tmp, 1);
     BBAList = new long[2 * nBBs_tmp];
     count = 0;
-    for(i = 0;i < nTABs; i++) {
+    for(i = 0; i < nTABs; i++) {
         if(TABLList(i, 0) <= Qcutoff){
             EBBLList(count, 0) = TABLList(i, 0);
             BBAList[2 * count] = TABAList[2 * i];
-            BBAList[2 * count + 1] = TABAList[2 * i + 1];
+            BBAList[2 * count+1] = TABAList[2 * i+1];
             count++;
         }
     }

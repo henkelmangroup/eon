@@ -55,8 +55,7 @@ class MatterObjectiveFunction : public ObjectiveFunction
 {
     public:
         MatterObjectiveFunction(Matter *matterPassed,
-                                Parameters *parametersPassed)
-        {
+                                Parameters *parametersPassed) {
             matter = matterPassed;
             parameters = parametersPassed;
         }
@@ -88,19 +87,16 @@ class MatterObjectiveFunction : public ObjectiveFunction
         Parameters *parameters;
 };
 
-Matter::Matter(Parameters *parameters)
-{
+Matter::Matter(Parameters *parameters) {
     initializeDataMembers(parameters);
 }
 
-Matter::Matter(Parameters *parameters, const long int nAtoms)
-{
+Matter::Matter(Parameters *parameters, const long int nAtoms) {
     resize(nAtoms); // prepare memory for nAtoms
     initializeDataMembers(parameters);
 }
 
-void Matter::initializeDataMembers(Parameters *params)
-{
+void Matter::initializeDataMembers(Parameters *params) {
     nAtoms = 0;
     biasPotential = NULL;
     cell.resize(3, 3);
@@ -111,19 +107,14 @@ void Matter::initializeDataMembers(Parameters *params)
     recomputePotential = true;
     forceCalls = 0;
     parameters = params;
-    potential = NULL; 
+    potential = NULL;
 }
 
 Matter::Matter(const Matter& matter) {
     operator=(matter);
 }
 
-Matter::~Matter()
-{
-//    if (potential!=NULL){
-//        delete potential;
-//    }
-}
+Matter::~Matter() { }
 
 const Matter& Matter::operator=(const Matter& matter)
 {
@@ -140,7 +131,7 @@ const Matter& Matter::operator=(const Matter& matter)
     velocities = matter.velocities;
 
     parameters = matter.parameters;
-    
+
     usePeriodicBoundaries = matter.usePeriodicBoundaries;
 
     potentialEnergy = matter.potentialEnergy;
@@ -186,8 +177,8 @@ double Matter::distanceTo(const Matter& matter) {
     return pbc(positions - matter.positions).norm();
 }
 
-AtomMatrix Matter::pbc(AtomMatrix diff) const
-{
+AtomMatrix Matter::pbc(AtomMatrix diff) const {
+
     AtomMatrix ddiff = diff * cellInverse;
 
     int i, j;
@@ -199,14 +190,14 @@ AtomMatrix Matter::pbc(AtomMatrix diff) const
     return ddiff * cell;
 }
 
-VectorXd Matter::pbcV(VectorXd diffVector) const
-{
-    AtomMatrix pbcMatrix = pbc(AtomMatrix::Map(diffVector.data(), diffVector.size() / 3, 3));
+VectorXd Matter::pbcV(VectorXd diffVector) const {
+    AtomMatrix pbcMatrix = pbc(AtomMatrix::Map(diffVector.data(),
+                                               diffVector.size() / 3, 3));
     return VectorXd::Map(pbcMatrix.data(), diffVector.size());
 }
 
 // Returns the maximum distance between two atoms in the Matter objects.
-double Matter::perAtomNorm(const Matter& matter) 
+double Matter::perAtomNorm(const Matter& matter)
 {
     long i = 0;
     double max_distance = 0.0;
@@ -274,7 +265,7 @@ void Matter::setVelocity(long int indexAtom, int axis, double vel) {
 AtomMatrix Matter::getPositions() const { return positions; }
 
 VectorXd Matter::getPositionsV() const {
-    return VectorXd::Map(positions.data(), 3 * numberOfAtoms());
+    return VectorXd::Map(positions.data(), 3*numberOfAtoms());
 }
 
 AtomMatrix Matter::getPositionsFree() const
@@ -336,7 +327,7 @@ bool Matter::relax(bool quiet, bool writeMovie, bool checkpoint,
             matter2con(chk.str(), false);
         }
     }
-    
+
     if (iteration == 0) {
         if (!quiet) {
             log("%s %10i  %14.5e  %18.5e  %13.5f\n", LOG_PREFIX,
@@ -357,7 +348,7 @@ VectorXd Matter::getPositionsFreeV() const {
 void Matter::setPositions(const AtomMatrix pos)
 {
     positions = pos;
-    if(usePeriodicBoundaries) {
+    if (usePeriodicBoundaries) {
         applyPeriodicBoundary();
     }
     recomputePotential = true;
@@ -383,8 +374,7 @@ void Matter::setPositionsFreeV(const VectorXd pos) {
     setPositionsFree(AtomMatrix::Map(pos.data(), numberOfFreeAtoms(), 3));
 }
 
-AtomMatrix Matter::getBiasForces()
-{
+AtomMatrix Matter::getBiasForces() {
     if (biasPotential != NULL) {
         biasPotential->boost();
     }
@@ -412,9 +402,8 @@ AtomMatrix Matter::getForces() {
 }
 
 VectorXd Matter::getForcesV() {
-    return VectorXd::Map(getForces().data(), 3 * numberOfAtoms());
+    return VectorXd::Map(getForces().data(), 3*numberOfAtoms());
 }
-
 
 AtomMatrix Matter::getForcesFree() {
     AtomMatrix allForces = getForces();
@@ -430,7 +419,7 @@ AtomMatrix Matter::getForcesFree() {
 }
 
 VectorXd Matter::getForcesFreeV() {
-    return VectorXd::Map(getForcesFree().data(), 3 * numberOfFreeAtoms());
+    return VectorXd::Map(getForcesFree().data(), 3*numberOfFreeAtoms());
 }
 
 // return distance between the atoms with index1 and index2
@@ -480,20 +469,15 @@ int Matter::getFixed(long int indexAtom) const {
     return(isFixed[indexAtom]);
 }
 
-
 void Matter::setFixed(long int indexAtom, int isFixed_passed) {
     isFixed[indexAtom]=isFixed_passed;
 }
-
-//void Matter::setPotentialEnergy(double epot_input) {
-//	potentialEnergy=epot_input;
-//}
 
 double Matter::getPotentialEnergy() {
     if (nAtoms > 0) {
         computePotential();
         return potentialEnergy;
-    } else 
+    } else
         return 0.0;
 }
 
@@ -527,22 +511,20 @@ void Matter::matter2xyz(std::string filename,
     FILE * file;
     long int i;
     filename += ".xyz";
-    if (append) {
+    if (append)
         file = fopen(filename.c_str(), "ab");
-    } else {
+    else
         file = fopen(filename.c_str(), "wb");
-    }
     if (file == 0) {
         cerr << "Can't create file " << filename << endl;
         exit(1);
     }
     fprintf(file,"%ld\nGenerated by EON\n", numberOfAtoms());
-    
-    if (usePeriodicBoundaries) { 
-        applyPeriodicBoundary(); // Transform the coordinate to use the minimum
-                                 // image convention.
-    }
-    
+
+    // Transform the coordinate to use the minimum image convention.
+    if (usePeriodicBoundaries)
+        applyPeriodicBoundary();
+
     for (i = 0; i < numberOfAtoms(); i++) {
         fprintf(file,"%s\t%11.6f\t%11.6f\t%11.6f\n",
                 atomicNumber2symbol(getAtomicNr(i)), getPosition(i, 0),
@@ -552,12 +534,11 @@ void Matter::matter2xyz(std::string filename,
 }
 
 // Print atomic coordinates to a .con file
-bool Matter::matter2con(std::string filename, bool append) 
-{
+bool Matter::matter2con(std::string filename, bool append) {
     bool state;
     FILE *file;
     int pos = filename.find_last_of('.');
-    if (filename.compare(pos + 1, 3, "con")){
+    if (filename.compare(pos+1, 3, "con")){
         filename += ".con";
     }
     if (append) {
@@ -570,7 +551,7 @@ bool Matter::matter2con(std::string filename, bool append)
     return(state);
 }
 
-bool Matter::matter2con(FILE *file) 
+bool Matter::matter2con(FILE *file)
 {
     long int i;
     int j;
@@ -587,7 +568,7 @@ bool Matter::matter2con(FILE *file)
         applyPeriodicBoundary(); // Transform the coordinate to use the minimum
                                  // image convention.
     }
-    
+
     if (numberOfAtoms() > 0) {
         if (getFixed(0)) Nfix = 1; // count the number of fixed atoms
         mass[0] = getMass(0);
@@ -631,7 +612,7 @@ bool Matter::matter2con(FILE *file)
 
     fprintf(file, "%d\n", Ncomponent);
     for (j = 0; j < Ncomponent; j++) {
-        fprintf(file, "%d ", first[j + 1] - first[j]);
+        fprintf(file, "%d ", first[j+1] - first[j]);
     }
     fprintf(file, "\n");
     for (j = 0; j < Ncomponent; j++) {
@@ -641,7 +622,7 @@ bool Matter::matter2con(FILE *file)
     for(j = 0; j < Ncomponent; j++) {
         fprintf(file, "%s\n", atomicNumber2symbol(atomicNrs[j]));
         fprintf(file, "Coordinates of Component %d\n", j + 1);
-        for(i = first[j]; i < first[j + 1]; i++) {
+        for(i = first[j]; i < first[j+1]; i++) {
             fprintf(file,"%22.17f %22.17f %22.17f %d %4ld\n", getPosition(i, 0),
                 getPosition(i, 1), getPosition(i, 2), getFixed(i), i);
         }
@@ -691,7 +672,7 @@ bool Matter::con2matter(FILE *file)
     double lengths[3];
     // The third line contains the length of the periodic cell
     fgets(line, sizeof(line), file);
-    sscanf(line,"%lf %lf %lf", &lengths[0], &lengths[1], &lengths[2]);
+    sscanf(line, "%lf %lf %lf", &lengths[0], &lengths[1], &lengths[2]);
 
     double angles[3];
     fgets(headerCon4, sizeof(line), file);
@@ -702,7 +683,7 @@ bool Matter::con2matter(FILE *file)
         cell(0, 0) = lengths[0];
         cell(1, 1) = lengths[1];
         cell(2, 2) = lengths[2];
-    }else{
+    } else {
         angles[0] *= M_PI / 180.0;
         angles[1] *= M_PI / 180.0;
         angles[2] *= M_PI / 180.0;
@@ -772,7 +753,7 @@ bool Matter::con2matter(FILE *file)
     // split at either space or tab
     split = strtok(line, " \t");
 
-    for (j = 0; j < Ncomponent; j++) { // Now we want to know the number of atom of each type. Ex with H2O, two hydrogens and one oxygen
+    for (j = 0; j < Ncomponent; j++) {
         if (split == NULL) {
             cerr << "input con file does not list enough masses" <<endl;
             return false;
@@ -797,7 +778,7 @@ bool Matter::con2matter(FILE *file)
         sscanf(line, "%2s\n", symbol);
         atomicNr = symbol2atomicNumber(symbol);
         fgets(line, sizeof(line), file); // skip one line
-        for (i = first[j]; i < first[j + 1]; i++){
+        for (i = first[j]; i < first[j+1]; i++){
             setMass(i, mass[j]);
 
             setAtomicNr(i, atomicNr);
@@ -836,7 +817,7 @@ void Matter::computePotential()
 
         if(isFixed.sum() == 0 and parameters->removeNetForce){
             Vector3d tempForce(3);
-            tempForce = forces.colwise().sum()/nAtoms;
+            tempForce = forces.colwise().sum() / nAtoms;
 
             for(long int i = 0; i < nAtoms; i++) {
                 forces.row(i) -= tempForce.transpose();
@@ -848,7 +829,7 @@ void Matter::computePotential()
 // Transform the coordinate to use the minimum image convention.
 void Matter::applyPeriodicBoundary()
 {
-    AtomMatrix ddiff = positions*cellInverse;
+    AtomMatrix ddiff = positions * cellInverse;
 
     int i, j;
     for (i = 0; i < ddiff.rows(); i++) {
@@ -887,7 +868,7 @@ AtomMatrix Matter::getFree() const
 }
 
 VectorXd Matter::getFreeV() const {
-    return VectorXd::Map(getFree().data(), 3 * numberOfAtoms());
+    return VectorXd::Map(getFree().data(), 3*numberOfAtoms());
 }
 
 AtomMatrix Matter::getVelocities() const {
@@ -933,18 +914,17 @@ bool Matter::matter2convel(FILE *file) {
     int j;
     long int Nfix = 0;  // Nfix to store the number of fixed atoms
     int Ncomponent = 0; // used to store the number of components
-                        // (eg water: two components H and O)
-    int first[MAXC]; // to store the position of the first atom of each component
+    int first[MAXC]; // store the position of the first atom of each component
                      // plus at the end the total number of atoms
 
     double mass[MAXC];
     long atomicNrs[MAXC];
     first[0] = 0;
-    
-        // Transform the coordinate to use the minimum image convention.
+
+    // transform the coordinate to use the minimum image convention
     if (usePeriodicBoundaries)
         applyPeriodicBoundary();
-    
+
     if (numberOfAtoms() > 0) {
         if (getFixed(0)) Nfix = 1; // count the number of fixed atoms
         mass[0] = getMass(0);
@@ -965,8 +945,8 @@ bool Matter::matter2convel(FILE *file) {
             first[j] = i;
         }
     }
-    first[j + 1] = numberOfAtoms();
-    Ncomponent = j + 1;
+    first[j+1] = numberOfAtoms();
+    Ncomponent = j+1;
 
     fputs(headerCon1, file);
     fputs(headerCon2, file);
@@ -988,7 +968,7 @@ bool Matter::matter2convel(FILE *file) {
 
     fprintf(file, "%d\n", Ncomponent);
     for (j = 0; j < Ncomponent; j++) {
-        fprintf(file, "%d ", first[j + 1] - first[j]);
+        fprintf(file, "%d ", first[j+1] - first[j]);
     }
     fprintf(file, "\n");
     for (j = 0; j < Ncomponent; j++) {
@@ -997,8 +977,8 @@ bool Matter::matter2convel(FILE *file) {
     fprintf(file, "\n");
     for (j = 0; j < Ncomponent; j++) {
         fprintf(file, "%s\n", atomicNumber2symbol(atomicNrs[j]));
-        fprintf(file, "Coordinates of Component %d\n", j + 1);
-        for (i = first[j]; i < first[j + 1]; i++) {
+        fprintf(file, "Coordinates of Component %d\n", j+1);
+        for (i = first[j]; i < first[j+1]; i++) {
             fprintf(file,"%11.6f\t%11.6f\t%11.6f\t%d\t%ld\n", getPosition(i, 0),
                 getPosition(i, 1), getPosition(i, 2), getFixed(i), i);
         }
@@ -1007,7 +987,7 @@ bool Matter::matter2convel(FILE *file) {
     for (j = 0; j < Ncomponent; j++) {
         fprintf(file, "%s\n", atomicNumber2symbol(atomicNrs[j]));
         fprintf(file, "Velocities of Component %d\n", j+1);
-        for (i = first[j]; i < first[j + 1]; i++) {
+        for (i = first[j]; i < first[j+1]; i++) {
             fprintf(file, "%11.6f\t%11.6f\t%11.6f\t%d\t%ld\n", velocities(i, 0),
                 velocities(i, 1), velocities(i, 2), getFixed(i), i);
         }
@@ -1021,7 +1001,7 @@ bool Matter::convel2matter(std::string filename)
     FILE *file;
     // Add the .con extension to filename if it is not already there.
     int pos = filename.find_last_of('.');
-    if (filename.compare(pos + 1, 3, "con")){
+    if (filename.compare(pos+1, 3, "con")){
         filename += ".con";
     }
     file=fopen(filename.c_str(), "rb");
@@ -1106,19 +1086,18 @@ bool Matter::convel2matter(FILE *file)
     }
     /* to store the position of the first atom of each element 'MAXC+1':
        the last element is used to store the total number of atom.*/ 
-    long int first[MAXC + 1];
+    long int first[MAXC+1];
     long int Natoms = 0;
     first[0] = 0;
 
     // Now we want to know the number of atom of each type.
-    // Ex with H2O, two hydrogens and one oxygen
     for (j = 0; j < Ncomponent; j++) {
         fscanf(file, "%ld", &Natoms);
         first[j + 1] = Natoms + first[j];
     }
 
-    fgets(line, sizeof(line), file); // Discard the rest of the line
-    resize(first[Ncomponent]); // Set the total number of atoms, and allocates memory
+    fgets(line, sizeof(line), file); // discard the rest of the line
+    resize(first[Ncomponent]); // set the total number of atoms, and allocates memory
     double mass[MAXC];
     for (j = 0; j < Ncomponent; j++)
         fscanf(file, "%lf", &mass[j]);
@@ -1149,7 +1128,7 @@ bool Matter::convel2matter(FILE *file)
     for (j = 0; j < Ncomponent; j++) {
         fgets(line, sizeof(line), file);
         fgets(line, sizeof(line), file); // skip one line
-        for (i = first[j]; i < first[j + 1]; i++){
+        for (i = first[j]; i < first[j+1]; i++){
             fgets(line, sizeof(line), file);
             sscanf(line,"%lf %lf %lf %d\n", &x, &y, &z, &fixed);
             setVelocity(i, 0, x);
@@ -1160,6 +1139,6 @@ bool Matter::convel2matter(FILE *file)
 
     if (usePeriodicBoundaries)
         applyPeriodicBoundary();
-    
+
     return(true);
 }

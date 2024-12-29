@@ -29,7 +29,7 @@ std::vector<std::string> FiniteDifferenceJob::run(void)
     // Create a random displacement.
     long epicenter = EpiCenters::minCoordinatedEpiCenter(reactant,
                                  parameters->neighborCutoff);
-    AtomMatrix displacement;    
+    AtomMatrix displacement;
     displacement.resize(reactant->numberOfAtoms(), 3);
     displacement.setZero();
     printf("displacing atoms:");
@@ -68,5 +68,4 @@ std::vector<std::string> FiniteDifferenceJob::run(void)
     std::vector<std::string> empty;
     return empty;
 }
-
 

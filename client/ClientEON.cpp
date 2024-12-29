@@ -1,4 +1,3 @@
-
 #include "Bundling.h"
 #include "CommandLine.h"
 #include "EpiCenters.h"
@@ -40,26 +39,27 @@
 #endif
 
 #ifdef __APPLE__
-  #ifndef __aarch64__
-  #include <mach/mach.h>
-  #include <mach/task_info.h>
+    #ifndef __aarch64__
+    #include <mach/mach.h>
+    #include <mach/task_info.h>
 
-  void print_memory_usage() {
-      struct task_basic_info t_info;
-      mach_msg_type_number_t t_info_count = TASK_BASIC_INFO_COUNT;
+    void print_memory_usage() {
+        struct task_basic_info t_info;
+        mach_msg_type_number_t t_info_count = TASK_BASIC_INFO_COUNT;
 
-      if (KERN_SUCCESS != task_info(mach_task_self(), TASK_BASIC_INFO, (task_info_t)&t_info, &t_info_count)) {
-          printf("Failed to get task info\n");
-          return;
-      }
+        if (KERN_SUCCESS != task_info(mach_task_self(),
+            TASK_BASIC_INFO, (task_info_t)&t_info, &t_info_count)) {
+            printf("Failed to get task info\n");
+            return;
+        }
 
-      unsigned int rss = t_info.resident_size;
-      unsigned int vs = t_info.virtual_size;
-      printf(
-          "\nmemory usage:\nresident size (MB): %8.2f\nvirtual size (MB):  %8.2f\n",
-          (double)rss / 1024 / 1024, (double)vs / 1024 / 1024);
-  }
-  #endif
+        unsigned int rss = t_info.resident_size;
+        unsigned int vs = t_info.virtual_size;
+        printf(
+            "\nmemory usage:\nresident size (MB): %8.2f\nvirtual size (MB):  %8.2f\n",
+            (double)rss / 1024 / 1024, (double)vs / 1024 / 1024);
+    }
+    #endif
 #endif
 
 void printSystemInfo()
@@ -104,7 +104,7 @@ int main(int argc, char **argv)
                 return 1;
             }
             number_of_clients = atoi(getenv("EON_NUMBER_OF_CLIENTS"));
-        }else{
+        } else {
             number_of_clients = 1;
         }
 
@@ -141,7 +141,7 @@ int main(int argc, char **argv)
 
         process_type = 1;
 
-        MPI::COMM_WORLD.Allgather(&process_type,     1, MPI::INT,
+        MPI::COMM_WORLD.Allgather(&process_type, 1, MPI::INT,
                                   &process_types[0], 1, MPI::INT);
 
         int i, servers = 0, clients = 0, potentials = 0;
@@ -297,7 +297,7 @@ int main(int argc, char **argv)
     int bundleSize = getBundleSize();
     if (bundleSize == 0) {
         bundleSize = 1;
-    }else if (bundleSize == -1) {
+    } else if (bundleSize == -1) {
         //Not using bundling
         bundleSize = 1;
         bundlingEnabled = false;

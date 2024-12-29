@@ -17,7 +17,7 @@ Dynamics::Dynamics(Matter *matter_in, Parameters *parameters_in)
     parameters = parameters_in;
     dt = parameters->mdTimeStep;
     nAtoms = matter->numberOfAtoms();
-    nFreeCoords = matter->numberOfFreeAtoms() * 3;
+    nFreeCoords = 3*matter->numberOfFreeAtoms();
     temperature = parameters->temperature;
     kB = parameters->kB;
     vxi1 = vxi2 = xi1 = xi2 = 0.0; // NoseHoover variables
@@ -25,8 +25,7 @@ Dynamics::Dynamics(Matter *matter_in, Parameters *parameters_in)
 
 Dynamics::~Dynamics() { return; }
 
-void Dynamics::setTemperature(double temperature_in)
-{
+void Dynamics::setTemperature(double temperature_in) {
     temperature = temperature_in;
 }
 
@@ -210,7 +209,7 @@ void Dynamics::noseHooverVerlet()
     vel *= s;
     kinE *= s * s;
     vxi1 *= exp(-vxi2 * dt8);
-    g1 = (2.0*kinE - nFreeCoords * Temp) / q1;
+    g1 = (2.0 * kinE - nFreeCoords * Temp) / q1;
     vxi1 += g1 * dt4;
     vxi1 *=  exp(-vxi2 * dt8);
     g2 = (q1 * vxi1 * vxi1 - Temp) / q2;

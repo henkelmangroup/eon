@@ -19,8 +19,6 @@
 
 #include <cfenv>
 
-
-
 void enableFPE(void)
 {
     // Floating Point Trapping. It is platform specific!
@@ -62,7 +60,6 @@ void enableFPE(void)
     #else
         std::cerr << "FPE trapping not supported on this platform." << std::endl;
     #endif
-
 }
 
 void disableFPE(void)
@@ -103,7 +100,6 @@ int getFPEState(void) {
     #if defined(__APPLE__) && defined(__x86_64__)
         return _MM_GET_EXCEPTION_MASK();
     #endif
-
 }
 
 bool isFPEEnabled(void) {

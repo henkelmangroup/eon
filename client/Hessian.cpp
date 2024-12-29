@@ -14,16 +14,12 @@ Hessian::~Hessian() { }
 
 MatrixXd Hessian::getHessian(Matter *matterIn, VectorXi atomsIn)
 {
-    if((matter != matterIn) || (atoms != atomsIn) || (hessian.rows() == 0))
-    {
+    if((matter != matterIn) || (atoms != atomsIn) || (hessian.rows() == 0)) {
         hessian.resize(0,0);
         matter = matterIn;
         atoms = atomsIn;
-
         if (!calculate())
-        {
             hessian.resize(0,0);
-        }
     }
     return hessian;
 }
@@ -36,9 +32,8 @@ VectorXd Hessian::getFreqs(Matter *matterIn, VectorXi atomsIn)
         matter = matterIn;
         atoms = atomsIn;
 
-        if (!calculate()) {
+        if (!calculate())
             freqs.resize(0);
-        }
     }
     return freqs;
 }
@@ -48,7 +43,7 @@ bool Hessian::calculate(void)
     int nAtoms = matter->numberOfAtoms();
 
     // Determine the Hessian size
-    int size = atoms.rows() * 3;
+    int size = 3*atoms.rows();
     log("[Hessian] Hessian size: %i\n", size);
     if (size == 0) {
         return false;
@@ -86,7 +81,7 @@ bool Hessian::calculate(void)
         // forcecalls and will generally not lead to very different results.
         // In most cases, the additional accuracy is not worth the computation time.
 
-        /*
+       /*
         posTemp = pos - posDisplace; 
         matterTemp.setPositions(posTemp);
         force1 = matterTemp.getForces();
@@ -103,7 +98,7 @@ bool Hessian::calculate(void)
     }
 
     // Force hessian to be symmetric
-    
+
     // hessian = (hessian + hessian.transpose()) / 2;
     // cannot be used, messes up the lower trianguler 
     // transpose does not seem to be a hardcopy, rather just an index manipulation 
@@ -115,8 +110,7 @@ bool Hessian::calculate(void)
         }
     }
 
-    if (!parameters->quiet)
-    {
+    if (!parameters->quiet) {
         log("[Hessian] writing hessian\n");
         ofstream hessfile;
         hessfile.open("hessian.dat");
@@ -124,7 +118,7 @@ bool Hessian::calculate(void)
         hessfile.close();
     }
 
-    double t0,t1;
+    double t0, t1;
     helper_functions::getTime(&t0, NULL, NULL);
     log("[Hessian] calculating eigen values of the hessian\n");
     Eigen::SelfAdjointEigenSolver<MatrixXd> es(hessian);
@@ -146,23 +140,21 @@ VectorXd Hessian::removeZeroFreqs(VectorXd freqs)
 {
     log("[Hessian] removing zero frequency modes\n");
     int size = freqs.size();
-    if (size != 3 * matter->numberOfAtoms()) {
+    if (size != 3 * matter->numberOfAtoms())
         return freqs;
-    }
     VectorXd newfreqs;
     newfreqs.resize(size);
     int nremoved = 0;
     for (int i = 0; i < size; i++) {
-        if (abs(freqs(i)) > parameters->hessianZeroFreqValue) {
+        if (abs(freqs(i)) > parameters->hessianZeroFreqValue)
             newfreqs(i - nremoved) = freqs(i);
-        } else {
+        else
             nremoved++;
-        }
     }
 
-    if (nremoved != 6) {
+    if (nremoved != 6)
         log("[Hessian] Error: Found %i trivial eigenmodes instead of 6\n", nremoved);
-    }
+
     return newfreqs.head(size - nremoved);
 }
 

@@ -42,39 +42,39 @@ Job *Job::getJob(Parameters *parameters) {
     Job *job = NULL;
     if (parameters->job == Job::PROCESS_SEARCH) {
         job = new ProcessSearchJob(parameters);
-    }else if (parameters->job == Job::SADDLE_SEARCH) {
+    } else if (parameters->job == Job::SADDLE_SEARCH) {
         job = new SaddleSearchJob(parameters);
-    }else if (parameters->job == Job::MINIMIZATION) {
+    } else if (parameters->job == Job::MINIMIZATION) {
         job = new MinimizationJob(parameters);
-    }else if (parameters->job == Job::POINT) {
+    } else if (parameters->job == Job::POINT) {
         job = new PointJob(parameters);
-    }else if (parameters->job == Job::HESSIAN) {
+    } else if (parameters->job == Job::HESSIAN) {
         job = new HessianJob(parameters);
-    }else if (parameters->job == Job::PARALLEL_REPLICA) {
+    } else if (parameters->job == Job::PARALLEL_REPLICA) {
         job =  new ParallelReplicaJob(parameters);
-    }else if (parameters->job == Job::REPLICA_EXCHANGE) {
+    } else if (parameters->job == Job::REPLICA_EXCHANGE) {
         job =  new ReplicaExchangeJob(parameters);
-    }else if (parameters->job == Job::TAD){
+    } else if (parameters->job == Job::TAD){
         job = new TADJob(parameters);
-    }else if (parameters->job == Job::SAFE_HYPER){
+    } else if (parameters->job == Job::SAFE_HYPER){
         job = new SafeHyperJob(parameters);
-    }else if (parameters->job == Job::BASIN_HOPPING) {
+    } else if (parameters->job == Job::BASIN_HOPPING) {
         job =  new BasinHoppingJob(parameters);
-    }else if (parameters->job == Job::FINITE_DIFFERENCE) {
+    } else if (parameters->job == Job::FINITE_DIFFERENCE) {
         job =  new FiniteDifferenceJob(parameters);
-    }else if (parameters->job == Job::NUDGED_ELASTIC_BAND) {
+    } else if (parameters->job == Job::NUDGED_ELASTIC_BAND) {
         job =  new NudgedElasticBandJob(parameters);
-    }else if (parameters->job == Job::DYNAMICS) {
+    } else if (parameters->job == Job::DYNAMICS) {
         job =  new DynamicsJob(parameters);
-    }else if (parameters->job == Job::PREFACTOR) {
+    } else if (parameters->job == Job::PREFACTOR) {
         job =  new PrefactorJob(parameters);
-    }else if (parameters->job == Job::GLOBAL_OPTIMIZATION) {
+    } else if (parameters->job == Job::GLOBAL_OPTIMIZATION) {
         job =  new GlobalOptimizationJob(parameters);
-    }else if (parameters->job == Job::STRUCTURE_COMPARISON) {
+    } else if (parameters->job == Job::STRUCTURE_COMPARISON) {
         job =  new StructureComparisonJob(parameters);
-    }else if (parameters->job == Job::TEST) {
+    } else if (parameters->job == Job::TEST) {
         job =  new TestJob(parameters);
-    }else if (parameters->job == Job::MONTE_CARLO) {
+    } else if (parameters->job == Job::MONTE_CARLO) {
         job = new MonteCarloJob(parameters);
     }
 

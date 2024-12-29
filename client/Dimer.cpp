@@ -19,8 +19,7 @@ Dimer::Dimer(Matter *matter, Parameters *params)
     totalForceCalls = 0;
 }
 
-Dimer::~Dimer()
-{
+Dimer::~Dimer() {
     delete matterCenter;
     delete matterDimer;
 }
@@ -42,7 +41,7 @@ void Dimer::compute(Matter *matter, AtomMatrix initialDirection)
     rotationalForceChange = forceDimer = rotationAngle = curvature = 0;
     rotationalForce1 = 0;
     rotationalForce2 = 0;
-    AtomMatrix rotationalForce(nAtoms,3);
+    AtomMatrix rotationalForce(nAtoms, 3);
     AtomMatrix rotationalForceOld(nAtoms, 3);
     AtomMatrix rotationalPlaneOld(nAtoms, 3);
     rotationalForce.setZero();
@@ -79,12 +78,19 @@ void Dimer::compute(Matter *matter, AtomMatrix initialDirection)
             rotations >= parameters->dimerRotationsMin) ||
            (torque < parameters->dimerTorqueMin))
         {
-/*          cout << "torque: "<<torque<<endl;
-            cout << "parameters->dimerTorqueMax: "<<parameters->dimerTorqueMax<<endl;
-            cout << "parameters->dimerTorqueMin: "<<parameters->dimerTorqueMin<<endl;
-            cout << "rotations: "<<rotations<<endl;
-            cout << "parameters->dimerRotationsMax: "<<parameters->dimerRotationsMax<<endl;
-            cout << "parameters->dimerRotationsMin: "<<parameters->dimerRotationsMin<<endl; */
+           /*
+            cout << "torque: "<<torque<<endl;
+            cout << "parameters->dimerTorqueMax: "
+                 <<  parameters->dimerTorqueMax <<endl;
+            cout << "parameters->dimerTorqueMin: " 
+                 <<  parameters->dimerTorqueMin <<endl;
+            cout << "rotations: "
+                 <<  rotations <<endl;
+            cout << "parameters->dimerRotationsMax: "
+                 <<  parameters->dimerRotationsMax <<endl;
+            cout << "parameters->dimerRotationsMin: "
+                 <<  parameters->dimerRotationsMin <<endl;
+            */
             doneRotating = true;
         }
 
@@ -93,7 +99,7 @@ void Dimer::compute(Matter *matter, AtomMatrix initialDirection)
             (rotationalForce.array()*rotationalPlane.array()).sum();
 
         rotate(parameters->dimerRotationAngle);
-        
+
         if(!doneRotating) {
             // rotated dimer
             curvature = calcRotationalForceReturnCurvature(rotationalForce);
@@ -109,7 +115,7 @@ void Dimer::compute(Matter *matter, AtomMatrix initialDirection)
             rotationAngle = (atan(2.0 * forceDimer/rotationalForceChange) / 2.0 -
                              parameters->dimerRotationAngle/2.0);
 
-//            std::cout << "Rotation Angle: " <<rotationAngle <<endl; //debug
+            // std::cout << "Rotation Angle: " <<rotationAngle <<endl; //debug
 
             if(rotationalForceChange < 0) {
                 rotationAngle = rotationAngle + M_PI / 2.0;
@@ -158,10 +164,9 @@ double Dimer::calcRotationalForceReturnCurvature(AtomMatrix &rotationalForce)
 
     // displace to get the dimer configuration A
     posDimer = posCenter + direction * parameters->finiteDifference;
-    
+
     // Melander, Laasonen, Jonsson, JCTC, 11(3), 1055–1062, 2015
-    // http://doi.org/10.1021/ct501155k
-    if(parameters->dimerRemoveRotation) {
+    if (parameters->dimerRemoveRotation) {
         matterDimer->setPositions(posDimer);
         rotationRemove(matterCenter, matterDimer);
         posDimer = matterDimer->getPositions();
@@ -169,7 +174,7 @@ double Dimer::calcRotationalForceReturnCurvature(AtomMatrix &rotationalForce)
         direction.normalize();
         posDimer = posCenter + direction * parameters->finiteDifference;
     }
-    
+
     // obtain the force for the dimer configuration
     matterDimer->setPositions(posDimer);
     forceA = matterDimer->getForces();
@@ -195,13 +200,12 @@ double Dimer::calcRotationalForceReturnCurvature(AtomMatrix &rotationalForce)
 void Dimer::determineRotationalPlane(AtomMatrix rotationalForce,
                                      AtomMatrix &rotationalForceOld,
                                      AtomMatrix rotationalPlaneOld,
-                                     double* lengthRotationalForceOld)
-{
+                                     double* lengthRotationalForceOld) {
     double a, b, gamma = 0.0;
 
     a = fabs((rotationalForce.array() * rotationalForceOld.array()).sum());
     b = rotationalForceOld.squaredNorm();
-    if(a < 0.5 * b) {
+    if (a < 0.5 * b) {
         gamma = (rotationalForce.array() *
                 (rotationalForce - rotationalForceOld).array()).sum() / b;
     } else

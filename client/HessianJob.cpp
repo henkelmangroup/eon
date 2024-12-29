@@ -19,10 +19,10 @@ std::vector<std::string> HessianJob::run(void)
 
     Hessian hessian(parameters, matter);
     long nAtoms = matter->numberOfAtoms();
-    
+
     VectorXi moved(nAtoms);
     moved.setConstant(-1);
-    
+
     int nMoved = 0;
     for (int i = 0; i < nAtoms; i++) {
         if(!matter->getFixed(i)) {

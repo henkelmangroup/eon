@@ -1,10 +1,9 @@
-
 #ifndef BASINHOPPINGJOB_H
 #define BASINHOPPINGJOB_H
 
+#include "Job.h"
 #include "Matter.h"
 #include "Parameters.h"
-#include "Job.h"
 
 class BasinHoppingJob : public Job {
     public:
@@ -27,7 +26,7 @@ class BasinHoppingJob : public Job {
         int fcalls;
 
         std::vector<Matter *> uniqueStructures;
-        std::vector<double>   uniqueEnergies;
+        std::vector<double> uniqueEnergies;
 };
 
 #endif

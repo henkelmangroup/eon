@@ -1,6 +1,5 @@
 #include "GlobalOptimizationJob.h"
 #include "GlobalOptimization.h"
-//#include "MinimizationJob.h"
 #include "Dynamics.h"
 #include "HelperFunctions.h"
 #include "Log.h"
@@ -58,7 +57,7 @@ std::vector<std::string> GlobalOptimizationJob::run(void)
     //printf("fcalls= %ld\n",matter_cur->getForceCalls());
     converged = matter_cur->relax(false, parameters->writeMovies, 
                                 parameters->checkpoint, "min", "matter_cur");
-    printf("converged %s \n",(converged) ? "TRUE" : "FALSE");
+    printf("converged %s \n", (converged) ? "TRUE" : "FALSE");
     //nlmin=0;
     //if(nlmin==0) 
     earr.push_back(matter_cur->getPotentialEnergy());
@@ -84,7 +83,7 @@ std::vector<std::string> GlobalOptimizationJob::run(void)
             earrim1 = earr[i-1];
         }
         fprintf(earrfile,"%5lu  %15.5f  %15.5f  %15.5f  \n",
-            i + 1, earr[i], earr[i] - earr[0], earr[i] - earrim1);
+            i+1, earr[i], earr[i] - earr[0], earr[i] - earrim1);
     }
     //globopt.run();
     fclose(monfile);
@@ -94,13 +93,13 @@ std::vector<std::string> GlobalOptimizationJob::run(void)
 
 void GlobalOptimizationJob::analyze(Matter *matter_cur, Matter *matter_hop) {
     if (escapeResult=="failure") {
-    //matter_hop[0]=matter_cur[0];
+        // matter_hop[0] = matter_cur[0];
         hoppingResult = "same";
         return;
     }
     double epot = matter_hop->getPotentialEnergy();
     size_t jlo = hunt(epot);
-    //printf("REZA: %lu \n",jlo);
+    // printf("REZA: %lu \n",jlo);
     if (abs(epot - earr[jlo]) < parameters->energyDifference) {
         hoppingResult = "already_visited";
     } else {
@@ -114,11 +113,11 @@ void GlobalOptimizationJob::analyze(Matter *matter_cur, Matter *matter_hop) {
             printf("new lowest: nlmin, epot_hop, dE %7d %15.5f %10.5f\n",
                 1, epot_hop, epot_hop - earr[0]);
         }
-        //printf("%15.5f  %15.5f  %15.5f  \n",epot_hop, earr[0],earr[1]);
-        //exit(1);
+        // printf("%15.5f  %15.5f  %15.5f  \n",epot_hop, earr[0],earr[1]);
+        // exit(1);
         insert(matter_cur);
     } else if(decisionResult == "rejected") {
-        //matter_hop[0]=matter_cur[0];
+        //matter_hop[0] = matter_cur[0];
     } else {
         printf("ERROR: new minimum is neither accepted nor rejected: client stops.\n");
         exit(0);
@@ -126,8 +125,10 @@ void GlobalOptimizationJob::analyze(Matter *matter_cur, Matter *matter_hop) {
 }
 
 void GlobalOptimizationJob::examineEscape(Matter *matter_cur,Matter *matter_hop) {
-    //fprintf(monfile,"%15.5f  %15.5f  %15.5f  \n",matter_hop->getPotentialEnergy(),
-    //matter_cur->getPotentialEnergy(),matter_hop->getPotentialEnergy()-matter_cur->getPotentialEnergy());
+    // fprintf(monfile,"%15.5f  %15.5f  %15.5f  \n",
+    //    matter_hop->getPotentialEnergy(),
+    //    matter_cur->getPotentialEnergy(),
+    //    matter_hop->getPotentialEnergy() - matter_cur->getPotentialEnergy());
     double epot, epot_hop;
     epot = matter_cur->getPotentialEnergy();
     epot_hop = matter_hop->getPotentialEnergy();
@@ -135,7 +136,8 @@ void GlobalOptimizationJob::examineEscape(Matter *matter_cur,Matter *matter_hop)
         escapeResult = "failure";
     } else {
         escapeResult = "success";
-        //fprintf(monfile,"%15.5f  %15.5f  %15.5f           \n", epot_hop, ediff, ekin);
+        // fprintf(monfile,"%15.5f  %15.5f  %15.5f           \n",
+        // epot_hop, ediff, ekin);
     }
 }
 
@@ -147,7 +149,7 @@ void GlobalOptimizationJob::applyMoveFeedbackMD(void) {
     if (hoppingResult == "same") {
         ekin *= beta1;
     } else if (hoppingResult == "already_visited") {
-        ekin*=beta2;
+        ekin *= beta2;
     } else if (hoppingResult == "new") {
         ekin *= beta3;
     } else {
@@ -192,7 +194,8 @@ void GlobalOptimizationJob::report(Matter *matter_hop) {
     double epot_hop = matter_hop->getPotentialEnergy();
     double temp = (2.0 * ekin_p / parameters->kB);
     double dt = parameters->mdTimeStep;
-    fprintf(monfile,"%15.5f  %15.5f  %11lu  %12.2f         %c%c  %5ld  %5ld\n",
+    fprintf(monfile,
+        "%15.5f  %15.5f  %11lu  %12.2f         %c%c  %5ld  %5ld\n",
         epot_hop, ediff, (int)temp, dt, C1, C2, fcallsMove, fcallsRelax);
 }
 
@@ -200,12 +203,12 @@ void GlobalOptimizationJob::decisionStep(Matter *matter_cur, Matter *matter_hop)
     decisionResult = "unknown";
     examineEscape(matter_cur, matter_hop);
     if(escapeResult == "failure") {
-        //matter_hop[0] = matter_cur[0];
+        // matter_hop[0] = matter_cur[0];
         return;
     }
     if (parameters->globalOptimizationDecisionMethod == "npew") {
         acceptRejectNPEW(matter_cur, matter_hop);
-        //GlobalOptimizationJob::update_minhop_param(matter_hop);
+        // GlobalOptimizationJob::update_minhop_param(matter_hop);
     } else if (parameters->globalOptimizationDecisionMethod == "boltzmann") {
         acceptRejectBoltzmann(matter_cur, matter_hop);
     } else {
@@ -217,12 +220,10 @@ void GlobalOptimizationJob::decisionStep(Matter *matter_cur, Matter *matter_hop)
 
 //NPEW: non-probablistic energy window (used in minima hopping method)
 void GlobalOptimizationJob::acceptRejectNPEW(Matter *matter_cur, Matter *matter_hop) {
-    if(matter_hop->getPotentialEnergy() < matter_cur->getPotentialEnergy() + ediff) {
+    if(matter_hop->getPotentialEnergy() < matter_cur->getPotentialEnergy() + ediff)
         decisionResult = "accepted";
-    }
-    else {
+    else
         decisionResult = "rejected";
-    }
 }
 
 void GlobalOptimizationJob::acceptRejectBoltzmann(Matter *matter_cur,
@@ -249,16 +250,15 @@ void GlobalOptimizationJob::acceptRejectBoltzmann(Matter *matter_cur,
 }
 
 void GlobalOptimizationJob::hoppingStep(long istep, Matter *matter_cur,
-                                        Matter *matter_hop) {
+                                                    Matter *matter_hop) {
     bool converged;
     matter_hop[0] = matter_cur[0];
     long fcalls1 = matter_hop->getForceCalls();
-    if(parameters->globalOptimizationMoveMethod == "md") {
+    if (parameters->globalOptimizationMoveMethod == "md") {
         applyMoveFeedbackMD();
         mdescape(matter_hop);
-    } else if(parameters->globalOptimizationMoveMethod == "random") {
+    } else if (parameters->globalOptimizationMoveMethod == "random")
         randomMove(matter_hop);
-    }
     long fcalls2 = matter_hop->getForceCalls();
     hoppingResult = "unknown";
     converged = matter_hop->relax(true, parameters->writeMovies, 
@@ -284,7 +284,7 @@ void GlobalOptimizationJob::randomMove(Matter *matter)
                 if (parameters->basinHoppingDisplacementDistribution == "uniform") {
                     displacement(i, j) = randomDouble(2 * disp) - disp;
                 } else if (parameters->basinHoppingDisplacementDistribution == "gaussian") {
-                    displacement(i,j) = gaussRandom(0.0, disp);
+                    displacement(i, j) = gaussRandom(0.0, disp);
                 } else {
                     log("Unknown displacement_distribution\n");
                     exit(1);
@@ -321,21 +321,24 @@ void GlobalOptimizationJob::mdescape(Matter *matter)
         ekinc = matter->getKineticEnergy();
         etot = ekinc + epot;
         en0000 = epot - epot0;
-        if(enmin1>enmin2 && enmin1>en0000) nummax += 1;
-        if(enmin1<enmin2 && enmin1<en0000) nummin += 1;
-        //printf("MD  %5d  %15.5f  %15.5f  %12.2E  %4lu  %4lu\n",imd,epot-epot0,ekinc,etot-etot0,nummax,nummin);
-        econs_max = max(econs_max, ekinc+epot);
-        econs_min = min(econs_min, ekinc+epot);
-        if(nummin >= (size_t) mdmin) {
-            if(nummax!=nummin) printf("WARNING: iproc,nummin,nummax %4lu %4lu",nummin,nummax);
+        if (enmin1 > enmin2 && enmin1 > en0000) nummax += 1;
+        if (enmin1 < enmin2 && enmin1 < en0000) nummin += 1;
+        // printf("MD  %5d  %15.5f  %15.5f  %12.2E  %4lu  %4lu\n",
+        // imd, epot - epot0, ekinc, etot - etot0, nummax, nummin);
+        econs_max = max(econs_max, ekinc + epot);
+        econs_min = min(econs_min, ekina + epot);
+        if (nummin >= (size_t) mdmin) {
+            if (nummax != nummin)
+                printf("WARNING: iproc,nummin,nummax %4lu %4lu",
+                        nummin, nummax);
             md_presumably_escaped = true;
             break;
         }
     } //end of loop over imd
     devcon = econs_max - econs_min;
-    if(md_presumably_escaped) {
-        devcon = devcon / (double)(matter->numberOfFreeAtoms() * 3);
-        if(devcon/ekin < 2.E-3) {
+    if (md_presumably_escaped) {
+        devcon = devcon / (double)(3*matter->numberOfFreeAtoms());
+        if (devcon/ekin < 2.E-3) {
             parameters->mdTimeStep *= 1.1;
         } else {
             parameters->mdTimeStep /= 1.1;
@@ -353,18 +356,19 @@ void GlobalOptimizationJob::velopt(Matter *matter)
     int iat;
     //matter->numberOfAtoms();
     vtot[0] = 0.0; vtot[1] = 0.0; vtot[2] = 0.0;
-    for(iat = 0; iat < matter->numberOfAtoms(); iat++) {
+    for (iat = 0; iat < matter->numberOfAtoms(); iat++) {
         tt1 = randomDouble();
         tt2 = randomDouble();
         tt3 = randomDouble();
         vat(iat, 0) = (tt1 - 0.5) * 2.0;
         vat(iat, 1) = (tt2 - 0.5) * 2.0;
         vat(iat, 2) = (tt3 - 0.5) * 2.0;
-        vtot[0] += vat(iat,0);
-        vtot[1] += vat(iat,1);
-        vtot[2] += vat(iat,2);
+        vtot[0] += vat(iat, 0);
+        vtot[1] += vat(iat, 1);
+        vtot[2] += vat(iat, 2);
     }
-    printf("Linear momentum  %15.5E  %15.5E  %15.5E  \n", vtot[0], vtot[1], vtot[2]);
+    printf("Linear momentum  %15.5E  %15.5E  %15.5E  \n",
+           vtot[0], vtot[1], vtot[2]);
     vtot[0] /= matter->numberOfAtoms();
     vtot[1] /= matter->numberOfAtoms();
     vtot[2] /= matter->numberOfAtoms();
@@ -374,23 +378,13 @@ void GlobalOptimizationJob::velopt(Matter *matter)
         vat(iat,2) -= vtot[2];
     }
     matter->setVelocities(vat);
-    long nFreeCoords = matter->numberOfFreeAtoms() * 3;
+    long nFreeCoords = 3*matter->numberOfFreeAtoms();
     double kinE = matter->getKineticEnergy();
     double kB = parameters->kB;
-    double kinT = (2.0 * kinE/nFreeCoords / kB);
-    double temperature = (2.0 * ekin/kB);
+    double kinT = (2.0 * kinE / nFreeCoords / kB);
+    double temperature = (2.0 * ekin / kB);
     matter->setVelocities(vat * sqrt(temperature / kinT));
 }
-
-/*
-void ::rescaleVelocity()
-{
-    AtomMatrix velocity = matter->getVelocities();
-    double kinE = matter->getKineticEnergy();
-    double kinT = (2.0*kinE/nFreeCoords/kb);
-    matter->setVelocities(velocity*sqrt(temperature/kinT));
-}
-*/
 
 void GlobalOptimizationJob::insert(Matter *matter)
 {
@@ -403,7 +397,7 @@ void GlobalOptimizationJob::insert(Matter *matter)
     printf("JLO= %5lu  %10.5f  \n", jlo, abs(epot - earr[jlo]));
     //it=earr.begin()+jlo;
     //epot_hop.push_back(epot);
-    if(!(abs(epot - earr[jlo]) < parameters->energyDifference)) {
+    if (!(abs(epot - earr[jlo]) < parameters->energyDifference)) {
         //earr.insert(it,epot_hop.begin(),epot_hop.end());
         jlo_insert = jlo;
         if (epot > earr[jlo]) jlo_insert++;

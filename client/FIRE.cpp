@@ -21,10 +21,7 @@ FIRE::FIRE(ObjectiveFunction *objfPassed, Parameters *parametersPassed)
     iteration = 0;
 }
 
-FIRE::~FIRE()
-{
-    return;
-}
+FIRE::~FIRE() { return; }
 
 int FIRE::step(double maxMove)
 {
@@ -79,7 +76,6 @@ int FIRE::step(double maxMove)
     }
 
     iteration++;
-    //    return objf->isConverged();
     if (objf->isConverged())
         return 1;
     return 0;
@@ -90,7 +86,6 @@ int FIRE::run(int maxSteps, double maxMove)
     while (!objf->isConverged() && iteration < maxSteps) {
         step(maxMove);
     }
-//    return objf->isConverged();
     if(objf->isConverged())
         return 1;
     return 0;

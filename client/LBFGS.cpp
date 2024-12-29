@@ -9,17 +9,12 @@ LBFGS::LBFGS(ObjectiveFunction *objfPassed, Parameters *parametersPassed)
 {
     objf = objfPassed;
     parameters = parametersPassed;
-
     iteration = 0;
-
     //Shouldn't have a memory longer than the number of degrees of freedom.
     memory = min(objf->degreesOfFreedom(), (int)parameters->optLBFGSMemory);
 }
 
-LBFGS::~LBFGS()
-{
-    return;
-}
+LBFGS::~LBFGS() { return; }
 
 VectorXd LBFGS::getStep(double maxMove, VectorXd f)
 {
@@ -28,10 +23,10 @@ VectorXd LBFGS::getStep(double maxMove, VectorXd f)
 
     if (iteration > 0) {
         VectorXd dr = objf->difference(r, rPrev);
-        //double C = dr.dot(fPrev-f)/dr.dot(dr);
-        double C = (fPrev - f).dot(fPrev - f)/dr.dot(fPrev - f);
+        //double C = dr.dot(fPrev-f) / dr.dot(dr);
+        double C = (fPrev - f).dot(fPrev - f) / dr.dot(fPrev - f);
         if (C < 0) {
-//            log_file("[LBFGS] Negative curvature: %.4f eV/A^2 take max move step\n",C);
+        // log_file("[LBFGS] Negative curvature: %.4f eV/A^2 take max move step\n",C);
             reset();
             return helper_functions::maxAtomMotionAppliedV(1000 * f, maxMove);
         }
@@ -136,9 +131,8 @@ int LBFGS::step(double maxMove)
     VectorXd r = objf->getPositions();
     VectorXd f = -objf->getGradient();
 
-    if (iteration > 0) {
+    if (iteration > 0)
         status = update(r, rPrev, f, fPrev);
-    }
     if(status < 0)
         return -1;
 
@@ -157,7 +151,6 @@ int LBFGS::step(double maxMove)
     return 0;
 }
 
-
 int LBFGS::run(int maxSteps, double maxMove)
 {
     int status;
@@ -169,6 +162,4 @@ int LBFGS::run(int maxSteps, double maxMove)
     if (objf->isConverged())
         return 1;
     return 0;
-
-//    return objf->isConverged();
 }

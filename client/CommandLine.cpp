@@ -22,7 +22,7 @@ void minimize(Parameters *parameters, Matter *matter, string confileout)
     matter->relax(false, false);
     if (confileout.length() > 0) {
         printf("saving relaxed structure to %s\n", confileout.c_str());
-    }else{
+    } else {
         printf("no output file specified, not saving\n");
     }
     matter->matter2con(confileout);

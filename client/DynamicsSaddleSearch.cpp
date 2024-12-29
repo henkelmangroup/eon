@@ -10,8 +10,7 @@
 #include "NudgedElasticBand.h"
 
 DynamicsSaddleSearch::DynamicsSaddleSearch(Matter *matterPassed, 
-                                           Parameters *parametersPassed)
-{
+                                           Parameters *parametersPassed) {
     reactant = new Matter(parameters);
     *reactant = *matterPassed;
     parameters = parametersPassed;
@@ -101,10 +100,10 @@ int DynamicsSaddleSearch::run(void)
         if (step % recordInterval == 0 && recordInterval != 0) {
             log("recording configuration at step %i time %.3f\n",
                 step, step*parameters->mdTimeStep * parameters->timeUnit);
-            Matter *tmp = new Matter(parameters);    
+            Matter *tmp = new Matter(parameters);
             *tmp = *saddle;
             MDSnapshots.push_back(tmp);
-            MDTimes.push_back(step*parameters->mdTimeStep);
+            MDTimes.push_back(step * parameters->mdTimeStep);
         }
 
         if (parameters->writeMovies == true) {
@@ -149,14 +148,15 @@ int DynamicsSaddleSearch::run(void)
                         } else if (image > mid) {
                             double frac =
                                 (double)(image - mid) / (double)(neb.images - mid + 1);
-                            neb.image[image]->setPositions(saddle->getPositions() + frac * saddleToProduct);
+                            neb.image[image]->setPositions(saddle->getPositions() +
+                                              frac * saddleToProduct);
                         } else if (image == mid) {
                             neb.image[image]->setPositions(saddle->getPositions());
                         }
                         neb.image[image]->matter2con("neb_initial_band.con", true);
                     }
                     neb.image[neb.images + 1]->matter2con("neb_initial_band.con", true);
-                }else{
+                } else {
                     log("Linear interpolation between minima used for initial band\n");
                     neb.image[0]->matter2con("neb_initial_band.con", false);
                     for(int j = 1; j <= neb.images + 1; j++){
@@ -200,11 +200,11 @@ int DynamicsSaddleSearch::run(void)
                             mode.normalize();
                             minModeMethod->compute(saddle, mode);
                             double eigenvalue = minModeMethod->getEigenvalue();
-                            log("extrema #%i has eigenvalue %.8f\n", j + 1, eigenvalue);
+                            log("extrema #%i has eigenvalue %.8f\n", j+1, eigenvalue);
 
                             if (eigenvalue < 0) {
                                 log("chose image %i (extrema #%i) as extremum image\n",
-                                    extremumImage, j + 1);
+                                    extremumImage, j+1);
                                 break;
                             } else {
                                 extremumImage = -1;
@@ -220,11 +220,11 @@ int DynamicsSaddleSearch::run(void)
                             neb.extremumPosition[j] - (double)extremumImage;
                         log("interpDistance %f\n", interpDistance);
                         AtomMatrix bandDirection =
-                            saddle->pbc(neb.image[extremumImage + 1]->getPositions() - 
+                            saddle->pbc(neb.image[extremumImage+1]->getPositions() - 
                                         neb.image[extremumImage]->getPositions());
                         saddle->setPositions(interpDistance * bandDirection +
                                              saddle->getPositions());
-                        mode = saddle->pbc(neb.image[extremumImage + 1]->getPositions() -
+                        mode = saddle->pbc(neb.image[extremumImage+1]->getPositions() -
                                            saddle->getPositions());
                         mode.normalize();
                     } else {
@@ -235,7 +235,7 @@ int DynamicsSaddleSearch::run(void)
                             if (U > maxEnergy) {
                                 maxEnergy = U;
                                 *saddle = *neb.image[image];
-                                mode = saddle->pbc(neb.image[image + 1]->getPositions() -
+                                mode = saddle->pbc(neb.image[image+1]->getPositions() -
                                                    saddle->getPositions());
                                 mode.normalize();
                             }
@@ -273,7 +273,7 @@ int DynamicsSaddleSearch::run(void)
                 MDSnapshots.clear();
                 MDTimes.clear();
                 log("Force calls total: %i\n", Potential::fcallsTotal);
-                return MinModeSaddleSearch::STATUS_GOOD; 
+                return MinModeSaddleSearch::STATUS_GOOD;
             } else {
                 log("Still in original state\n");
                 for (unsigned int i = 0; i < MDSnapshots.size(); i++) {

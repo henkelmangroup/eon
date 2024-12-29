@@ -18,8 +18,8 @@
 double helper_functions::random(long newSeed)
 {
     static long seed = -1;
-    if (newSeed){
-        seed = -newSeed; }
+    if (newSeed)
+        seed = -newSeed;
     int j;
     long k;
     static long seed2 = 123456789;
@@ -33,7 +33,7 @@ double helper_functions::random(long newSeed)
             seed = -seed;
         seed2 = seed;
         for (j = NTAB + 7; j >= 0; j--) {
-            k = seed /IQ1;
+            k = seed / IQ1;
             seed = IA1 * (seed - k * IQ1) - k * IR1;
             if (seed < 0) seed += IM1;
             if (j < NTAB) iv[j] = seed;}
@@ -60,7 +60,7 @@ double helper_functions::randomDouble(){
     return(random());
 }
 
-// Random value in interval
+// random value in interval
 double helper_functions::randomDouble(int max){
     double dmax = double(max);
     return(dmax * randomDouble());
@@ -94,7 +94,6 @@ double helper_functions::gaussRandom(double avg,double std){
 // Vector functions.
 // All functions 'returning' an array 
 // the first argument should be a pointer to the array 
-// where the result should be stored.
 double helper_functions::dot(const double *v1, const double *v2, long size) {
     double result = 0;
     for (int i = 0; i < size; i++)
@@ -273,7 +272,6 @@ bool helper_functions::rotationMatch(const Matter *m1, const Matter *m2,
     return true;
 }
 
-
 void helper_functions::rotationRemove(const AtomMatrix r1_passed, Matter *m2)
 {
     AtomMatrix r1 = r1_passed;
@@ -309,27 +307,23 @@ void helper_functions::rotationRemove(const AtomMatrix r1_passed, Matter *m2)
     r2 = r2 * R;
 
     // Move centroid back to initial position
-    for(int i = 0; i < r2.rows(); i++)
-    {
-        r2(i,0) += c2[0];
-        r2(i,1) += c2[1];
-        r2(i,2) += c2[2];
+    for(int i = 0; i < r2.rows(); i++) {
+        r2(i, 0) += c2[0];
+        r2(i, 1) += c2[1];
+        r2(i, 2) += c2[2];
     }
 
     m2->setPositions(r2);
     return;
 }
 
-
-void helper_functions::rotationRemove(const Matter *m1, Matter *m2)
-{
+void helper_functions::rotationRemove(const Matter *m1, Matter *m2) {
     AtomMatrix r1 = m1->getPositions();
     rotationRemove(r1, m2);
     return;
 }
 
-void helper_functions::translationRemove(Matter *m1, const AtomMatrix r2_passed)
-{
+void helper_functions::translationRemove(Matter *m1, const AtomMatrix r2_passed) {
     AtomMatrix r1 = m1->getPositions();
     AtomMatrix r2 = r2_passed;
 
@@ -342,17 +336,14 @@ void helper_functions::translationRemove(Matter *m1, const AtomMatrix r2_passed)
     disp[2] = r12.col(2).sum();
     disp /= r1.rows();
 
-    for(int i = 0; i < r1.rows(); i++)
-    {
+    for(int i = 0; i < r1.rows(); i++) {
         r1(i, 0) += disp[0];
         r1(i, 1) += disp[1];
-        r1(i, 2) += disp[2];
-    }
+        r1(i, 2) += disp[2]; }
 
     m1->setPositions(r1);
     return;
 }
-
 
 void helper_functions::translationRemove(Matter *m1, const Matter *m2)
 {
@@ -361,7 +352,6 @@ void helper_functions::translationRemove(Matter *m1, const Matter *m2)
     return;
 }
 
-
 double helper_functions::maxAtomMotion(const AtomMatrix v1) {
     double max = 0.0;
     for (int i = 0; i < v1.rows(); i++) {
@@ -369,7 +359,7 @@ double helper_functions::maxAtomMotion(const AtomMatrix v1) {
         if (max < norm) {
             max = norm;
         }
-    }    
+    }
     return max;
 }
 
@@ -397,12 +387,12 @@ long helper_functions::numAtomsMoved(const AtomMatrix v1, double cutoff) {
 
 AtomMatrix helper_functions::maxAtomMotionApplied(const AtomMatrix v1, double maxMotion)
 {
-    /*
+   /*
     Function ensures (by scaling) that there is no single element of the
     AtomMatrix which is larger than maxMotion.
     */
     AtomMatrix v2(v1);
-    
+
     double max = maxAtomMotion(v1);
     //double max = v1.norm();
     if (max > maxMotion) {
@@ -422,17 +412,14 @@ VectorXd helper_functions::maxAtomMotionAppliedV(const VectorXd v1,
     return v2;
 }
 
-
 AtomMatrix helper_functions::maxMotionApplied(const AtomMatrix v1,
                                               double maxMotion) {
-   /*
-    Function ensures (by scaling) that the norm of the AtomMatrix is not larger
-    than maxMotion.
-    */
+    // Function ensures (by scaling) that the norm of the AtomMatrix is not larger
+    // than maxMotion.
     AtomMatrix v2(v1);
-    
+
     double max = v1.norm();
-    if(max > maxMotion) {
+    if (max > maxMotion) {
         v2 *= maxMotion / max;
     }
     return v2;
@@ -441,7 +428,7 @@ AtomMatrix helper_functions::maxMotionApplied(const AtomMatrix v1,
 VectorXd helper_functions::maxMotionAppliedV(const VectorXd v1, double maxMotion)
 {
     VectorXd v2(v1);
-    
+
     double max = v1.norm();
     if (max > maxMotion) {
         v2 *= maxMotion / max;
@@ -451,40 +438,38 @@ VectorXd helper_functions::maxMotionAppliedV(const VectorXd v1, double maxMotion
 
 void helper_functions::getTime(double *real, double *user, double *sys)
 {
-    #ifdef WIN32
-        *real = (double)time(NULL);
-        if(user != NULL) {
-            *user = 0.0;
-        }
-        if(sys != NULL) {
-            *sys = 0.0;
-        }
-    #else
-        struct timeval time;
-        gettimeofday(&time, NULL);
-        *real = (double)time.tv_sec + (double)time.tv_usec / 1000000.0;
-        struct rusage r_usage;
-        if (getrusage(RUSAGE_SELF, &r_usage) != 0) {
-            fprintf(stderr, "problem getting usage info: %s\n", strerror(errno));
-        }
-        if(user != NULL) {
-            *user = (double)r_usage.ru_utime.tv_sec +
-                    (double)r_usage.ru_utime.tv_usec / 1000000.0;
-        }
-        if(sys != NULL) {
-            *sys = (double)r_usage.ru_stime.tv_sec +
-                   (double)r_usage.ru_stime.tv_usec / 1000000.0;
-        }
-    #endif
+#ifdef WIN32
+    *real = (double)time(NULL);
+    if(user != NULL)
+        *user = 0.0;
+    if(sys != NULL)
+        *sys = 0.0;
+#else
+    struct timeval time;
+    gettimeofday(&time, NULL);
+    *real = (double)time.tv_sec + (double)time.tv_usec / 1000000.0;
+    struct rusage r_usage;
+    if (getrusage(RUSAGE_SELF, &r_usage) != 0) {
+        fprintf(stderr, "problem getting usage info: %s\n", strerror(errno));
+    }
+    if(user != NULL) {
+        *user = (double)r_usage.ru_utime.tv_sec +
+                (double)r_usage.ru_utime.tv_usec / 1000000.0;
+    }
+    if(sys != NULL) {
+        *sys = (double)r_usage.ru_stime.tv_sec +
+               (double)r_usage.ru_stime.tv_usec / 1000000.0;
+    }
+#endif
 }
 
 bool helper_functions::existsFile(string filename)
 {
     FILE *fh;
     fh = fopen(filename.c_str(), "rb");
-    if (fh == NULL) {
+    if (fh == NULL)
         return 0;
-    }else fclose(fh);
+    else fclose(fh);
     return 1;
 }
 
@@ -543,7 +528,8 @@ AtomMatrix helper_functions::loadMode(FILE *modeFile, int nAtoms)
     mode.resize(nAtoms, 3);
     mode.setZero();
     for (int i = 0; i < nAtoms; i++) {
-        fscanf(modeFile, "%lf %lf %lf", &mode(i,0), &mode(i,1), &mode(i,2));
+        fscanf(modeFile, "%lf %lf %lf",
+            &mode(i, 0), &mode(i, 1), &mode(i, 2));
     }
     return mode;
 }
@@ -569,7 +555,8 @@ void helper_functions::saveMode(FILE *modeFile, Matter *matter, AtomMatrix mode)
         if (matter->getFixed(i)) {
             fprintf(modeFile, "0 0 0\n");
         } else {
-            fprintf(modeFile, "%lf\t%lf \t%lf\n", mode(i, 0), mode(i, 1), mode(i, 2));
+            fprintf(modeFile, "%lf\t%lf \t%lf\n",
+                mode(i, 0), mode(i, 1), mode(i, 2));
         }
     }
     return;
@@ -581,7 +568,7 @@ std::vector<int> helper_functions::split_string_int(std::string s, std::string d
     if (s.length() == 0) return list;
     char *pch;
     char *str;
-    str = (char*) malloc(sizeof(char)*(s.length() + 1));
+    str = (char*) malloc(sizeof(char)*(s.length()+1));
     s.copy(str, s.length(), 0);
     str[s.length()] = '\0';
     pch = strtok(str, delim.c_str());
@@ -605,18 +592,17 @@ std::vector<int> helper_functions::split_string_int(std::string s, std::string d
 namespace helper_functions
 {
 struct atom {
-  double r;
-  int z;
+    double r;
+    int z;
 };
 
 struct by_atom {
-  bool operator()(atom const &a, atom const &b) const {
-    if (a.z != b.z) {
-        return a.z < b.z;
-    }else{
-        return a.r < b.r;
+    bool operator()(atom const &a, atom const &b) const {
+        if (a.z != b.z)
+            return a.z < b.z;
+        else
+            return a.r < b.r;
     }
-  }
 }; 
 }
 
@@ -626,7 +612,7 @@ double roundUp(double x, double f) {
 
 bool helper_functions::identical(const Matter* m1, const Matter* m2,
                                  const double distanceDifference)
-{  
+{
     AtomMatrix r1 = m1->getPositions();
     AtomMatrix r2 = m2->getPositions();
 
@@ -663,11 +649,10 @@ bool helper_functions::identical(const Matter* m1, const Matter* m2,
         //XXX: can we abort early if no match was found?
     }
 
-    if (matched.size() == (unsigned)N) {
+    if (matched.size() == (unsigned)N)
         return true;
-    } else {
+    else
         return false;
-    }
 }
 
 bool helper_functions::sortedR(const Matter *m1, const Matter *m2,
@@ -722,10 +707,8 @@ bool helper_functions::sortedR(const Matter *m1, const Matter *m2,
             int c = 0;
             int counter = 0;
             for(; c < r1.rows(); c++) {
-                atom k1;
-                k1 = *it;
-                atom k2;
-                k2 = *it2;
+                atom k1 = *it;
+                atom k2 = *it2;
                 if (fabs(k1.r - k2.r) < tolerance && k1.z == k2.z) {
                     counter++;
                 } else {
@@ -746,11 +729,10 @@ bool helper_functions::sortedR(const Matter *m1, const Matter *m2,
     // GH clang workaround for non-POD allocation
     delete [] rdf1;
     delete [] rdf2;
-    if (matches < r1.rows()) {
+    if (matches < r1.rows())
         return false;
-    } else {
+    else
         return true;
-    }
 }
 
 void helper_functions::pushApart(Matter *m1, double minDistance)

@@ -21,7 +21,7 @@ Lanczos::~Lanczos() { }
 // equations in the paper given at the top of this file.
 void Lanczos::compute(Matter *matter, AtomMatrix direction)
 {
-    int size = 3 * matter->numberOfFreeAtoms();
+    int size = 3*matter->numberOfFreeAtoms();
     MatrixXd T(size,parameters->lanczosMaxIterations),
              Q(size,parameters->lanczosMaxIterations);
     T.setZero();
@@ -57,11 +57,10 @@ void Lanczos::compute(Matter *matter, AtomMatrix direction)
 
         u = -(force2 - force1) / dr;
 
-        if (i == 0) {
+        if (i == 0)
             r = u;
-        } else {
+         else
             r = u - beta * Q.col(i - 1);
-        }
         alpha = Q.col(i).dot(r);
         r = r - alpha*Q.col(i);
 
