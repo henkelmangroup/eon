@@ -115,12 +115,12 @@ int main(int argc, char **argv)
         int error;
         string config_file = "config.ini";
         if (client_standalone) {
-            if(helper_functions::existsFile("config_0.ini")) {
+            if (helper_functions::existsFile("config_0.ini")) {
                 config_file = "config_0.ini";
             }
             printf("Loading parameter file %s\n",config_file.c_str());
             error = parameters.load(config_file);
-        }else{
+        } else {
             printf("Loading parameter file %s\n",parameters.iniFilename.c_str());
             error = parameters.load(parameters.iniFilename);
         }
@@ -148,13 +148,13 @@ int main(int argc, char **argv)
         int server_rank = -1;
         int my_client_number = -1;
         std::vector<int> client_ranks;
-        for (i=0;i<isize;i++) {
+        for (i = 0; i < isize; i++) {
             switch (process_types[i]) {
                 case 0:
                     servers++;
                     break;
                 case 1:
-                    if (i==irank) {
+                    if (i == irank) {
                         my_client_number = clients;
                     }
                     clients++;
@@ -218,19 +218,10 @@ int main(int argc, char **argv)
             if (my_client_number == number_of_clients) {
                 std::ostringstream oss;
                 oss << client_ranks.at(0);
-                for (i=1;i<number_of_clients;i++) {
+                for (i = 1; i < number_of_clients; i++) {
                     oss << ":" << client_ranks.at(i);
                 }
                 setenv("EON_CLIENT_RANKS", oss.str().c_str(), 1);
-                /* GH
-                char **py_argv = (char **)malloc(sizeof(char **)*2);
-                py_argv[0] = argv[0];
-                py_argv[1] = getenv("EON_SERVER_PATH");
-                fprintf(stderr, "rank: %i becoming %s\n", irank, py_argv[1]);
-                Py_Initialize();
-                Py_Main(2, py_argv);
-                Py_Finalize();
-                */
                 wchar_t** py_argv = (wchar_t**)malloc(sizeof(wchar_t*)*2);
                 py_argv[0] = Py_DecodeLocale(argv[0], NULL);
                 char* program = getenv("EON_SERVER_PATH");
@@ -239,10 +230,9 @@ int main(int argc, char **argv)
                 Py_Initialize();
                 Py_Main(2, py_argv);
                 Py_FinalizeEx();
-                //GH
                 MPI::Finalize();
                 return 0;
-            }else if (my_client_number > number_of_clients) {
+            } else if (my_client_number > number_of_clients) {
                 MPI::Finalize();
                 return 0;
             }
@@ -277,7 +267,7 @@ int main(int argc, char **argv)
         while (true) {
             chdir(orig_path);
             char *path = new char[1024];
-            int ready=1;
+            int ready = 1;
             if (!client_standalone) {
                 fprintf(stderr,
                         "client: rank %i is ready, posting send to server rank: %i!\n",
@@ -314,11 +304,11 @@ int main(int argc, char **argv)
     }
     
     std::vector<std::string> bundledFilenames;
-    for (int i=0;i<bundleSize;i++) {
+    for (int i = 0; i < bundleSize; i++) {
         Potential::fcalls = 0;
         Potential::fcallsTotal = 0;
-        if(bundleSize>1)
-            printf("Beginning Job %d of %d\n", i+1, bundleSize);
+        if (bundleSize> 1 )
+            printf("Beginning Job %d of %d\n", i + 1, bundleSize);
         std::vector<std::string> unbundledFilenames;
         if (bundlingEnabled) {
             unbundledFilenames = unbundle(i);
@@ -356,7 +346,7 @@ int main(int argc, char **argv)
         if (bundlingEnabled) {
             bundle(i, filenames, &bundledFilenames);
             deleteUnbundledFiles(unbundledFilenames);
-        }else{
+        } else {
             bundledFilenames = filenames;
         }
 
@@ -381,12 +371,12 @@ int main(int argc, char **argv)
     rtime = rtime - beginTime;
 
     if (Potential::totalUserTime > 0) {
-        printf("\ntime not in potential: %.4f%%\n", 100*(1-Potential::totalUserTime/utime));
+        printf("\ntime not in potential: %.4f%%\n",
+            100 * (1 - Potential::totalUserTime / utime));
     }
 
     printf("timing information:\nreal %10.3f seconds\nuser %10.3f seconds\nsys  "
-           "%10.3f seconds\n",
-           rtime, utime, stime);
+           "%10.3f seconds\n", rtime, utime, stime);
 
     #ifdef OSX
         #ifndef __aarch64__
@@ -397,7 +387,7 @@ int main(int argc, char **argv)
     #ifdef EONMPI
         if (client_standalone) {
             MPI::COMM_WORLD.Abort(0);
-        }else{
+        } else {
             MPI::Finalize();
         }
     #endif

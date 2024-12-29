@@ -15,7 +15,7 @@ ConjugateGradients::ConjugateGradients(ObjectiveFunction *objf_in, Parameters *p
 
 VectorXd ConjugateGradients::getStep()
 {
-    double a=0, b=0, gamma=0;
+    double a = 0, b = 0, gamma = 0;
     a = fabs(force.dot(forceOld));
     b = forceOld.squaredNorm();
     if (a < 0.5 * b) {
@@ -32,7 +32,7 @@ VectorXd ConjugateGradients::getStep()
     
     // Only if value for max nr of iteration before reset
     if ((parameters->optCGMaxIterBeforeReset > 0) and
-        (parameters->optCGMaxIterBeforeReset <= cg_i ))
+        (parameters->optCGMaxIterBeforeReset <= cg_i))
         //or gamma == 0))
     {
         cg_i = 0;
@@ -52,12 +52,10 @@ int ConjugateGradients::step(double maxMove)
     if (parameters->optCGLineSearch)
     {
         converged = line_search(maxMove);
-    }
-    else
-    {
+    } else {
         converged = single_step(maxMove);
     }
-    if(converged) return 1;
+    if (converged) return 1;
     return 0;
 }
 
@@ -86,15 +84,13 @@ int ConjugateGradients::line_search(double maxMove)
     stepSize = parameters->finiteDifference;
     
     int line_i = 0;
-    do
-    {
+    do {
         // Determine curvature from last step (Secant method)
         curvature = fabs((projectedForceBeforeStep - projectedForce) / stepSize);
         stepSize = projectedForce / curvature;
         //stepSize = projectedForceBeforeStep / curvature;
         
-        if (maxMove < fabs(stepSize))
-        {
+        if (maxMove < fabs(stepSize)) {
             // first part get the sign of stepSize
             stepSize = ((stepSize > 0) - (stepSize < 0)) * maxMove;
         }
@@ -109,11 +105,15 @@ int ConjugateGradients::line_search(double maxMove)
         
         line_i += 1;
         
-    // Line search considered converged based in the ratio between the projected force and the norm of the true force 
-    } while (parameters->optCGLineConverged < fabs(projectedForce) / (sqrt(force.dot(force)+parameters->optCGLineConverged))
-             and (line_i < parameters->optCGLineSearchMaxIter));
+    // Line search considered converged based in the ratio between the projected
+    // force and the norm of the true force 
+    } while (parameters->optCGLineConverged <
+             fabs(projectedForce) / (sqrt(force.dot(force) +
+             parameters->optCGLineConverged)) and
+             (line_i < parameters->optCGLineSearchMaxIter));
 //    return objf->isConverged();
-    if(objf->isConverged()) return 1;
+    if (objf->isConverged())
+        return 1;
     return 0;
 }
 
@@ -136,7 +136,8 @@ int ConjugateGradients::single_step(double maxMove)
     // Determine curvature
     double projectedForce1 = force.dot(directionNorm);
     double projectedForce2 = forceAfterStep.dot(directionNorm);
-    double curvature = (projectedForce1 - projectedForce2) / parameters->finiteDifference;
+    double curvature =
+        (projectedForce1 - projectedForce2) / parameters->finiteDifference;
     
     double stepSize = maxMove;
     
@@ -153,10 +154,11 @@ int ConjugateGradients::single_step(double maxMove)
     {
         if(parameters->saddleBowlBreakout){
              // max displacement is based on system not single atom
-             pos += helper_functions::maxMotionAppliedV(stepSize * directionNorm, maxMove);
-        }
-        else{
-            pos += helper_functions::maxAtomMotionAppliedV(stepSize * directionNorm, maxMove);
+             pos += helper_functions::maxMotionAppliedV(
+                stepSize * directionNorm, maxMove);
+        } else{
+            pos += helper_functions::maxAtomMotionAppliedV(
+                stepSize * directionNorm, maxMove);
         }
         objf->setPositions(pos);
     }
@@ -165,25 +167,24 @@ int ConjugateGradients::single_step(double maxMove)
         // negative if product of the projected forces before and after the step are in opposite directions
         double passedMinimum = -1.;
         double forceChange = 0.;
-        while (passedMinimum < 0. and (0.1 * fabs(projectedForce1) < fabs(projectedForce2)))
-        {
-            posStep = pos + helper_functions::maxAtomMotionAppliedV(stepSize * directionNorm, maxMove);
+        while (passedMinimum < 0. and
+              (0.1 * fabs(projectedForce1) < fabs(projectedForce2))) {
+            posStep = pos + helper_functions::maxAtomMotionAppliedV(
+                stepSize * directionNorm, maxMove);
             objf->setPositions(posStep);
             forceAfterStep = -objf->getGradient(true);
             projectedForce2 = forceAfterStep.dot(directionNorm);
             
             passedMinimum = projectedForce1 * projectedForce2;
-            if (passedMinimum < 0. and (0.1 * fabs(projectedForce1) < fabs(projectedForce2)))
-            {
+            if (passedMinimum < 0. and
+                (0.1 * fabs(projectedForce1) < fabs(projectedForce2))) {
                 forceChange = (projectedForce1 - projectedForce2);
                 stepSize = (projectedForce1 / forceChange) * stepSize;
             }
         }
     }
-    if (parameters->optCGKnockOutMaxMove)
-    {
-        if (stepSize >= maxMove)
-        {
+    if (parameters->optCGKnockOutMaxMove) {
+        if (stepSize >= maxMove) {
             // knockout old search direction
             directionOld = objf->getPositions() * 0.0;
             forceOld = objf->getPositions() * 0.0;
@@ -191,7 +192,8 @@ int ConjugateGradients::single_step(double maxMove)
     }
     
 //    return objf->isConverged();
-    if(objf->isConverged()) return 1;
+    if(objf->isConverged())
+        return 1;
     return 0;
 }
 
@@ -199,19 +201,15 @@ int ConjugateGradients::single_step(double maxMove)
 int ConjugateGradients::run(int maxIterations, double maxMove)
 {
     int iterations = 0;
-    while(!objf->isConverged() && iterations <= maxIterations)
-    {
+    while (!objf->isConverged() && iterations <= maxIterations) {
         step(maxMove);
         iterations++;
     }
 //    return objf->isConverged();
-    if(objf->isConverged()) return 1;
+    if(objf->isConverged())
+        return 1;
     return 0;
 }
 
-
-ConjugateGradients::~ConjugateGradients()
-{
-    return;
-}
+ConjugateGradients::~ConjugateGradients() { return; }
 

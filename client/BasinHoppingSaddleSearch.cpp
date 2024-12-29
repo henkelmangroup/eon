@@ -8,8 +8,8 @@
 #include "NudgedElasticBand.h"
 #include <stdio.h>
 
-BasinHoppingSaddleSearch::BasinHoppingSaddleSearch(Matter *reactantPassed, Matter *displacementPassed,
-                                           Parameters *parametersPassed)
+BasinHoppingSaddleSearch::BasinHoppingSaddleSearch(Matter *reactantPassed,
+                Matter *displacementPassed, Parameters *parametersPassed)
 {
     reactant = new Matter(parameters);
     *reactant = *reactantPassed;
@@ -40,7 +40,7 @@ int BasinHoppingSaddleSearch::run(void)
     de = eproduct - ereactant;
     double kB = parameters->kB;
     double Temperature = parameters->temperature;
-    double arg = -de/(kB * Temperature);
+    double arg = -de / (kB * Temperature);
     double p = exp(arg);
     double r = helper_functions::random(); 
     if (ereactant < eproduct) {
@@ -69,9 +69,9 @@ int BasinHoppingSaddleSearch::run(void)
     }
     // do dimer
     // Calculate initial direction
-    AtomMatrix r_1 = neb.image[HighestImage-1]->getPositions();
+    AtomMatrix r_1 = neb.image[HighestImage - 1]->getPositions();
     AtomMatrix r_2 = neb.image[HighestImage]->getPositions();
-    AtomMatrix r_3 = neb.image[HighestImage+1]->getPositions();
+    AtomMatrix r_3 = neb.image[HighestImage + 1]->getPositions();
     AtomMatrix direction = (r_3 - r_1) / 2;
     MinModeSaddleSearch dim(neb.image[HighestImage], direction.normalized(),
                             ereactant, parameters);

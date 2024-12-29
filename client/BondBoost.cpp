@@ -42,36 +42,36 @@ void BondBoost::initialize() {
     BALstring = parameters->bondBoostBALS;
     atoms = helper_functions::split_string_int(BALstring,","); 
     leng_strlist = atoms.size();
-    if(BALstring.c_str() == string("all") or atoms.size() == 0) {
+    if (BALstring.c_str() == string("all") or atoms.size() == 0) {
         printf("boost all atoms that are set free\n");
         nBAs = matter->numberOfFreeAtoms();
         nRAs = nAtoms - nBAs;    // nRestAtoms
         BAList = new long[nBAs]; // BoostAtomsList
         RAList = new long[nRAs]; // RestAtomsList
-        for(i = 0; i < nAtoms; i++){
-            if(!matter->getFixed(i)){
+        for (i = 0; i < nAtoms; i++){
+            if (!matter->getFixed(i)){
                 BAList[k] = i;
                 k++;
             }
         }
-        for(i = 0 ; i < nAtoms; i++){
+        for (i = 0 ; i < nAtoms; i++){
             flag = 1;
             for (j = 0; j < nBAs; j++){
-                if(i == BAList[j]){
+                if (i == BAList[j]){
                     flag = 0;
                 }
             }
-            if(flag == 1){
+            if (flag == 1){
                 RAList[count] = i;
                 count ++;
             }
         }
-        if(count != nRAs){
+        if (count != nRAs){
             printf("Error: nRestAtoms does not equal to counted number!\n");
         }
-    }else{
+    } else {
         printf("boost the following selected atoms:");
-        for(i=0;i<leng_strlist;i++){
+        for (i = 0; i < leng_strlist; i++){
             printf("%d ",atoms[i]);
         }
         printf("\n");
@@ -79,7 +79,7 @@ void BondBoost::initialize() {
         nRAs = nAtoms - nBAs;    // nRestAtoms
         BAList = new long[nBAs]; // BoostAtomsList
         RAList = new long[nRAs]; // RestAtomsList
-        for (i = 0;i < nBAs; i++) {
+        for (i = 0; i < nBAs; i++) {
             BAList[k] = atoms[i];
             k++;
         }
@@ -133,7 +133,7 @@ double BondBoost::boost() {
         flag = 1;
     }
 
-    if(flag == 0) {
+    if (flag == 0) {
         TABL_tmp = Rmdsteps();
         TABLList = TABLList + (1.0 / RMDS) * TABL_tmp;
         nReg++;
@@ -167,7 +167,7 @@ double BondBoost::boost() {
 
 double BondBoost::Booststeps()
 {
-    long i,j; //,Mi;
+    long i, j; //,Mi;
     long AtomI_1, AtomI_2;
     double QRR, PRR, Epsr_MAX, A_EPS_M, Sum_V, Boost_Fact, DVMAX;
     double Dforce, Fact_1, Fact_2; //, Mforce
@@ -195,14 +195,14 @@ double BondBoost::Booststeps()
     Fact_1 = 0.0;
     Fact_2 = 0.0;
 
-    for(i=0; i<nBBs; i++){
-        AtomI_1 = BBAList[2*i];
-        AtomI_2 = BBAList[2*i+1];
-        CBBLList(i,0) = matter->distance(AtomI_1, AtomI_2);
+    for (i = 0; i < nBBs; i++){
+        AtomI_1 = BBAList[2 * i];
+        AtomI_2 = BBAList[2 * i + 1];
+        CBBLList(i, 0) = matter->distance(AtomI_1, AtomI_2);
     }
 
     for (i = 0; i < nBBs; i++){
-        Epsr_Q[i] = (CBBLList(i,0) - EBBLList(i,0)) / EBBLList(i,0) / QRR;
+        Epsr_Q[i] = (CBBLList(i, 0) - EBBLList(i, 0)) / EBBLList(i, 0) / QRR;
         if (abs(Epsr_Q[i]) >= Epsr_MAX ) {
             Epsr_MAX = abs(Epsr_Q[i]);
             // Mi = i;
@@ -244,7 +244,7 @@ double BondBoost::Booststeps()
             Fact_2 = 2.0 * Fact_tmp2 * Epsr_Q[i] *
                      (2.0 * Fact_tmp1 - PRR * PRR * Fact_tmp2) / QRR /
                      EBBLList(i, 0) / Fact_tmp1 / Fact_tmp1;
-            Dforce = Fact_1+Sum_V*Fact_2;
+            Dforce = Fact_1 + Sum_V * Fact_2;
         }
 
         AtomI_1 = BBAList[2 * i];
@@ -305,7 +305,7 @@ double BondBoost::Booststeps()
     //        matter->getPotentialEnergy());
     BiasForces = TADF;
     Free = matter->getFree();
-    BiasForces = BiasForces.cwise() * Free;
+    BiasForces = BiasForces.array() * Free.array();
     matter->setBiasForces(BiasForces);
     return Boost_Fact;
 }
@@ -353,7 +353,7 @@ long BondBoost::BondSelect()
     double Qcutoff = parameters->bondBoostQcut;
 
     for(i = 0; i < nTABs; i++){
-        if(TABLList(i,0) <= Qcutoff){
+        if(TABLList(i, 0) <= Qcutoff){
             count++;
         }
     }
@@ -362,7 +362,7 @@ long BondBoost::BondSelect()
     BBAList = new long[2 * nBBs_tmp];
     count = 0;
     for(i = 0;i < nTABs; i++) {
-        if(TABLList(i,0) <= Qcutoff){
+        if(TABLList(i, 0) <= Qcutoff){
             EBBLList(count, 0) = TABLList(i, 0);
             BBAList[2 * count] = TABAList[2 * i];
             BBAList[2 * count + 1] = TABAList[2 * i + 1];

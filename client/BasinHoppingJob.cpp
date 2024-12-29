@@ -100,13 +100,13 @@ std::vector<std::string> BasinHoppingJob::run(void)
     for (int step = 0; step < nsteps; step++) {
 
         //Swap or displace
-        if(randomDouble(1.0) < parameters->basinHoppingSwapProbability && 
-           step < parameters->basinHoppingSteps){
+        if (randomDouble(1.0) < parameters->basinHoppingSwapProbability && 
+           step < parameters->basinHoppingSteps) {
             *swapTrial = *current;
             randomSwap(swapTrial);
             swapMove = true;
             *minTrial = *swapTrial;
-        }else{
+        } else {
             AtomMatrix displacement;
             displacement = displaceRandom(curDisplacement);
 
@@ -131,10 +131,10 @@ std::vector<std::string> BasinHoppingJob::run(void)
             if (deltaE <= 0.0) {
                     p = 1.0;
             }
-        }else{
+        } else {
             if (deltaE <= 0.0) {
                 p = 1.0;
-            }else{
+            } else {
                 p = exp(-deltaE / (parameters->temperature * 8.6173324e-5));
             }
         }
@@ -195,7 +195,6 @@ std::vector<std::string> BasinHoppingJob::run(void)
                     fclose(fh);
                 }
             }
-
             consecutive_rejected_trials = 0; //STC: I think this should go here.
         }else{
             consecutive_rejected_trials++;
@@ -227,11 +226,11 @@ std::vector<std::string> BasinHoppingJob::run(void)
            step < parameters->basinHoppingSteps){
             consecutive_rejected_trials = 0;
             AtomMatrix jump;
-            for(int j = 0; j < parameters->basinHoppingJumpSteps; j++){
+            for (int j = 0; j < parameters->basinHoppingJumpSteps; j++) {
                 jump_count++;
                 jump = displaceRandom(curDisplacement);
                 current->setPositions(current->getPositions() + jump);
-                if(parameters->basinHoppingSignificantStructure){
+                if (parameters->basinHoppingSignificantStructure) {
                     pushApart(current, parameters->basinHoppingPushApartDistance);
                     current->relax(true);
                 }
@@ -278,8 +277,9 @@ std::vector<std::string> BasinHoppingJob::run(void)
     fprintf(fileResults, "%.6f minimum_energy\n", minimumEnergy);
     fprintf(fileResults, "%ld random_seed\n", parameters->randomSeed);
     fprintf(fileResults, "%.3f acceptance_ratio\n", totalAccept/parameters->basinHoppingSteps);
-    if(parameters->basinHoppingSwapProbability>0){
-        fprintf(fileResults, "%.3f swap_acceptance_ratio\n", swap_accept/double(swap_count));
+    if (parameters->basinHoppingSwapProbability > 0) {
+        fprintf(fileResults, "%.3f swap_acceptance_ratio\n",
+            swap_accept/double(swap_count));
     }
     fprintf(fileResults, "%ld total_normal_displacement_steps\n",
         disp_count - jump_count - parameters->basinHoppingQuenchingSteps);
@@ -313,8 +313,8 @@ AtomMatrix BasinHoppingJob::displaceRandom(double curDisplacement)
     VectorXd distvec = calculateDistanceFromCenter(current);
     int num = trial->numberOfAtoms();
     int m = 0;
-    if(parameters->basinHoppingSingleAtomDisplace) {
-      m = randomInt(0, trial->numberOfAtoms()-1);
+    if (parameters->basinHoppingSingleAtomDisplace) {
+      m = randomInt(0, trial->numberOfAtoms() - 1);
       num = m + 1;
     }
 
@@ -328,23 +328,23 @@ AtomMatrix BasinHoppingJob::displaceRandom(double curDisplacement)
             }
             // scale displacement linearly with the particle radius
             else if(parameters->basinHoppingDisplacementAlgorithm == "linear") {
-                double Cs = curDisplacement/distvec.maxCoeff();
+                double Cs = curDisplacement / distvec.maxCoeff();
                 disp = Cs * dist;
             }
             // scale displacement quadratically with the particle radius
             else if(parameters->basinHoppingDisplacementAlgorithm == "quadratic") {
-                double Cq = curDisplacement/(distvec.maxCoeff()*distvec.maxCoeff());
+                double Cq = curDisplacement / (distvec.maxCoeff() * distvec.maxCoeff());
                 disp = Cq * dist * dist;
-            }else{
+            } else {
                 log("Unknown displacement_algorithm\n");
                 std::exit(1);
             }
-            for(int j = 0; j < 3; j++) {
+            for (int j = 0; j < 3; j++) {
                 if(parameters->basinHoppingDisplacementDistribution == "uniform") {
-                    displacement(i, j) = randomDouble(2*disp) - disp;
+                    displacement(i, j) = randomDouble(2 * disp) - disp;
                 }
                 else if(parameters->basinHoppingDisplacementDistribution == "gaussian") {
-                    displacement(i,j) = gaussRandom(0.0, disp);
+                    displacement(i, j) = gaussRandom(0.0, disp);
                 }
                 else {
                     log("Unknown displacement_distribution\n");
@@ -365,11 +365,11 @@ void BasinHoppingJob::randomSwap(Matter *matter)
 
     long ela;
     long elb;
-    long ia = randomInt(0, Elements.size()-1);
+    long ia = randomInt(0, Elements.size() - 1);
     ela = Elements.at(ia);
     Elements.erase(Elements.begin()+ia);
 
-    long ib = randomInt(0, Elements.size()-1);
+    long ib = randomInt(0, Elements.size() - 1);
     elb = Elements.at(ib);
 
     int changera = 0;

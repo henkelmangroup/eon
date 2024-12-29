@@ -1,16 +1,11 @@
 #include "HessianJob.h"
-#include "Matter.h"
 #include "Hessian.h"
+#include "Matter.h"
 #include "Potential.h"
 
-HessianJob::HessianJob(Parameters *params)
-{
-    parameters = params;
-}
+HessianJob::HessianJob(Parameters *params) { parameters = params; }
 
-HessianJob::~HessianJob()
-{
-}
+HessianJob::~HessianJob() { }
 
 std::vector<std::string> HessianJob::run(void)
 {
@@ -29,10 +24,8 @@ std::vector<std::string> HessianJob::run(void)
     moved.setConstant(-1);
     
     int nMoved = 0;
-    for(int i=0; i<nAtoms; i++)
-    {
-        if(!matter->getFixed(i))
-        {
+    for (int i = 0; i < nAtoms; i++) {
+        if(!matter->getFixed(i)) {
             moved[nMoved] = i;
             nMoved++;
         }

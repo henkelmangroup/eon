@@ -15,84 +15,82 @@
 #include <map>
 #include <string.h>
 
-//static const char LOG_PREFIX[] = "[BGSD]";
+class BGSDObjectiveFunction : public ObjectiveFunction {
+public:
+    BGSDObjectiveFunction(Matter *matterPassed, double reactantEnergyPassed,
+                          double bgsdAlphaPassed, Parameters *parametersPassed)
+    {
+        matter = matterPassed;
+        parameters = parametersPassed;
+        bgsdAlpha = bgsdAlphaPassed;
+        reactantEnergy = reactantEnergyPassed;
+    }
 
-class BGSDObjectiveFunction : public ObjectiveFunction
-{
-    public:
-        BGSDObjectiveFunction(Matter *matterPassed, double reactantEnergyPassed,
-                              double bgsdAlphaPassed, Parameters *parametersPassed)
-        {
-            matter = matterPassed;
-            parameters = parametersPassed;
-            bgsdAlpha = bgsdAlphaPassed;
-            reactantEnergy = reactantEnergyPassed;
-        }
+    ~BGSDObjectiveFunction(void){};
 
-        ~BGSDObjectiveFunction(void){};
+    double getEnergy()
+    {
+        VectorXd Vforce = matter->getForcesFreeV();
+        double Henergy =
+            0.5 * Vforce.dot(Vforce) + 0.5 * bgsdAlpha *
+                (matter->getPotentialEnergy() -
+                (reactantEnergy + parameters->beta)) *
+                (matter->getPotentialEnergy() -
+                (reactantEnergy + parameters->beta));
+        return Henergy;
+    }
 
-        double getEnergy()
-        {
-            VectorXd Vforce = matter->getForcesFreeV();
-            double Henergy =
-                0.5 * Vforce.dot(Vforce) + 0.5 * bgsdAlpha *
-                    (matter->getPotentialEnergy() -
-                    (reactantEnergy + parameters->beta)) *
-                    (matter->getPotentialEnergy() -
-                    (reactantEnergy + parameters->beta));
-            return Henergy;
-        }
+    VectorXd getGradient(bool fdstep = false) {
+        VectorXd Vforce = matter->getForcesFreeV();
+        double magVforce = Vforce.norm();
+        VectorXd normVforce = Vforce / magVforce;
+        VectorXd Vpositions = matter->getPositionsFreeV();
+        matter -> setPositionsFreeV(matter->getPositionsFreeV() -
+                                    normVforce *
+                                    parameters->gradientfinitedifference);
+        VectorXd Vforcenew = matter->getForcesFreeV();
+        matter -> setPositionsFreeV(Vpositions);
+        VectorXd Hforce = magVforce * (Vforcenew - Vforce) /
+                            parameters->gradientfinitedifference +
+                            bgsdAlpha *
+                            (matter->getPotentialEnergy() -
+                            (reactantEnergy + parameters->beta)) *
+                            Vforce;
+        return -Hforce;
+    }
 
-        VectorXd getGradient(bool fdstep=false) {
-            VectorXd Vforce = matter->getForcesFreeV();
-            double magVforce = Vforce.norm();
-            VectorXd normVforce = Vforce / magVforce;
-            VectorXd Vpositions = matter->getPositionsFreeV();
-            matter -> setPositionsFreeV(matter->getPositionsFreeV() -
-                                        normVforce *
-                                        parameters->gradientfinitedifference);
-            VectorXd Vforcenew = matter->getForcesFreeV();
-            matter -> setPositionsFreeV(Vpositions);
-            VectorXd Hforce = magVforce * (Vforcenew - Vforce) /
-                                parameters->gradientfinitedifference +
-                                bgsdAlpha *
-                                (matter->getPotentialEnergy() -
-                                (reactantEnergy + parameters->beta)) *
-                                Vforce;
-            return -Hforce;
-        }
+    double getGradientnorm() {
+        VectorXd Hforce = getGradient();
+        double Hnorm = Hforce.norm();
+        return Hnorm;
+    }
 
-        double getGradientnorm() {
-            VectorXd Hforce = getGradient();
-            double Hnorm = Hforce.norm();
-            return Hnorm;
-        }
+    void setPositions(VectorXd x) { matter->setPositionsFreeV(x); }
+    VectorXd getPositions() { return matter->getPositionsFreeV(); }
+    int degreesOfFreedom() { return 3 * matter->numberOfFreeAtoms(); }
+    bool isConverged() { return isConvergedH() && isConvergedV(); }
+    bool isConvergedH() {
+        return getConvergenceH() < parameters->Hforceconvergence;
+    }
+    bool isConvergedV() {
+        return getConvergenceV() < parameters->grad2energyconvergence;
+    }
+    bool isConvergedIP() {
+        return getConvergenceH() < parameters->grad2forceconvergence;
+    }
 
-        void setPositions(VectorXd x) { matter->setPositionsFreeV(x); }
-        VectorXd getPositions() { return matter->getPositionsFreeV(); }
-        int degreesOfFreedom() { return 3 * matter->numberOfFreeAtoms(); }
-        bool isConverged() { return isConvergedH() && isConvergedV(); }
-        bool isConvergedH() {
-            return getConvergenceH() < parameters->Hforceconvergence;
-        }
-        bool isConvergedV() {
-            return getConvergenceV() < parameters->grad2energyconvergence;
-        }
-        bool isConvergedIP() {
-            return getConvergenceH() < parameters->grad2forceconvergence;
-        }
+    double getConvergence() { return getEnergy() && getGradient().norm(); }
+    double getConvergenceH() { return getGradient().norm(); }
+    double getConvergenceV() { return getEnergy(); }
+    VectorXd difference(VectorXd a, VectorXd b) {
+        return matter->pbcV(a-b);
+    }
 
-        double getConvergence() { return getEnergy() && getGradient().norm(); }
-        double getConvergenceH() { return getGradient().norm(); }
-        double getConvergenceV() { return getEnergy(); }
-        VectorXd difference(VectorXd a, VectorXd b) {
-            return matter->pbcV(a-b);
-        }
-    private:
-        Matter *matter;
-        Parameters *parameters;
-        double reactantEnergy;
-        double bgsdAlpha;  
+private:
+    Matter *matter;
+    Parameters *parameters;
+    double reactantEnergy;
+    double bgsdAlpha;  
 };
 
 BiasedGradientSquaredDescent::BiasedGradientSquaredDescent(
@@ -151,7 +149,7 @@ int BiasedGradientSquaredDescent::run() {
     for (int i = 0; i < saddle->numberOfAtoms(); i++){
         for (int j = 0; j < 3; j++) {
             if (saddle->getFixed(i)) {
-                eigenvector(i,j) = 0.0;
+                eigenvector(i, j) = 0.0;
             };
         }
     }
@@ -165,7 +163,7 @@ int BiasedGradientSquaredDescent::run() {
     } else if (objf2.isConvergedIP()) {
         return 1;
     } else {
-        return 1;
+        return 1;   // GH: is this correct; should there be some other return code?
     };
 }
 

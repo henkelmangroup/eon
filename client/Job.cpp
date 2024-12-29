@@ -1,23 +1,23 @@
-#include "Parameters.h"
 #include "Job.h"
-#include "ProcessSearchJob.h"
-#include "SaddleSearchJob.h"
-#include "MinimizationJob.h"
-#include "PointJob.h"
-#include "HessianJob.h"
-#include "ParallelReplicaJob.h"
-#include "SafeHyperJob.h"
-#include "TADJob.h"
-#include "ReplicaExchangeJob.h"
 #include "BasinHoppingJob.h"
-#include "FiniteDifferenceJob.h"
-#include "NudgedElasticBandJob.h"
 #include "DynamicsJob.h"
-#include "PrefactorJob.h"
-#include "TestJob.h"
+#include "FiniteDifferenceJob.h"
 #include "GlobalOptimizationJob.h"
-#include "StructureComparisonJob.h"
+#include "HessianJob.h"
+#include "MinimizationJob.h"
 #include "MonteCarloJob.h"
+#include "NudgedElasticBandJob.h"
+#include "ParallelReplicaJob.h"
+#include "Parameters.h"
+#include "PointJob.h"
+#include "PrefactorJob.h"
+#include "ProcessSearchJob.h"
+#include "ReplicaExchangeJob.h"
+#include "SaddleSearchJob.h"
+#include "SafeHyperJob.h"
+#include "StructureComparisonJob.h"
+#include "TADJob.h"
+#include "TestJob.h"
 
 const char Job::PROCESS_SEARCH[] =           "process_search";
 const char Job::SADDLE_SEARCH[] =            "saddle_search";
@@ -39,7 +39,7 @@ const char Job::MONTE_CARLO[] =              "monte_carlo";
 const char Job::TEST[] =                     "test";
 
 Job *Job::getJob(Parameters *parameters) {
-    Job *job=NULL;
+    Job *job = NULL;
     if (parameters->job == Job::PROCESS_SEARCH) {
         job = new ProcessSearchJob(parameters);
     }else if (parameters->job == Job::SADDLE_SEARCH) {
