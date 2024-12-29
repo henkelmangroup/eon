@@ -133,7 +133,7 @@ void Dimer::compute(Matter *matter, AtomMatrix initialDirection)
     statsTorque = torque;
     statsCurvature = curvature;
     direction.normalize();
-    statsAngle = acos((direction.cwise() * initialDirection).sum());
+    statsAngle = acos((direction.array() * initialDirection.array()).sum());
     statsAngle *= (180.0 / M_PI);
     statsRotations = rotations;
 

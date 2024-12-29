@@ -412,7 +412,7 @@ long SafeHyperJob::refine(Matter *buff[], long length, Matter *reactant) {
 
         if (midTest == false)
             min = mid;
-        else if (midTest == true){
+        else if (midTest == true)
             max = mid;
         else {
             log("Refine step failed! \n");

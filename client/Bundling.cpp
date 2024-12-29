@@ -58,7 +58,7 @@ int getBundleSize(void)
 int strchrcount(char *haystack, char needle)
 {
     int count=0;
-    for (char *ch = haystack; *ch! = '\0'; ch++) {
+    for (char *ch = haystack; *ch != '\0'; ch++) {
         if (*ch == needle) {
             count++;
         }

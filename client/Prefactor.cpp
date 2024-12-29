@@ -235,7 +235,7 @@ VectorXi Prefactor::movedAtomsPct(Parameters* parameters,
         int maxi = mini;
         for (int i = 0; i < nAtoms; i++) {
             if (diff[i] >= diff[maxi]) {
-                if (!(moved.cwise() == i).any()) {
+                if (!(moved.array() == i).any()) {
                     maxi = i;
                 }
             }

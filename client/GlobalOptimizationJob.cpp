@@ -196,7 +196,7 @@ void GlobalOptimizationJob::report(Matter *matter_hop) {
     double dt = parameters->mdTimeStep;
     fprintf(monfile,
         "%15.5f  %15.5f  %11lu  %12.2f         %c%c  %5ld  %5ld\n",
-        epot_hop, ediff, (int)temp, dt, C1, C2, fcallsMove, fcallsRelax);
+        epot_hop, ediff, (size_t)temp, dt, C1, C2, fcallsMove, fcallsRelax);
 }
 
 void GlobalOptimizationJob::decisionStep(Matter *matter_cur, Matter *matter_hop) {
@@ -326,7 +326,7 @@ void GlobalOptimizationJob::mdescape(Matter *matter)
         // printf("MD  %5d  %15.5f  %15.5f  %12.2E  %4lu  %4lu\n",
         // imd, epot - epot0, ekinc, etot - etot0, nummax, nummin);
         econs_max = max(econs_max, ekinc + epot);
-        econs_min = min(econs_min, ekina + epot);
+        econs_min = min(econs_min, ekinc + epot);
         if (nummin >= (size_t) mdmin) {
             if (nummax != nummin)
                 printf("WARNING: iproc,nummin,nummax %4lu %4lu",

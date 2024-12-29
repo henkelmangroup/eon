@@ -101,11 +101,11 @@ class MinModeObjectiveFunction : public ObjectiveFunction
                             sufficientForce = 0;
                             force = matter->getForces();
                             for (int i = 0; i < 3 * matter->numberOfAtoms(); i++) {
-                                if (fabs(force[i]) < minForce)
-                                    force[i] = 0;
+                                if (fabs(force(i)) < minForce)
+                                    force(i) = 0;
                                 else{
                                     sufficientForce = sufficientForce + 1;
-                                    force[i] = -parameters->saddleConfinePositiveBoost*proj[i];
+                                    force(i) = -parameters->saddleConfinePositiveBoost*proj(i);
                                 }
                             }
                             minForce *= parameters->saddleConfinePositiveScaleRatio;
