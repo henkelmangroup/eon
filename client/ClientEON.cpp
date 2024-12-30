@@ -38,6 +38,11 @@
     #include <unistd.h>
 #endif
 
+#ifdef OSX
+    #include<mach/mach.h>
+#endif
+
+/*
 #ifdef __APPLE__
     #ifndef __aarch64__
     #include <mach/mach.h>
@@ -61,7 +66,7 @@
     }
     #endif
 #endif
-
+*/
 void printSystemInfo()
 {
     printf("EON Client\n");
@@ -379,9 +384,19 @@ int main(int argc, char **argv)
            "%10.3f seconds\n", rtime, utime, stime);
 
     #ifdef OSX
-        #ifndef __aarch64__
-            print_memory_usage();
-        #endif
+        #include<mach/mach.h>
+        struct task_basic_info t_info;
+        mach_msg_type_number_t t_info_count = TASK_BASIC_INFO_COUNT;
+
+        if (KERN_SUCCESS != task_info(mach_task_self(),
+           TASK_BASIC_INFO, (task_info_t)&t_info, &t_info_count))
+        {
+            return -1;
+        }
+        unsigned int rss = t_info.resident_size;
+        unsigned int vs  = t_info.virtual_size;
+        printf("\nmemory usage:\nresident size (MB): %8.2f\nvirtual size (MB):  %8.2f\n",
+               (double)rss/1024/1024, (double)vs/1024/1024);
     #endif
 
     #ifdef EONMPI
