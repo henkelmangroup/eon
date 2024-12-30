@@ -62,7 +62,7 @@ Henkelman Group (UT Austin)
 Jónsson Group (University of Iceland)
 
 * Andreas Pederson
-* Rohit Raj
+* Rohit Goswami
 
 With contributions from a number of other developers:
 

@@ -120,7 +120,7 @@ A saddle search is initiated by making a local displacement of atoms from their 
 Options for Dynamics Method
 ---------------------------
 
-**dynamics_temperature**: The temperature, in Kelvin, for the molecular dynamics run. A good initial choice might be near melting temperature of the material.
+**dynamics_temperature**: The temperature, in Kelvin, for the molecular dynamics run. A good initial choice might be near the melting temperature of the material.
 
     default: ``[Main] temperature``
 
