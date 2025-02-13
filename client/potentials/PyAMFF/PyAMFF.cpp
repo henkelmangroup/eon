@@ -14,13 +14,15 @@
 
 extern "C" void calc_eon(long *nAtoms, const double [], const double [], const int [], double [], double *U, int *num_elements, int []);
 
-extern "C" void read_mlffParas(long *nAtoms, int *num_elements, int *max_fps, const int [], int []);
+//extern "C" void read_mlffParas(long *nAtoms, int *num_elements, int *max_fps, const int [], int []);
+extern "C" void read_mlffParas(long *nAtoms, int *num_elements, const int [], int []);
 
 extern "C" void cleanup();
 
 extern "C" void nncleanup();
 
-extern "C" void prepfNN( long *nAtoms, int *num_elements, int *max_fps, const int [], int []);
+//extern "C" void prepfNN( long *nAtoms, int *num_elements, int *max_fps, const int [], int []);
+extern "C" void prepfNN( long *nAtoms, int *num_elements, const int [], int []);
 
 PyAMFF::PyAMFF(void)
 {
@@ -63,8 +65,8 @@ void PyAMFF::force(long N, const double *R, const int *atomicNrs, double *F,
 //    }
 
             
-    int max_fps;
-    max_fps = 100;
+    //int max_fps;
+    //max_fps = 100;
     vector<int> unique_atomicNrs;
     for (int i=0; i<N; i++)
     {
@@ -85,9 +87,11 @@ void PyAMFF::force(long N, const double *R, const int *atomicNrs, double *F,
 
     if (new_pyamff == true){
         cout << "reading mlff in c" << endl;
-        read_mlffParas(&N, &num_elements, &max_fps, atomicNrs, unique);
+        //read_mlffParas(&N, &num_elements, &max_fps, atomicNrs, unique);
+        read_mlffParas(&N, &num_elements, atomicNrs, unique);
         cout << "prepping fnn in c" << endl;
-        prepfNN(&N, &num_elements, &max_fps, atomicNrs, unique);
+        //prepfNN(&N, &num_elements, &max_fps, atomicNrs, unique);
+        prepfNN(&N, &num_elements, atomicNrs, unique);
         cout << "fnn prepped!" << endl;
     }
     new_pyamff = false;
