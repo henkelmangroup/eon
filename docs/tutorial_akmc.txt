@@ -67,7 +67,7 @@ The data relevant to process 0 is in the process table. The figures below show t
 ..  image:: fig/akmc-2.png
     :align: center
 
-Subsequent runs of EON will show an increasing confidence as the event table (in the specified energy window) becomes complete::
+Subsequent runs of EON will show an increasing confidence as the event table (in the specified energy window) becomes complete. To speed up the process, you can change the "num_jobs" tag under the AKMC section of the ``config.ini`` file::
 
     currently in state 0 with confidence 0.313698
     ...
