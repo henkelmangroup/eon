@@ -1,3 +1,163 @@
+
+.. _installation:
+
+Introduction
+============
+
+The EON project is divided into two separate programs: a server and a client. The client does most of the computations, while the server creates the input files for the EON client.
+
+Dependencies
+============
+
+Check your system or cluster for the following required packages:
+
+Server Requirements
+-------------------
+
+- `Python <https://www.python.org/>`__ (:math:`\geq 3.5`)
+- `NumPy <https://numpy.org/>`__ (:math:`\geq 1.2.1`)
+- `ASE <https://wiki.fysik.dtu.dk/ase/install.html>`__
+- `PyYaml <https://pyyaml.org/>`__
+- `mpi4py <https://mpi4py.readthedocs.io/en/stable/>`__ (optional, for MPI communicator)
+
+Client Requirements
+-------------------
+
+- GNU Make
+- G++ (:math:`\geq 4.0`, recommended; other C++ compilers may work)
+- Gfortran or Intel Fortran Compiler (optional)
+- `LAMMPS <https://www.lammps.org/#gsc.tab=0>`__ (optional, for LAMMPS potentials)
+- `pybind11 <https://pybind11.readthedocs.io/en/stable/index.html>`__ (optional, for ASE interface)
+
+EON Server Installation
+=======================
+
+User Installation
+-----------------
+
+We recommend installing EON in your ``$HOME`` directory. The latest developer version can be downloaded using:
+
+.. code-block:: bash
+
+    cd $HOME
+    svn co https://theory.cm.utexas.edu/svn/eon
+
+Verify that your ``$HOME`` directory contains the ``/eon`` folder using the ``ls`` command. The ``/eon`` directory needs to be added to your ``$PYTHONPATH`` and ``$PATH``. Modify your ``~/.bashrc`` file:
+
+.. code-block:: bash
+
+    vim ~/.bashrc
+
+Append these lines:
+
+.. code-block:: bash
+
+    export PYTHONPATH=$HOME/eon:$PYTHONPATH
+    export PATH=$HOME/eon/bin:$PATH
+
+Save and reload:
+
+.. code-block:: bash
+
+    source ~/.bashrc
+
+Now, install EON using Python’s package manager:
+
+.. code-block:: bash
+
+    cd eon
+    pip install --user .  # Note: there's a period "." after --user
+
+Check installation:
+
+.. code-block:: bash
+
+    pip show eon
+    which eon
+
+Expected output:
+
+.. code-block:: text
+
+    Name: eon
+    Version: 1.0.0
+    Summary:
+    Home-page: http://henkelmanlab/eon/
+    Author: Henkelman Group
+    Location: $HOME/eon
+
+Your ``eon`` executable is located in ``$HOME/eon/bin``.
+
+Global Installation
+-------------------
+
+For a system-wide installation (requires root access):
+
+.. code-block:: bash
+
+    cd eon
+    sudo python setup.py install
+
+After installation, verify it with:
+
+.. code-block:: bash
+
+    pip show eon
+    which eon
+
+EONClient Installation
+======================
+
+The client source code is located in ``$HOME/eon/client``. Build it with:
+
+.. code-block:: bash
+
+    cd $HOME/eon/client
+    make
+
+For most installations, move the binary to ``$PATH``:
+
+.. code-block:: bash
+
+    cp eonclient ../bin/eonclient
+
+Alternatively, specify the client binary path in ``config.ini``.
+
+Fortran Support
+---------------
+
+If using Fortran-dependent potentials, a Fortran compiler is required. To compile without Fortran support:
+
+.. code-block:: bash
+
+    make NO_FORTRAN=1
+
+For Intel Fortran Compiler (ifort), modify ``Makefile``:
+
+- ``FC`` (Fortran compiler)
+- ``FFLAGS`` (Fortran compiler flags)
+- ``FAR`` (Fortran archiver)
+
+ASE Calculator
+==============
+
+To use ASE calculators in EON, additional dependencies and a modified ``Makefile`` are required. Refer to the `ASE Interface <https://theory.cm.utexas.edu/eon/ase_interface.html#ase-interface>`__ documentation.
+
+LAMMPS Potential
+================
+
+To use a LAMMPS potential, build the appropriate library version of LAMMPS. For details, see the `LAMMPS Potential <https://theory.cm.utexas.edu/eon/lammps_potential.html#lammps-potential>`__ page.
+
+MPI Communicator
+================
+
+For using MPI communicator for parallel jobs, see the `MPI Communicator <https://theory.cm.utexas.edu/eon/communicator.html#communicator-mpi>`__ documentation.
+
+Test Run
+========
+
+Test run instructions are available in the `Tutorial <https://theory.cm.utexas.edu/eon/tutorials.html>`__ page.
+
 .. _installation:
 
 ============
@@ -87,6 +247,9 @@ For most installations, the binary ``eonclient`` can be copied to a directory in
 Otherwise you will need to give the path to the client binary in your
 ``config.ini``. 
 
+.. rubric :: References
+
 .. [#ase1] `"Atomic Simulation Environment" <https://wiki.fysik.dtu.dk/ase/>`_
 .. [#lammps1] `"Large-scale Atomic/Molecular Massively Parallel Simulator, Sandia National Laboratories" <http://lammps.sandia.gov/>`_
+
 
