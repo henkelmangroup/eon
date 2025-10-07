@@ -18,9 +18,6 @@
 #include <tuple>
 #include <cstdlib>  // for exit()
 
-#include <iostream>
-#include <fenv.h>
-
 
 namespace py = pybind11;
 
