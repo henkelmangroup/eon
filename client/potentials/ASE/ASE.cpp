@@ -18,6 +18,9 @@
 #include <tuple>
 #include <cstdlib>  // for exit()
 
+#include <iostream>
+#include <fenv.h>
+
 
 namespace py = pybind11;
 
@@ -51,6 +54,7 @@ ASE::ASE(Parameters *p) : guard{} {
         py::object load_module = py::globals()["load_module_from_path"];
         py_module = load_module(module_name, py_file);
 
+        // Restore FPE if necessary
         if (FPE_WAS_ENABLED) {
             enableFPE();
         }
@@ -82,6 +86,12 @@ ASE::~ASE()
 void ASE::force(long N, const double *R, const int *atomicNrs,
                 double *F, double *U, const double *box) {
     try {
+        // must briefly disable FPE because certain ASE potentials will crash with strict FPE
+        bool FPE_WAS_ENABLED = isFPEEnabled();
+        if (FPE_WAS_ENABLED) {
+            disableFPE();
+        }
+        
         // convert arrays to Numpy arrays
         std::vector<size_t> R_shape = {static_cast<size_t>(N), 3};
         py::array_t<double> R_np(R_shape, R);
@@ -99,6 +109,11 @@ void ASE::force(long N, const double *R, const int *atomicNrs,
         auto buffer = forces.request();
         double* ptr = static_cast<double*>(buffer.ptr);
         std::copy(ptr, ptr + buffer.size, F);
+
+        // Restore FPE if necessary
+        if (FPE_WAS_ENABLED) {
+            enableFPE();
+        }
 
     } catch (py::error_already_set& e) {
         fprintf(stderr, "ASE calculator: Python error: %s\n", e.what());
