@@ -22,16 +22,17 @@
 namespace py = pybind11;
 
 ASE::ASE(Parameters *p) : guard{} {
+    // Disable strict FPE checking, since many ASE potentials seem to raise FPEs
+    FPE_WAS_ENABLED = isFPEEnabled();
+    if (FPE_WAS_ENABLED) {
+        disableFPE();
+    }
+
     parameters = p;
     std::string py_file = parameters->extPotPath;
     
     // import
     try {
-        // must briefly disable FPE because Python packages like Numpy causes it during import
-        bool FPE_WAS_ENABLED = isFPEEnabled();
-        if (FPE_WAS_ENABLED) {
-            disableFPE();
-        }
 
         // Create a Python script to use importlib.util to load the module
         py::exec(R"(
@@ -51,11 +52,6 @@ ASE::ASE(Parameters *p) : guard{} {
         py::object load_module = py::globals()["load_module_from_path"];
         py_module = load_module(module_name, py_file);
 
-        // Restore FPE if necessary
-        if (FPE_WAS_ENABLED) {
-            enableFPE();
-        }
-
         calculator = py_module.attr("ase_calc")();
         _calculate = py_module.attr("_calculate");
 
@@ -73,6 +69,9 @@ void ASE::cleanMemory(void){
 
 ASE::~ASE()
 {
+    if (FPE_WAS_ENABLED) {
+        enableFPE();
+    }
     cleanMemory();
 }
 
@@ -83,12 +82,6 @@ ASE::~ASE()
 void ASE::force(long N, const double *R, const int *atomicNrs,
                 double *F, double *U, const double *box) {
     try {
-        // must briefly disable FPE because certain ASE potentials will crash with strict FPE
-        bool FPE_WAS_ENABLED = isFPEEnabled();
-        if (FPE_WAS_ENABLED) {
-            disableFPE();
-        }
-        
         // convert arrays to Numpy arrays
         std::vector<size_t> R_shape = {static_cast<size_t>(N), 3};
         py::array_t<double> R_np(R_shape, R);
@@ -107,10 +100,6 @@ void ASE::force(long N, const double *R, const int *atomicNrs,
         double* ptr = static_cast<double*>(buffer.ptr);
         std::copy(ptr, ptr + buffer.size, F);
 
-        // Restore FPE if necessary
-        if (FPE_WAS_ENABLED) {
-            enableFPE();
-        }
 
     } catch (py::error_already_set& e) {
         fprintf(stderr, "ASE calculator: Python error: %s\n", e.what());
