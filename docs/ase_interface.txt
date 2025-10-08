@@ -38,7 +38,7 @@ by the system administrator using the appropriate package managers, like ``apt``
 ``yum``, ``dnf``, etc (the package name is ``python3-dev``, ``python3-devel``,
 or similar).
 
-If automatic detection is not possible, refer to [this section](#manually-adding-paths)
+If automatic detection is not possible, refer to :ref:`this section <manually-adding-paths>`
 for information on how to manually add the paths for compilation.
 
 
@@ -66,7 +66,7 @@ executable::
 Python version used to build EON client.*
 
 If ``python3-config`` is not available, replace ``$(python3-config --prefix)/lib`` with
-``/path/to/python/rootdir/lib`` from the ``[LDFLAGS](#ldflags)`` section.
+``/path/to/python/rootdir/lib`` from the :ref:`LDFLAGS <ldflags>` section.
 
 
 To use ASE calculators, ``config.ini`` should contain::
@@ -128,6 +128,7 @@ path to the external file**.
 Before using it, make sure that this script contains no errors on the Python side.
 
 
+.. _manually-adding-paths:
 
 Manually Adding Paths
 =====================
@@ -172,6 +173,9 @@ environment, this directory is at ``$CONDA_PREFIX/include/python3.xx``. If using
 it may be ``/usr/include/python3.xx`` or something similar, depending on the type of OS and the distro.
 
 **MAKE SURE TO CHANGE THE xx IN python3.xx TO THE PYTHON VERSION YOU'RE USING!**
+
+
+.. _ldflags:
 
 ``LDFLAGS``
 -----------
