@@ -17,7 +17,8 @@ Potential
         ``lammps``: The LAMMPS potentials. Detailed documentation can be found
          on the :ref:`LAMMPS Potential<lammps_potential>` page. [#lammps]_
 
-        ``ase``: Atomic Simulation Environment (ASE) interface. [#ase]_
+        ``ase``: Atomic Simulation Environment (ASE) interface. Detailed
+            can be found on the :ref:`ASE Interface<ase_interface>` page. [#ase]_
 
         ``eam_al``: Embedded atom method parameterized for aluminum.
 

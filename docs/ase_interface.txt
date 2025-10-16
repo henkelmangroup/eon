@@ -16,9 +16,11 @@ activate your environment before compilation).
 Compilation
 ============
 
-Build EON client with the ASE interface enabled::
+Go into ``eon/client`` (where ``Rules.mk`` should exist), and build EON client with the ASE interface enabled::
 
-    $ make ASE_POT=1
+    $ make ASE_POT=1  # can optionally add -jN for parallel compilation with N threads
+
+In some weird cases, this command needs to be run twice to complete the compilation.
 
 If the compilation is successful, you should see a line containing ``+ASE`` at the very bottom
 of the terminal.
@@ -73,12 +75,23 @@ To use ASE calculators, ``config.ini`` should contain::
 
     [Potential]
     potential = ase
-    ext_pot_path = /full/path/to/the/ase_script.py
+    ext_pot_path = /path/to/the/ase_script.py
 
 The last line (``ext_pot_path``) is required, and it may be the relative or the absolute
 path to the Python script containing the desired ASE calculator (see next section).
-When running EON (e.g. AKMC jobs), which calls ``eonclient`` in the back, **it is highly
-recommended to write the full absolute path to the script**.
+
+When running EON (e.g. AKMC jobs), which calls ``eonclient`` in the back, you can either
+1) provide the full absolute path to the Python script, or
+2) create a directory called ``potfiles/``, place the script inside that directory, and simply
+write ``ext_pot_path = ase_script.py``. For example, your EON job directory might look like:
+
+    [user@cluster eon_ase_test]$ ls
+    config.ini  pos.con  potfiles/
+    [user@cluster eon_ase_test]$ ls potfiles/
+    ase_script.py
+    [usre@cluster eon_ase_test]$ grep "ext_pot_path" config.ini  # print the ext_pot_path line in config.ini
+    ext_pot_path = ase_script.py
+
 
 Python script contents
 ======================
