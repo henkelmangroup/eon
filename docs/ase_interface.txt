@@ -83,7 +83,7 @@ path to the Python script containing the desired ASE calculator (see next sectio
 When running EON (e.g. AKMC jobs), which calls ``eonclient`` in the back, you can either
 1) provide the full absolute path to the Python script, or
 2) create a directory called ``potfiles/``, place the script inside that directory, and simply
-write ``ext_pot_path = ase_script.py``. For example, your EON job directory might look like:
+write ``ext_pot_path = ase_script.py``. For example, your EON job directory might look like::
 
     [user@cluster eon_ase_test]$ ls
     config.ini  pos.con  potfiles/
