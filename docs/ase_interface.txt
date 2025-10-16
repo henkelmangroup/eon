@@ -97,14 +97,30 @@ Python script contents
 ======================
 
 EON client imports this Python script to get the energy and forces.
-The script should look like this (e.g. using ASE's Lennard Jones calculator)::
+The script should look like this (e.g. using fairchem's UMA model)::
 
     from ase import Atoms
-    from ase.calculators.lj import LennardJones
+    from fairchem.core import pretrained_mlip, FAIRChemCalculator
+    import torch  # just for setting number of threads
+
 
     def ase_calc():
-        # MODIFY THIS SECTION
-        calc = LennardJones(epsilon=0.0103, sigma=3.40, rc=10.0, ro=0.0, smooth=True)
+        # MODIFY THIS FUNCTION TO RETURN DESIRED ASE CALCULATOR
+
+        torch.set_num_threads(32)  # limit to 0.5-1 socket for max efficiency
+        print(f"PyTorch will use {num_threads} threads for computations.", flush=True)
+
+        #predictor = pretrained_mlip.get_predict_unit("uma-m-1p1", device="cpu",)
+        #calc = FAIRChemCalculator(predictor, task_name="omat")
+
+        model_path = '/scratch/common/uma/uma-m-1p1.pt'
+        calc = FAIRChemCalculator.from_model_checkpoint(
+            model_path,
+            device="cpu",
+            task_name="omat",  # Or "omol", "oc20", etc., depending on the model
+            seed=None,  # to suppress the deprecation error
+        )   
+
         return calc
 
     #=======================================================================
