@@ -111,18 +111,17 @@ The script should look like this (e.g. using fairchem's UMA model)::
         torch.set_num_threads(32)  # limit to 0.5-1 socket for max efficiency (for CPU)
         print(f"PyTorch will use {num_threads} threads for computations.", flush=True)
 
-        # Downloads potential file from the internet if necessary, then creates calc
-        #predictor = pretrained_mlip.get_predict_unit("uma-m-1p1", device="cpu",)
-        #calc = FAIRChemCalculator(predictor, task_name="omat")
-
-        # If you already have the potential file downloaded to disk
-        model_path = '/scratch/common/uma/uma-m-1p1.pt'
-        calc = FAIRChemCalculator.from_model_checkpoint(
-            model_path,
-            device="cpu",  # use "cuda" for GPU
-            task_name="omat",  # Or "omol", "oc20", etc., depending on the model
-            seed=None,  # to suppress the deprecation error
-        )   
+        try:  # if potential file was downloaded to disk
+            model_path = '/scratch/common/uma/uma-m-1p1.pt'
+            calc = FAIRChemCalculator.from_model_checkpoint(
+                model_path,
+                device="cpu",  # use "cuda" for GPU
+                task_name="omat",  # Or "omol", "oc20", etc., depending on the model
+                seed=None,  # to suppress the deprecation error
+            )   
+        except ValueError:  # if model_path wasn't found
+            predictor = pretrained_mlip.get_predict_unit("uma-m-1p1", device="cpu",)
+            calc = FAIRChemCalculator(predictor, task_name="omat")
 
         return calc
 
