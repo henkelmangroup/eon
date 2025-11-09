@@ -224,6 +224,10 @@ Parameters::Parameters() {
     basinHoppingTargetRatio = 0.5;
     basinHoppingWriteUnique = false;
     basinHoppingStopEnergy = -DBL_MAX;
+    // Atom selection defaults
+    basinHoppingDisplaceAtomList = "";
+    basinHoppingDisplaceTypeList = "";
+    basinHoppingDisplaceAllListed = false;
 
     // [Global Optimization] //
     globalOptimizationMoveMethod = "md";
@@ -835,6 +839,15 @@ int Parameters::load(FILE *file){
         basinHoppingStopEnergy =
             ini.GetValueF("Basin Hopping", "stop_energy",
             basinHoppingStopEnergy);
+        basinHoppingDisplaceAtomList =
+            ini.GetValue("Basin Hopping", "displace_atom_list",
+            basinHoppingDisplaceAtomList);
+        basinHoppingDisplaceTypeList =
+            ini.GetValue("Basin Hopping", "displace_type_list",
+            basinHoppingDisplaceTypeList);
+        basinHoppingDisplaceAllListed =
+            ini.GetValueB("Basin Hopping", "displace_all_listed",
+            basinHoppingDisplaceAllListed);
 
         // [Global Optimization] //
 

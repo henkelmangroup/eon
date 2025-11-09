@@ -624,7 +624,7 @@ bool Matter::matter2con(FILE *file)
         fprintf(file, "Coordinates of Component %d\n", j + 1);
         for(i = first[j]; i < first[j+1]; i++) {
             fprintf(file,"%22.17f %22.17f %22.17f %d %4ld\n", getPosition(i, 0),
-                getPosition(i, 1), getPosition(i, 2), getFixed(i), i);
+                getPosition(i, 1), getPosition(i, 2), getFixed(i), i+1);  // Output 1-based index for display
         }
     }
     return true;
