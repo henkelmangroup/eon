@@ -134,9 +134,9 @@ std::vector<std::string> BasinHoppingJob::run(void)
             // Use atom selection if configured, otherwise use default
             if (!selectedAtoms.empty()) {
                 displacement = displaceRandomSelected(curDisplacement, selectedAtoms);
-                log("[Basin Hopping] DEBUG: Using atom selection for displacement, epicenters (1-based): ");
+                log("[Basin Hopping] DEBUG: Using atom selection for displacement, epicenters (0-based): ");
                 for (size_t i = 0; i < selectedAtoms.size(); i++) {
-                    log("%d ", selectedAtoms[i] + 1);
+                    log("%d ", selectedAtoms[i]);
                 }
                 log("\n");
             } else {
@@ -155,7 +155,7 @@ std::vector<std::string> BasinHoppingJob::run(void)
                     int idx = selectedAtoms[i];
                     if (idx >= 0 && idx < trial->numberOfAtoms()) {
                         log("[Basin Hopping] DEBUG: Atom #%d (idx0=%d): [%.6f, %.6f, %.6f]\n",
-                            idx + 1, idx, trial->getPosition(idx, 0), trial->getPosition(idx, 1), trial->getPosition(idx, 2));
+                            idx, idx, trial->getPosition(idx, 0), trial->getPosition(idx, 1), trial->getPosition(idx, 2));
                     }
                 }
             }
@@ -179,7 +179,7 @@ std::vector<std::string> BasinHoppingJob::run(void)
                     int idx = selectedAtomsAfter[i];
                     if (idx >= 0 && idx < minTrial->numberOfAtoms()) {
                     log("[Basin Hopping] DEBUG: Atom #%d (idx0=%d): [%.6f, %.6f, %.6f]\n",
-                        idx + 1, idx, minTrial->getPosition(idx, 0), minTrial->getPosition(idx, 1), minTrial->getPosition(idx, 2));
+                        idx, idx, minTrial->getPosition(idx, 0), minTrial->getPosition(idx, 1), minTrial->getPosition(idx, 2));
                     }
                 }
             }
@@ -506,43 +506,43 @@ VectorXd BasinHoppingJob::calculateDistanceFromCenter(Matter *matter)
 // ============================================================================
 // ATOM INDEXING CONVENTION
 // ============================================================================
-// EON uses 0-based indexing internally (C/C++ array convention):
+// EON uses 0-based indexing throughout (C/C++ array convention):
 //   - Atom indices range from 0 to (nAtoms-1)
 //   - First atom: index 0, Last atom: index (nAtoms-1)
 //
-// pos.con file displays 1-based numbering (for human readability):
-//   - First atom displayed as "1", Last atom displayed as "nAtoms"
-//   - This numbering is ONLY for display in the file
-//   - When reading pos.con, the numbers in the last column are IGNORED
-//   - Atoms are read sequentially and assigned 0-based indices
+// pos.con file displays 0-based numbering:
+//   - First atom displayed as "0", Last atom displayed as "(nAtoms-1)"
+//   - This matches the internal indexing
 //
-// Configuration (config.ini) now uses 1-based indexing to match pos.con:
-//   - displace_atom_list=1,2,3    selects atoms at indices 0, 1, 2
-//   - displace_atom_list=1        selects first atom (displayed as "1" in pos.con)
-//   - displace_atom_list=321      selects 321st atom (displayed as "321" in pos.con)
+// Configuration (config.ini) uses 0-based indexing:
+//   - displace_atom_list=0,1,2    selects atoms at indices 0, 1, 2 (first three atoms)
+//   - displace_atom_list=0        selects first atom (displayed as "0" in pos.con)
+//   - displace_atom_list=320      selects 321st atom (displayed as "320" in pos.con)
 //
 // displace_type_list uses atomic numbers (element-based, not index-based):
-//   - displace_type_list=78       selects all Pt atoms (automatic 0-based indexing)
+//   - displace_type_list=78       selects all Pt atoms
 //   - displace_type_list=Pt       same as above (element symbol supported)
 //   - displace_type_list=8,78     selects all O and Pt atoms
 // ============================================================================
 
+/**
+ * Parse atom list string from config.ini.
+ * 
+ * INDEXING: Uses 0-based indexing (C/C++ convention):
+ *   - First atom: index 0
  *   - Last atom:  index (nAtoms - 1)
  * 
- * pos.con file displays 1-based numbering (for human readability):
- *   - First atom shown as: 1
- *   - Last atom shown as:  nAtoms
- *   - This numbering is ONLY for display, not used in calculations
+ * pos.con file displays 0-based numbering:
+ *   - First atom shown as: 0
+ *   - Last atom shown as:  (nAtoms - 1)
  * 
- * Configuration file (config.ini) uses 1-based indexing (aligned with pos.con):
- *   - displace_atom_list=1,2,3  means atoms at indices 0, 1, 2
- *   - displace_atom_list=1      refers to first atom (shown as "1" in pos.con)
- *   - displace_atom_list=321    refers to 321st atom (shown as "321" in pos.con)
+ * Configuration file (config.ini) uses 0-based indexing:
+ *   - displace_atom_list=0,1,2  means atoms at indices 0, 1, 2 (first three atoms)
+ *   - displace_atom_list=0      refers to first atom (shown as "0" in pos.con)
+ *   - displace_atom_list=320    refers to 321st atom (shown as "320" in pos.con)
  * 
  * Supports comma-separated indices and negative indices (-1 = last atom).
- * Example: "1,2,3" selects first 3 atoms, "10,20,-1" selects atoms at index 9, 19, and last.
- * Supports comma-separated indices and negative indices (-1 = last atom).
- * Example: "1,2,3" or "10,20,-1"
+ * Example: "0,1,2" selects first 3 atoms, "10,20,-1" selects atoms at index 10, 20, and last.
  * 
  * @param atomListStr Comma-separated string of atom indices
  * @param nAtoms Total number of atoms in the system
@@ -590,20 +590,17 @@ std::vector<int> BasinHoppingJob::parseAtomList(const std::string& atomListStr, 
         if (parsedIdx < 0) {
             // Negative indices remain relative to the end: -1 -> last atom (nAtoms-1)
             idx = nAtoms + parsedIdx;
-        } else if (parsedIdx > 0) {
-            // Positive indices are now 1-based (align with pos.con numbering)
-            idx = parsedIdx - 1;
         } else {
-            log("[Basin Hopping] WARNING: displace_atom_list contains 0 which is invalid in 1-based indexing, skipping\n");
-            continue;
+            // 0-based indexing: use index as-is
+            idx = parsedIdx;
         }
         
         // Validate index after conversion
         if (idx >= 0 && idx < nAtoms) {
             atomIndices.push_back(idx);
         } else {
-            log("[Basin Hopping] WARNING: displace_atom_list entry '%s' is out of range after conversion, skipping\n",
-                item.c_str());
+            log("[Basin Hopping] WARNING: displace_atom_list entry '%s' (index %d) is out of range [0, %d), skipping\n",
+                item.c_str(), idx, nAtoms);
         }
     }
     
@@ -850,7 +847,7 @@ AtomMatrix BasinHoppingJob::displaceRandomSelected(double maxDisplacement, const
             double dz = displacement(idx, 2);
             double magnitude = sqrt(dx*dx + dy*dy + dz*dz);
             log("[Basin Hopping] DEBUG: Atom #%d (idx0=%d): displacement=[%.6f, %.6f, %.6f], magnitude=%.6f Å\n",
-                idx + 1, idx, dx, dy, dz, magnitude);
+                idx, idx, dx, dy, dz, magnitude);
         }
     }
     
@@ -873,7 +870,7 @@ AtomMatrix BasinHoppingJob::displaceRandomSelected(double maxDisplacement, const
             double magnitude = sqrt(dx*dx + dy*dy + dz*dz);
             if (magnitude > 1e-10) {
                 log("[Basin Hopping] DEBUG: WARNING: Atom #%d (idx0=%d, not selected) has non-zero displacement: %.10f Å\n",
-                    i + 1, i, magnitude);
+                    i, i, magnitude);
                 nonZeroCount++;
             }
         }

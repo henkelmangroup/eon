@@ -98,8 +98,8 @@ Matter::Matter(Parameters *parameters, const long int nAtoms) {
 
 void Matter::initializeDataMembers(Parameters *params) {
     nAtoms = 0;
-    biasPotential = NULL;
-    cell.resize(3, 3);
+    biasPotential = NULL; 
+    cell.resize(3, 3); 
     cell.setZero();
     cellInverse.resize(3, 3);
     cellInverse.setZero();
@@ -624,7 +624,7 @@ bool Matter::matter2con(FILE *file)
         fprintf(file, "Coordinates of Component %d\n", j + 1);
         for(i = first[j]; i < first[j+1]; i++) {
             fprintf(file,"%22.17f %22.17f %22.17f %d %4ld\n", getPosition(i, 0),
-                getPosition(i, 1), getPosition(i, 2), getFixed(i), i+1);  // Output 1-based index for display
+                getPosition(i, 1), getPosition(i, 2), getFixed(i), i);  // Output 0-based index
         }
     }
     return true;
