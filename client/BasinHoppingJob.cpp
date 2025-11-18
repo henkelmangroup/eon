@@ -735,14 +735,12 @@ std::vector<int> BasinHoppingJob::getAtomsByType(const std::string &typeListStr,
         return atomIndices;
     }
 
-    // Parse atomic numbers/symbols from comma-separated string
     std::vector<long> targetTypes;
     std::stringstream ss(typeListStr);
     std::string item;
 
     while (std::getline(ss, item, ','))
     {
-        // Trim whitespace (safe implementation: check npos before erase)
         size_t first = item.find_first_not_of(" \t");
         if (first != std::string::npos)
         {
@@ -750,7 +748,7 @@ std::vector<int> BasinHoppingJob::getAtomsByType(const std::string &typeListStr,
         }
         else
         {
-            item.clear(); // All whitespace, clear the string
+            item.clear(); 
         }
 
         size_t last = item.find_last_not_of(" \t");
@@ -758,12 +756,10 @@ std::vector<int> BasinHoppingJob::getAtomsByType(const std::string &typeListStr,
         {
             item.erase(last + 1);
         }
-        // If last == npos, string is empty or all whitespace, no need to erase
 
         if (item.empty())
             continue;
 
-        // Try to parse as number first
         try
         {
             long atomicNr = std::stol(item);
@@ -772,7 +768,6 @@ std::vector<int> BasinHoppingJob::getAtomsByType(const std::string &typeListStr,
         }
         catch (const std::invalid_argument &)
         {
-            // Not a number, try as element symbol - use Matter::symbol2atomicNumber()
             int atomicNr = Matter::symbol2atomicNumber(item.c_str());
             if (atomicNr >= 0)
             {
@@ -788,15 +783,14 @@ std::vector<int> BasinHoppingJob::getAtomsByType(const std::string &typeListStr,
         }
     }
 
-    // Find all atoms matching the types
     for (int i = 0; i < matter->numberOfAtoms(); i++)
-    { // Loop through all atoms using 0-based index
+    { 
         long atomicNr = matter->getAtomicNr(i);
         if (std::find(targetTypes.begin(), targetTypes.end(), atomicNr) != targetTypes.end())
         {
             if (!matter->getFixed(i))
-            {                             // Only include free atoms
-                atomIndices.push_back(i); // Store 0-based index
+            {                             
+                atomIndices.push_back(i); 
             }
         }
     }
