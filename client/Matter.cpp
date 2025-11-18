@@ -15,16 +15,15 @@ using namespace std;
 static const char LOG_PREFIX[] = "[Matter]";
 
 namespace {
-
-const char *elementArray[] = {
-    "Unknown", "H",  "He", "Li", "Be", "B",  "C",  "N",  "O",  "F",  "Ne", "Na",
-    "Mg",      "Al", "Si", "P",  "S",  "Cl", "Ar", "K",  "Ca", "Sc", "Ti", "V",
-    "Cr",      "Mn", "Fe", "Co", "Ni", "Cu", "Zn", "Ga", "Ge", "As", "Se", "Br",
-    "Kr",      "Rb", "Sr", "Y",  "Zr", "Nb", "Mo", "Tc", "Ru", "Rh", "Pd", "Ag",
-    "Cd",      "In", "Sn", "Sb", "Te", "I",  "Xe", "Cs", "Ba", "La", "Ce", "Pr",
-    "Nd",      "Pm", "Sm", "Eu", "Gd", "Tb", "Dy", "Ho", "Er", "Tm", "Yb", "Lu",
-    "Hf",      "Ta", "W",  "Re", "Os", "Ir", "Pt", "Au", "Hg", "Tl", "Pb", "Bi",
-    "Po",      "At", "Rn", "Fr", "Ra", "Ac", "Th", "Pa", "U",  NULL};
+    const char *elementArray[] = {
+        "Unknown", "H",  "He", "Li", "Be", "B",  "C",  "N",  "O",  "F",  "Ne", "Na",
+        "Mg",      "Al", "Si", "P",  "S",  "Cl", "Ar", "K",  "Ca", "Sc", "Ti", "V",
+        "Cr",      "Mn", "Fe", "Co", "Ni", "Cu", "Zn", "Ga", "Ge", "As", "Se", "Br",
+        "Kr",      "Rb", "Sr", "Y",  "Zr", "Nb", "Mo", "Tc", "Ru", "Rh", "Pd", "Ag",
+        "Cd",      "In", "Sn", "Sb", "Te", "I",  "Xe", "Cs", "Ba", "La", "Ce", "Pr",
+        "Nd",      "Pm", "Sm", "Eu", "Gd", "Tb", "Dy", "Ho", "Er", "Tm", "Yb", "Lu",
+        "Hf",      "Ta", "W",  "Re", "Os", "Ir", "Pt", "Au", "Hg", "Tl", "Pb", "Bi",
+        "Po",      "At", "Rn", "Fr", "Ra", "Ac", "Th", "Pa", "U",  NULL};
 
     // guess the atom type from the atomic mass,
     std::string mass2atom(double atomicmass) {
@@ -33,23 +32,26 @@ const char *elementArray[] = {
 
     const int MAXC = 100; // maximum number of components for functions
                           // matter2con and con2matter
-
-    int symbol2atomicNumber(char const *symbol)
-    {
-        int i = 0;
-
-        while (elementArray[i] != NULL) {
-            if (strcmp(symbol, elementArray[i]) == 0) {
-                return i;
-            }
-            i++;
-        }
-        // invalid symbol
-        return -1;
-    }
-
-    char const * atomicNumber2symbol(int n) { return elementArray[n]; }
 } // namespace
+
+// Element mapping utilities - now public static methods
+int Matter::symbol2atomicNumber(char const *symbol)
+{
+    int i = 0;
+    while (elementArray[i] != NULL) {
+        if (strcmp(symbol, elementArray[i]) == 0) {
+            return i;
+        }
+        i++;
+    }
+    // invalid symbol
+    return -1;
+}
+
+char const * Matter::atomicNumber2symbol(int n) 
+{ 
+    return elementArray[n]; 
+}
 
 class MatterObjectiveFunction : public ObjectiveFunction
 {
@@ -527,7 +529,7 @@ void Matter::matter2xyz(std::string filename,
 
     for (i = 0; i < numberOfAtoms(); i++) {
         fprintf(file,"%s\t%11.6f\t%11.6f\t%11.6f\n",
-                atomicNumber2symbol(getAtomicNr(i)), getPosition(i, 0),
+                Matter::atomicNumber2symbol(getAtomicNr(i)), getPosition(i, 0),
                 getPosition(i, 1), getPosition(i, 2));
     }
     fclose(file);
@@ -620,7 +622,7 @@ bool Matter::matter2con(FILE *file)
     }
     fprintf(file, "\n");
     for(j = 0; j < Ncomponent; j++) {
-        fprintf(file, "%s\n", atomicNumber2symbol(atomicNrs[j]));
+        fprintf(file, "%s\n", Matter::atomicNumber2symbol(atomicNrs[j]));
         fprintf(file, "Coordinates of Component %d\n", j + 1);
         for(i = first[j]; i < first[j+1]; i++) {
             fprintf(file,"%22.17f %22.17f %22.17f %d %4ld\n", getPosition(i, 0),
@@ -776,7 +778,7 @@ bool Matter::con2matter(FILE *file)
         char symbol[3];
         fgets(line, sizeof(line), file);
         sscanf(line, "%2s\n", symbol);
-        atomicNr = symbol2atomicNumber(symbol);
+        atomicNr = Matter::symbol2atomicNumber(symbol);
         fgets(line, sizeof(line), file); // skip one line
         for (i = first[j]; i < first[j+1]; i++){
             setMass(i, mass[j]);
@@ -976,7 +978,7 @@ bool Matter::matter2convel(FILE *file) {
     }
     fprintf(file, "\n");
     for (j = 0; j < Ncomponent; j++) {
-        fprintf(file, "%s\n", atomicNumber2symbol(atomicNrs[j]));
+        fprintf(file, "%s\n", Matter::atomicNumber2symbol(atomicNrs[j]));
         fprintf(file, "Coordinates of Component %d\n", j+1);
         for (i = first[j]; i < first[j+1]; i++) {
             fprintf(file,"%11.6f\t%11.6f\t%11.6f\t%d\t%ld\n", getPosition(i, 0),
@@ -985,7 +987,7 @@ bool Matter::matter2convel(FILE *file) {
     }
     fprintf(file, "\n");
     for (j = 0; j < Ncomponent; j++) {
-        fprintf(file, "%s\n", atomicNumber2symbol(atomicNrs[j]));
+        fprintf(file, "%s\n", Matter::atomicNumber2symbol(atomicNrs[j]));
         fprintf(file, "Velocities of Component %d\n", j+1);
         for (i = first[j]; i < first[j+1]; i++) {
             fprintf(file, "%11.6f\t%11.6f\t%11.6f\t%d\t%ld\n", velocities(i, 0),
@@ -1110,7 +1112,7 @@ bool Matter::convel2matter(FILE *file)
         char symbol[3];
         fgets(line, sizeof(line), file);
         sscanf(line, "%2s\n", symbol);
-        atomicNr = symbol2atomicNumber(symbol);
+        atomicNr = Matter::symbol2atomicNumber(symbol);
         fgets(line, sizeof(line), file); // skip one line
         for (i = first[j]; i < first[j + 1]; i++){
             setMass(i, mass[j]);
