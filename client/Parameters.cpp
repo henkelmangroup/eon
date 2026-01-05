@@ -534,7 +534,7 @@ int Parameters::load(FILE *file){
             ini.GetValueF("Hessian", "zero_freq_value",
             hessianZeroFreqValue);
 
-        // [Nudged Elastic Band] //
+        // [Nudged Elastic Band] // (must come after [Optimizers])
 
         nebImages =
             ini.GetValueL("Nudged Elastic Band", "images",
@@ -563,6 +563,9 @@ int Parameters::load(FILE *file){
         nebElasticBand =
             ini.GetValueB("Nudged Elastic Band", "elastic_band",
             nebElasticBand);
+        nebConvergedForce =
+	    ini.GetValueF("Nudged Elastic Band", "converged_force",
+            optConvergedForce);  // optConvergedForce was read in already
 
         // [Dynamics] //
 
