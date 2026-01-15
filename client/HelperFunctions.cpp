@@ -7,6 +7,8 @@
 #include <set>
 #include <string.h>
 #include <time.h>
+#include <algorithm>
+#include <sstream>
 
 #ifndef WIN32
     #include <sys/time.h>
@@ -776,4 +778,97 @@ void helper_functions::pushApart(Matter *m1, double minDistance)
         m1->setPositions(r1);
         //m1->matter2con("movie.con", true);
     }
+}
+
+std::vector<int> helper_functions::parseAtomList(const std::string &atomListStr, int nAtoms, bool verbose)
+{
+    std::vector<int> atomIndices;
+    if (atomListStr.empty()) return atomIndices;
+
+    std::stringstream ss(atomListStr);
+    std::string item;
+    while (std::getline(ss, item, ','))
+    {
+        // Trim whitespace
+        item.erase(0, item.find_first_not_of(" \t\n\r"));
+        item.erase(item.find_last_not_of(" \t\n\r") + 1);
+        if (item.empty()) continue;
+
+        try {
+            int idx = std::stoi(item);
+            // Handle negative indices (python/fortran style: -1 is last)
+            if (idx < 0) {
+                idx += nAtoms;
+            }
+            if (idx >= 0 && idx < nAtoms)
+            {
+                atomIndices.push_back(idx);
+            }
+            else
+            {
+                if (verbose)
+                    log("[Helper] WARNING: Atom list entry '%s' (index %d) is out of range [0, %d), skipping\n", item.c_str(), idx, nAtoms);
+            }
+        } catch (...) {
+            if (verbose)
+                log("[Helper] WARNING: Invalid atom list entry '%s', skipping\n", item.c_str());
+        }
+    }
+
+    // Sort and remove duplicates
+    std::sort(atomIndices.begin(), atomIndices.end());
+    atomIndices.erase(std::unique(atomIndices.begin(), atomIndices.end()), atomIndices.end());
+
+    return atomIndices;
+}
+
+std::vector<int> helper_functions::getAtomsByType(const std::string &typeListStr, Matter *matter, bool verbose)
+{
+    std::vector<int> atomIndices;
+    if (typeListStr.empty()) return atomIndices;
+
+    // Parse type list (can be atomic numbers like "78 79" or symbols "Pt Au" or comma separated)
+    std::vector<long> targetTypes;
+    
+    // Replace commas with spaces to handle both "Pt,Au" and "Pt Au"
+    std::string cleanStr = typeListStr;
+    std::replace(cleanStr.begin(), cleanStr.end(), ',', ' ');
+    
+    std::stringstream ss(cleanStr);
+    std::string item;
+    while (ss >> item)
+    {
+        // Try parsing as number
+        try {
+            long atomicNr = std::stol(item);
+            targetTypes.push_back(atomicNr);
+            continue;
+        } catch (...) {}
+
+        // Try parsing as symbol
+        try {
+            long atomicNr = Matter::symbol2atomicNumber(item.c_str());
+            if (atomicNr > 0) {
+                targetTypes.push_back(atomicNr);
+            } else {
+                if(verbose) log("[Helper] WARNING: Unknown atom type symbol '%s', skipping\n", item.c_str());
+            }
+        } catch (...) {
+             if(verbose) log("[Helper] WARNING: Could not parse type '%s', skipping\n", item.c_str());
+        }
+    }
+
+    if(targetTypes.empty()) return atomIndices;
+
+    // Scan all atoms
+    for (int i = 0; i < matter->numberOfAtoms(); i++)
+    {
+        long atomicNr = matter->getAtomicNr(i);
+        // Check if atomicNr is in targetTypes
+        if (std::find(targetTypes.begin(), targetTypes.end(), atomicNr) != targetTypes.end())
+        {
+            atomIndices.push_back(i);
+        }
+    }
+    return atomIndices;
 }

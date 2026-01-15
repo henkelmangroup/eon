@@ -13,12 +13,9 @@ class BasinHoppingJob : public Job {
 
     private:
         VectorXd calculateDistanceFromCenter(Matter *matter);
-        AtomMatrix displaceRandom(double maxDisplacement);
-        AtomMatrix displaceRandomSelected(double maxDisplacement, const std::vector<int>& selectedAtoms);
+        std::vector<int> resolveDisplacementTargets();
+        AtomMatrix computeDisplacement(double maxDisplacement, const std::vector<int>& targets);
         void randomSwap(Matter *matter);
-        std::vector<int> parseAtomList(const std::string& atomListStr, int nAtoms);
-        std::vector<int> getAtomsByType(const std::string& typeListStr, Matter *matter);
-        std::vector<int> selectAtomsForDisplacement();
         Parameters *parameters;
         Matter *current;
         Matter *trial; // initial configuration

@@ -228,6 +228,7 @@ Parameters::Parameters() {
     basinHoppingDisplaceAtomList = "";
     basinHoppingDisplaceTypeList = "";
     basinHoppingDisplaceAllListed = false;
+    basinHoppingDebug = false;
 
     // [Global Optimization] //
     globalOptimizationMoveMethod = "md";
@@ -851,6 +852,9 @@ int Parameters::load(FILE *file){
         basinHoppingDisplaceAllListed =
             ini.GetValueB("Basin Hopping", "displace_all_listed",
             basinHoppingDisplaceAllListed);
+        basinHoppingDebug =
+            ini.GetValueB("Basin Hopping", "debug",
+            basinHoppingDebug);
 
         // [Global Optimization] //
 

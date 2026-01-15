@@ -110,12 +110,17 @@ std::vector<std::string> BasinHoppingJob::run(void)
     double curDisplacement = parameters->basinHoppingDisplacement;
 
     // Initialize atom selection lists if needed
-    log("[Basin Hopping] DEBUG: Initializing atom selection\n");
-    std::vector<int> initialSelection = selectAtomsForDisplacement();
-    log("[Basin Hopping] DEBUG: Atom selection initialized: selectedAtoms.size()=%zu\n", initialSelection.size());
+    if (parameters->basinHoppingDebug) {
+        log("[Basin Hopping] DEBUG: Initializing atom selection\n");
+    }
+    std::vector<int> initialSelection = resolveDisplacementTargets();
+    if (parameters->basinHoppingDebug) {
+        log("[Basin Hopping] DEBUG: Atom selection initialized: selectedAtoms.size()=%zu\n", initialSelection.size());
+    }
+
     if (!initialSelection.empty())
     {
-        log("[Basin Hopping] DEBUG: Selected atoms: ");
+        log("[Basin Hopping] Selected atoms: ");
         for (size_t i = 0; i < initialSelection.size(); i++)
         {
             log("%d ", initialSelection[i]);
@@ -137,40 +142,22 @@ std::vector<std::string> BasinHoppingJob::run(void)
         }
         else
         {
-            AtomMatrix displacement;
-            std::vector<int> selectedAtoms = selectAtomsForDisplacement();
+            std::vector<int> targets = resolveDisplacementTargets();
+            if (parameters->basinHoppingDebug) log("[Basin Hopping] DEBUG: Step %d resolved displacement targets: %zu atoms\n", step + 1, targets.size());
 
-            log("[Basin Hopping] DEBUG: Step %d displacement: selectedAtoms.size()=%zu\n",
-                step + 1, selectedAtoms.size());
-
-            // Use atom selection if configured, otherwise use default
-            if (!selectedAtoms.empty())
-            {
-                displacement = displaceRandomSelected(curDisplacement, selectedAtoms);
-                log("[Basin Hopping] DEBUG: Using atom selection for displacement, epicenters (0-based): ");
-                for (size_t i = 0; i < selectedAtoms.size(); i++)
-                {
-                    log("%d ", selectedAtoms[i]);
-                }
-                log("\n");
-            }
-            else
-            {
-                displacement = displaceRandom(curDisplacement);
-                log("[Basin Hopping] DEBUG: Using default displacement (all atoms)\n");
-            }
+            AtomMatrix displacement = computeDisplacement(curDisplacement, targets);
 
             trial->setPositions(current->getPositions() + displacement);
             swapMove = false;
             pushApart(trial, parameters->basinHoppingPushApartDistance);
 
             // Debug: Log coordinates of selected atoms before relax
-            if (!selectedAtoms.empty())
+            if (!targets.empty() && parameters->basinHoppingDebug)
             {
-                log("[Basin Hopping] DEBUG: Coordinates of selected atoms BEFORE relax:\n");
-                for (size_t i = 0; i < selectedAtoms.size(); i++)
+                log("[Basin Hopping] DEBUG: Coordinates of target atoms BEFORE relax:\n");
+                for (size_t i = 0; i < targets.size(); i++)
                 {
-                    int idx = selectedAtoms[i];
+                    int idx = targets[i];
                     if (idx >= 0 && idx < trial->numberOfAtoms())
                     {
                         log("[Basin Hopping] DEBUG: Atom #%d (idx0=%d): [%.6f, %.6f, %.6f]\n",
@@ -192,13 +179,13 @@ std::vector<std::string> BasinHoppingJob::run(void)
         int minfcalls = Potential::fcalls;
 
         // Debug: Log coordinates of selected atoms after relax
-        std::vector<int> selectedAtomsAfter = selectAtomsForDisplacement();
-        if (!selectedAtomsAfter.empty())
+        std::vector<int> targetsAfter = resolveDisplacementTargets();
+        if (!targetsAfter.empty() && parameters->basinHoppingDebug)
         {
-            log("[Basin Hopping] DEBUG: Coordinates of selected atoms AFTER relax:\n");
-            for (size_t i = 0; i < selectedAtomsAfter.size(); i++)
+            log("[Basin Hopping] DEBUG: Coordinates of target atoms AFTER relax:\n");
+            for (size_t i = 0; i < targetsAfter.size(); i++)
             {
-                int idx = selectedAtomsAfter[i];
+                int idx = targetsAfter[i];
                 if (idx >= 0 && idx < minTrial->numberOfAtoms())
                 {
                     log("[Basin Hopping] DEBUG: Atom #%d (idx0=%d): [%.6f, %.6f, %.6f]\n",
@@ -339,7 +326,7 @@ std::vector<std::string> BasinHoppingJob::run(void)
             for (int j = 0; j < parameters->basinHoppingJumpSteps; j++)
             {
                 jump_count++;
-                jump = displaceRandom(curDisplacement);
+                jump = computeDisplacement(curDisplacement, resolveDisplacementTargets());
                 current->setPositions(current->getPositions() + jump);
                 if (parameters->basinHoppingSignificantStructure)
                 {
@@ -422,70 +409,7 @@ std::vector<std::string> BasinHoppingJob::run(void)
     return returnFiles;
 }
 
-AtomMatrix BasinHoppingJob::displaceRandom(double curDisplacement)
-{
-    disp_count++;
-    // Create a random displacement
-    AtomMatrix displacement;
-    displacement.resize(trial->numberOfAtoms(), 3);
-    displacement.setZero();
-    VectorXd distvec = calculateDistanceFromCenter(current);
-    int num = trial->numberOfAtoms();
-    int m = 0;
-    if (parameters->basinHoppingSingleAtomDisplace)
-    {
-        m = randomInt(0, trial->numberOfAtoms() - 1);
-        num = m + 1;
-    }
 
-    for (int i = m; i < num; i++)
-    {
-        double dist = distvec(i);
-        double disp = 0.0; // displacement size, possibly scaled
-
-        if (!trial->getFixed(i))
-        {
-            if (parameters->basinHoppingDisplacementAlgorithm == "standard")
-            {
-                disp = curDisplacement;
-            }
-            // scale displacement linearly with the particle radius
-            else if (parameters->basinHoppingDisplacementAlgorithm == "linear")
-            {
-                double Cs = curDisplacement / distvec.maxCoeff();
-                disp = Cs * dist;
-            }
-            // scale displacement quadratically with the particle radius
-            else if (parameters->basinHoppingDisplacementAlgorithm == "quadratic")
-            {
-                double Cq = curDisplacement / (distvec.maxCoeff() * distvec.maxCoeff());
-                disp = Cq * dist * dist;
-            }
-            else
-            {
-                log("Unknown displacement_algorithm\n");
-                std::exit(1);
-            }
-            for (int j = 0; j < 3; j++)
-            {
-                if (parameters->basinHoppingDisplacementDistribution == "uniform")
-                {
-                    displacement(i, j) = randomDouble(2 * disp) - disp;
-                }
-                else if (parameters->basinHoppingDisplacementDistribution == "gaussian")
-                {
-                    displacement(i, j) = gaussRandom(0.0, disp);
-                }
-                else
-                {
-                    log("Unknown displacement_distribution\n");
-                    std::exit(1);
-                }
-            }
-        }
-    }
-    return displacement;
-}
 
 void BasinHoppingJob::randomSwap(Matter *matter)
 {
@@ -575,294 +499,94 @@ VectorXd BasinHoppingJob::calculateDistanceFromCenter(Matter *matter)
 }
 
 /**
- * Parse atom list string into vector of atom indices.
- *
- * IMPORTANT: Atom indexing convention
- * -----------------------------------
- * EON uses 0-based indexing internally (C/C++ convention):
- *   - First atom: index 0
-
-// ============================================================================
-// ATOM INDEXING CONVENTION
-// ============================================================================
-// EON uses 0-based indexing throughout (C/C++ array convention):
-//   - Atom indices range from 0 to (nAtoms-1)
-//   - First atom: index 0, Last atom: index (nAtoms-1)
-//
-// pos.con file displays 0-based numbering:
-//   - First atom displayed as "0", Last atom displayed as "(nAtoms-1)"
-//   - This matches the internal indexing
-//
-// Configuration (config.ini) uses 0-based indexing:
-//   - displace_atom_list=0,1,2    selects atoms at indices 0, 1, 2 (first three atoms)
-//   - displace_atom_list=0        selects first atom (displayed as "0" in pos.con)
-//   - displace_atom_list=320      selects 321st atom (displayed as "320" in pos.con)
-//
-// displace_type_list uses atomic numbers (element-based, not index-based):
-//   - displace_type_list=78       selects all Pt atoms
-//   - displace_type_list=Pt       same as above (element symbol supported)
-//   - displace_type_list=8,78     selects all O and Pt atoms
-// ============================================================================
-
-/**
- * Parse atom list string from config.ini.
- *
- * INDEXING: Uses 0-based indexing (C/C++ convention):
- *   - First atom: index 0
- *   - Last atom:  index (nAtoms - 1)
- *
- * pos.con file displays 0-based numbering:
- *   - First atom shown as: 0
- *   - Last atom shown as:  (nAtoms - 1)
- *
- * Configuration file (config.ini) uses 0-based indexing:
- *   - displace_atom_list=0,1,2  means atoms at indices 0, 1, 2 (first three atoms)
- *   - displace_atom_list=0      refers to first atom (shown as "0" in pos.con)
- *   - displace_atom_list=320    refers to 321st atom (shown as "320" in pos.con)
- *
- * Supports comma-separated indices and negative indices (-1 = last atom).
- * Example: "0,1,2" selects first 3 atoms, "10,20,-1" selects atoms at index 10, 20, and last.
- *
- * @param atomListStr Comma-separated string of atom indices
- * @param nAtoms Total number of atoms in the system
- * @return Vector of valid atom indices (sorted, duplicates removed)
- */
-std::vector<int> BasinHoppingJob::parseAtomList(const std::string &atomListStr, int nAtoms)
-{
-    std::vector<int> atomIndices;
-    if (atomListStr.empty())
-    {
-        return atomIndices;
-    }
-
-    std::stringstream ss(atomListStr);
-    std::string item;
-
-    while (std::getline(ss, item, ','))
-    {
-        // Trim whitespace (safe implementation: check npos before erase)
-        size_t first = item.find_first_not_of(" \t");
-        if (first != std::string::npos)
-        {
-            item.erase(0, first);
-        }
-        else
-        {
-            item.clear(); // All whitespace, clear the string
-        }
-
-        size_t last = item.find_last_not_of(" \t");
-        if (last != std::string::npos)
-        {
-            item.erase(last + 1);
-        }
-        // If last == npos, string is empty or all whitespace, no need to erase
-
-        if (item.empty())
-            continue;
-
-        int parsedIdx;
-        try
-        {
-            size_t pos = 0;
-            parsedIdx = std::stoi(item, &pos);
-            if (pos != item.size())
-                throw std::invalid_argument("trailing");
-        }
-        catch (...)
-        {
-            log("[Basin Hopping] WARNING: invalid atom index '%s', skipping\n", item.c_str());
-            continue;
-        }
-
-        int idx = -1;
-
-        if (parsedIdx < 0)
-        {
-            // Negative indices remain relative to the end: -1 -> last atom (nAtoms-1)
-            idx = nAtoms + parsedIdx;
-        }
-        else
-        {
-            // 0-based indexing: use index as-is
-            idx = parsedIdx;
-        }
-
-        // Validate index after conversion
-        if (idx >= 0 && idx < nAtoms)
-        {
-            atomIndices.push_back(idx);
-        }
-        else
-        {
-            log("[Basin Hopping] WARNING: displace_atom_list entry '%s' (index %d) is out of range [0, %d), skipping\n",
-                item.c_str(), idx, nAtoms);
-        }
-    }
-
-    // Remove duplicates and sort
-    std::sort(atomIndices.begin(), atomIndices.end());
-    atomIndices.erase(std::unique(atomIndices.begin(), atomIndices.end()), atomIndices.end());
-
-    return atomIndices;
-}
-
-/**
- * Get atom indices matching specified atomic numbers or element symbols.
- *
- * IMPORTANT: Returns 0-based indices
- * -----------------------------------
- * This function returns atom indices using 0-based indexing (C/C++ convention).
- * The returned indices can be directly used to access arrays in Matter class.
- *
- * Parses comma-separated atomic numbers/symbols and finds all matching free atoms.
- * Example: "29,28" or "Cu,Ni" or "Pt,8,Au" (mixed format supported)
- *
- * Only includes FREE atoms (atoms with getFixed(i) == false).
- * Fixed atoms are automatically excluded from selection.
- * Parses comma-separated atomic numbers and finds all matching free atoms.
- * Example: "29,28" finds all Cu (29) and Ni (28) atoms.
- *
- * @param typeListStr Comma-separated string of atomic numbers
- * @param matter Matter object containing atomic structure
- * @return Vector of atom indices matching the types (only free atoms)
- */
-std::vector<int> BasinHoppingJob::getAtomsByType(const std::string &typeListStr, Matter *matter)
-{
-    std::vector<int> atomIndices;
-    if (typeListStr.empty())
-    {
-        return atomIndices;
-    }
-
-    std::vector<long> targetTypes;
-    std::stringstream ss(typeListStr);
-    std::string item;
-
-    while (std::getline(ss, item, ','))
-    {
-        size_t first = item.find_first_not_of(" \t");
-        if (first != std::string::npos)
-        {
-            item.erase(0, first);
-        }
-        else
-        {
-            item.clear(); 
-        }
-
-        size_t last = item.find_last_not_of(" \t");
-        if (last != std::string::npos)
-        {
-            item.erase(last + 1);
-        }
-
-        if (item.empty())
-            continue;
-
-        try
-        {
-            long atomicNr = std::stol(item);
-            targetTypes.push_back(atomicNr);
-            log("[Basin Hopping] DEBUG: Parsed atomic number: %ld\n", atomicNr);
-        }
-        catch (const std::invalid_argument &)
-        {
-            int atomicNr = Matter::symbol2atomicNumber(item.c_str());
-            if (atomicNr >= 0)
-            {
-                targetTypes.push_back(atomicNr);
-                log("[Basin Hopping] DEBUG: Parsed element symbol '%s' -> atomic number %d\n",
-                    item.c_str(), atomicNr);
-            }
-            else
-            {
-                log("[Basin Hopping] WARNING: Unknown element symbol or invalid number: '%s', skipping\n",
-                    item.c_str());
-            }
-        }
-    }
-
-    for (int i = 0; i < matter->numberOfAtoms(); i++)
-    { 
-        long atomicNr = matter->getAtomicNr(i);
-        if (std::find(targetTypes.begin(), targetTypes.end(), atomicNr) != targetTypes.end())
-        {
-            if (!matter->getFixed(i))
-            {                             
-                atomIndices.push_back(i); 
-            }
-        }
-    }
-
-    return atomIndices;
-}
-
-/**
  * Select atoms for displacement based on configuration parameters.
  * Priority: displace_atom_list > displace_type_list > all atoms (default).
  * Caches the atom lists on first call for efficiency.
  *
  * @return Vector of atom indices to use as displacement epicenters
  */
-std::vector<int> BasinHoppingJob::selectAtomsForDisplacement()
+std::vector<int> BasinHoppingJob::resolveDisplacementTargets()
 {
-    // Cache atom lists on first call
+    // Cache explicit atom lists on first call
     if (!atomListsCached)
     {
         int nAtoms = current->numberOfAtoms();
-        log("[Basin Hopping] DEBUG: Caching atom lists (nAtoms=%d)\n", nAtoms);
-
-        // Parse atom list if provided
-        if (!parameters->basinHoppingDisplaceAtomList.empty())
+        if (parameters->basinHoppingDebug)
         {
-            log("[Basin Hopping] DEBUG: Parsing displace_atom_list: '%s'\n",
-                parameters->basinHoppingDisplaceAtomList.c_str());
-            cachedAtomList = parseAtomList(parameters->basinHoppingDisplaceAtomList, nAtoms);
-            log("[Basin Hopping] DEBUG: Parsed %zu atoms from displace_atom_list\n", cachedAtomList.size());
+            log("[Basin Hopping] DEBUG: Caching atom lists (nAtoms=%d)\n", nAtoms);
         }
 
-        // Parse type list if provided
+        if (!parameters->basinHoppingDisplaceAtomList.empty())
+        {
+            if (parameters->basinHoppingDebug)
+                log("[Basin Hopping] DEBUG: Parsing displace_atom_list: '%s'\n",
+                    parameters->basinHoppingDisplaceAtomList.c_str());
+            cachedAtomList = helper_functions::parseAtomList(parameters->basinHoppingDisplaceAtomList, nAtoms, parameters->basinHoppingDebug);
+            if (parameters->basinHoppingDebug) log("[Basin Hopping] DEBUG: Parsed %zu atoms from displace_atom_list\n", cachedAtomList.size());
+        }
+
         if (!parameters->basinHoppingDisplaceTypeList.empty())
         {
-            log("[Basin Hopping] DEBUG: Parsing displace_type_list: '%s'\n",
-                parameters->basinHoppingDisplaceTypeList.c_str());
-            cachedTypeList = getAtomsByType(parameters->basinHoppingDisplaceTypeList, current);
-            log("[Basin Hopping] DEBUG: Found %zu atoms matching displace_type_list\n", cachedTypeList.size());
+            if (parameters->basinHoppingDebug)
+                log("[Basin Hopping] DEBUG: Parsing displace_type_list: '%s'\n",
+                    parameters->basinHoppingDisplaceTypeList.c_str());
+            cachedTypeList = helper_functions::getAtomsByType(parameters->basinHoppingDisplaceTypeList, current, parameters->basinHoppingDebug);
+            if (parameters->basinHoppingDebug) log("[Basin Hopping] DEBUG: Found %zu atoms matching displace_type_list\n", cachedTypeList.size());
         }
 
         atomListsCached = true;
     }
 
-    std::vector<int> selectedAtoms;
+    std::vector<int> targets;
 
-    // Priority: atom_list > type_list > all atoms
-    // When atom selection is specified, always use ALL selected atoms (not random selection)
-    // This ensures only the specified atoms participate in perturbation
+    // Step 1: Determine Candidate Pool
+    // ---------------------------------
     if (!cachedAtomList.empty())
     {
-        // Always use all listed atoms when displace_atom_list is specified
-        selectedAtoms = cachedAtomList;
-        log("[Basin Hopping] DEBUG: Using all %zu atoms from displace_atom_list: ", selectedAtoms.size());
-        for (size_t i = 0; i < selectedAtoms.size(); i++)
-        {
-            log("%d ", selectedAtoms[i]);
+        targets = cachedAtomList;
+        if (parameters->basinHoppingDebug) {
+            log("[Basin Hopping] DEBUG: Candidate pool: %zu atoms from displace_atom_list\n", targets.size());
         }
-        log("\n");
     }
     else if (!cachedTypeList.empty())
     {
-        // Always use all atoms of listed types when displace_type_list is specified
-        selectedAtoms = cachedTypeList;
-        log("[Basin Hopping] DEBUG: Using all %zu atoms from displace_type_list\n", selectedAtoms.size());
+        targets = cachedTypeList;
+        if (parameters->basinHoppingDebug) log("[Basin Hopping] DEBUG: Candidate pool: %zu atoms from displace_type_list\n", targets.size());
     }
     else
     {
-        log("[Basin Hopping] DEBUG: No atom selection specified, will use default (all atoms)\n");
+        // Default pool: All atoms
+        targets.reserve(current->numberOfAtoms());
+        for(int i=0; i<current->numberOfAtoms(); ++i) {
+            targets.push_back(i);
+        }
+        if (parameters->basinHoppingDebug) log("[Basin Hopping] DEBUG: Candidate pool: All %d atoms\n", (int)targets.size());
     }
-    // If no selection specified, return empty (will use default behavior)
 
-    return selectedAtoms;
+    // Step 2: Apply Single Atom Filter
+    // ---------------------------------
+    if (parameters->basinHoppingSingleAtomDisplace) 
+    {
+        if (!targets.empty())
+        {
+            int randIndex = randomInt(0, targets.size() - 1);
+            int selectedAtom = targets[randIndex];
+            
+            // Log old pool size before clearing
+            size_t poolSize = targets.size();
+            targets.clear();
+            targets.push_back(selectedAtom);
+            
+            if (parameters->basinHoppingDebug) 
+                log("[Basin Hopping] DEBUG: Filtered down to single random atom #%d (from pool of %zu)\n", selectedAtom, poolSize);
+        }
+        else
+        {
+            if (parameters->basinHoppingDebug) log("[Basin Hopping] DEBUG: WARNING: Candidate pool is empty, cannot select single atom.\n");
+        }
+    }
+
+    return targets;
 }
 
 /**
@@ -874,57 +598,47 @@ std::vector<int> BasinHoppingJob::selectAtomsForDisplacement()
  * @param selectedAtoms Vector of atom indices to displace
  * @return Displacement matrix (zero for atoms not selected or fixed)
  */
-AtomMatrix BasinHoppingJob::displaceRandomSelected(double maxDisplacement, const std::vector<int> &selectedAtoms)
+AtomMatrix BasinHoppingJob::computeDisplacement(double maxDisplacement, const std::vector<int> &targets)
 {
     disp_count++;
     AtomMatrix displacement;
     displacement.resize(trial->numberOfAtoms(), 3);
     displacement.setZero();
 
-    if (selectedAtoms.empty())
+    if (targets.empty())
     {
-        // Fall back to default behavior
-        return displaceRandom(maxDisplacement);
+        if (parameters->basinHoppingDebug) log("[Basin Hopping] DEBUG: No targets for displacement, returning zero matrix\n");
+        return displacement;
     }
 
     VectorXd distvec = calculateDistanceFromCenter(current);
-
-    // Mark only the selected atoms (no neighbors)
-    std::vector<bool> atomsToDisplace(trial->numberOfAtoms(), false);
-
-    for (size_t i = 0; i < selectedAtoms.size(); i++)
-    {
-        int atomIdx = selectedAtoms[i];
-        if (atomIdx >= 0 && atomIdx < trial->numberOfAtoms())
-        {
-            atomsToDisplace[atomIdx] = true;
-        }
-    }
+    double maxDist = distvec.maxCoeff(); // Calculate once based on current structure
 
     // Apply displacement to selected atoms only
-    for (int i = 0; i < trial->numberOfAtoms(); i++)
+    for (size_t i = 0; i < targets.size(); i++)
     {
-        if (!atomsToDisplace[i] || trial->getFixed(i))
+        int idx = targets[i];
+        if (idx < 0 || idx >= trial->numberOfAtoms() || trial->getFixed(idx))
         {
             continue;
         }
 
-        double dist = distvec(i);
+        double dist = distvec(idx);
         double disp = 0.0;
 
-        // Calculate displacement magnitude (same as displaceRandom)
+        // Calculate displacement magnitude
         if (parameters->basinHoppingDisplacementAlgorithm == "standard")
         {
             disp = maxDisplacement;
         }
         else if (parameters->basinHoppingDisplacementAlgorithm == "linear")
         {
-            double Cs = maxDisplacement / distvec.maxCoeff();
+            double Cs = maxDisplacement / maxDist;
             disp = Cs * dist;
         }
         else if (parameters->basinHoppingDisplacementAlgorithm == "quadratic")
         {
-            double Cq = maxDisplacement / (distvec.maxCoeff() * distvec.maxCoeff());
+            double Cq = maxDisplacement / (maxDist * maxDist);
             disp = Cq * dist * dist;
         }
         else
@@ -938,11 +652,11 @@ AtomMatrix BasinHoppingJob::displaceRandomSelected(double maxDisplacement, const
         {
             if (parameters->basinHoppingDisplacementDistribution == "uniform")
             {
-                displacement(i, j) = randomDouble(2 * disp) - disp;
+                displacement(idx, j) = randomDouble(2 * disp) - disp;
             }
             else if (parameters->basinHoppingDisplacementDistribution == "gaussian")
             {
-                displacement(i, j) = gaussRandom(0.0, disp);
+                displacement(idx, j) = gaussRandom(0.0, disp);
             }
             else
             {
@@ -953,57 +667,44 @@ AtomMatrix BasinHoppingJob::displaceRandomSelected(double maxDisplacement, const
     }
 
     // Debug: Log displacement vectors for verification
-    log("[Basin Hopping] DEBUG: Displacement vectors applied:\n");
-    for (size_t i = 0; i < selectedAtoms.size(); i++)
-    {
-        int idx = selectedAtoms[i];
-        if (idx >= 0 && idx < trial->numberOfAtoms())
+    if (parameters->basinHoppingDebug) {
+        log("[Basin Hopping] DEBUG: Displacement vectors applied:\n");
+        for (size_t i = 0; i < targets.size(); i++)
         {
-            double dx = displacement(idx, 0);
-            double dy = displacement(idx, 1);
-            double dz = displacement(idx, 2);
-            double magnitude = sqrt(dx * dx + dy * dy + dz * dz);
-            log("[Basin Hopping] DEBUG: Atom #%d (idx0=%d): displacement=[%.6f, %.6f, %.6f], magnitude=%.6f Å\n",
-                idx, idx, dx, dy, dz, magnitude);
-        }
-    }
-
-    // Verify: Check that non-selected atoms have zero displacement
-    int nonZeroCount = 0;
-    for (int i = 0; i < trial->numberOfAtoms(); i++)
-    {
-        // Check if atom i is in selectedAtoms
-        bool isSelected = false;
-        for (size_t j = 0; j < selectedAtoms.size(); j++)
-        {
-            if (selectedAtoms[j] == i)
+            int idx = targets[i];
+            if (idx >= 0 && idx < trial->numberOfAtoms())
             {
-                isSelected = true;
-                break;
+                double dx = displacement(idx, 0);
+                double dy = displacement(idx, 1);
+                double dz = displacement(idx, 2);
+                double magnitude = sqrt(dx * dx + dy * dy + dz * dz);
+                log("[Basin Hopping] DEBUG: Atom #%d (idx0=%d): displacement=[%.6f, %.6f, %.6f], magnitude=%.6f Å\n",
+                    idx, idx, dx, dy, dz, magnitude);
             }
         }
-
-        if (!isSelected && !trial->getFixed(i))
+        
+        // Detailed Verification: Check all atoms to ensure STRICT adherence to target list
+        int nonZeroCount = 0;
+        for (int i = 0; i < trial->numberOfAtoms(); i++)
         {
-            double dx = displacement(i, 0);
-            double dy = displacement(i, 1);
-            double dz = displacement(i, 2);
-            double magnitude = sqrt(dx * dx + dy * dy + dz * dz);
-            if (magnitude > 1e-10)
+            // O(N*M) verification is fine for debug mode
+            bool isTarget = false;
+            for(size_t j=0; j<targets.size(); ++j) {
+                if(targets[j] == i) { isTarget=true; break; }
+            }
+
+            if (!isTarget && !trial->getFixed(i))
             {
-                log("[Basin Hopping] DEBUG: WARNING: Atom #%d (idx0=%d, not selected) has non-zero displacement: %.10f Å\n",
-                    i, i, magnitude);
-                nonZeroCount++;
+                double magnitude = displacement.row(i).norm();
+                if (magnitude > 1e-10)
+                {
+                    log("[Basin Hopping] DEBUG: WARNING: Atom #%d (not in target list) has non-zero displacement: %.10f Å\n", i, magnitude);
+                    nonZeroCount++;
+                }
             }
         }
-    }
-    if (nonZeroCount == 0)
-    {
-        log("[Basin Hopping] DEBUG: Verification passed: All non-selected atoms have zero displacement\n");
-    }
-    else
-    {
-        log("[Basin Hopping] DEBUG: ERROR: %d non-selected atoms have non-zero displacement!\n", nonZeroCount);
+        if (nonZeroCount == 0) log("[Basin Hopping] DEBUG: Verification passed: Only target atoms displaced\n");
+        else log("[Basin Hopping] DEBUG: ERROR: %d non-target atoms moved!\n", nonZeroCount);
     }
 
     return displacement;

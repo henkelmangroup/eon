@@ -86,9 +86,22 @@ different elements and swaps their position.
 
     default: ``0.0``
 
-**single_atom_displace**: Displace only one atom per step.
+**single_atom_displace**: If ``True``, selects a single random atom from the candidate pool to displace.
+The candidate pool is determined by **displace_atom_list** or **displace_type_list** if specified; otherwise all atoms are candidates.
 
     default: ``False``
+
+**displace_atom_list**: Comma-separated list of atom indices (0-based) to consider for displacement.
+If specified, displacement is restricted to these atoms.
+Example: ``0,1,2`` or ``10,20,-1``.
+
+    default: ``empty`` (all atoms)
+
+**displace_type_list**: Comma-separated list of atomic numbers or element symbols to consider for displacement.
+Used only if **displace_atom_list** is empty.
+Example: ``78,79`` or ``Pt,Au``.
+
+    default: ``empty`` (all atoms)
 
 **jump_max**: The number of consecutive rejected steps after which jump steps
 should be taken. This serves to provide a more global search when the structure
