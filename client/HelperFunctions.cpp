@@ -199,7 +199,7 @@ RotationMatrix helper_functions::rotationExtract(const AtomMatrix r1,
     n += n.transpose().eval();
 
     n(0,0) = sxx + syy + szz;
-    n(1,1) = sxx-syy-szz;
+    n(1,1) = sxx - syy - szz;
     n(2,2) = -sxx + syy -szz;
     n(3,3) = -sxx -syy + szz;
 
