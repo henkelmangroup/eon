@@ -37,8 +37,7 @@ In order to run a nudged elastic band calculation, set **job** to *nudged_elasti
 
         default: ``False``
 
-    **converged_force**: When the **convergence_metric** is
-smaller than this value (eV/A), the NEB is considered minimized. If not specified, it takes the value from **converged_force** in **[Optimizer]**.
+    **converged_force**: When the **convergence_metric** is smaller than this value (eV/A), the NEB is considered minimized. If not specified, it takes the value from **converged_force** in **[Optimizer]**.
 
     default: ``0.01``
 
