@@ -34,9 +34,12 @@
         {%- endfor %}
 
         {%- block rootrellink %}
-        <li><a href="{{ pathto('index') }}"><img class="logo" src="{{ pathto('_static/' + logo, 1) }}" alt="EON logo"style="position:relative; left: -240px ; top: 0px"/></a></li>
+            {%- if logo %}
+                <li><a href="{{ pathto('index') }}"><img class="logo" src="{{ pathto('_static/' + logo, 1) }}" alt="EON logo" style="position:relative; left: -240px ; top: 0px"/></a></li>
+            {%- else %}
+                <li><a href="{{ pathto('index') }}">EON Home</a></li>
+            {%- endif %}
         {%- endblock %}
-
     <!-- <li> {{ reldelim1 }} <a href="{{ pathto('download') }}">Download</a>{{ reldelim1 }}</li> -->
         <!-- <li> {{ reldelim1 }} <a href="{{ pathto('setups/setups') }}">Setups</a>{{ reldelim1 }}</li> -->
         <!-- <li> {{ reldelim1 }} <a href="{{ pathto('tutorials/tutorials') }}">Tutorials</a>{{ reldelim1 }}</li> -->
@@ -129,8 +132,9 @@
     <link rel="alternate" type="{{ type|e(true) }}" title="{{ title|e(true) }}" href="{{ link|e(true) }}" />
     {%- endfor %}
     {%- else %}
-<!--     <link rel="stylesheet" href="{{ pathto('_static/' + style, 1) }}" type="text/css" /> -->
-    <link rel="stylesheet" href="{{ pathto('_static/' + styles[-1], 1) }}" type="text/css" />
+    {%- for css in css_files %}
+        {{ css_tag(css) }}
+    {%- endfor %}
     <link rel="stylesheet" href="{{ pathto('_static/pygments.css', 1) }}" type="text/css" />
     {%- endif %}
     {%- if builder != 'htmlhelp' %}
@@ -142,10 +146,10 @@
           FILE_SUFFIX: '{{ file_suffix }}'
       };
     </script>
-    {%- for scriptfile in script_files %}
-    <script type="text/javascript" src="{{ pathto(scriptfile, 1) }}"></script>
-    {%- endfor %}
     {%- if use_opensearch %}
+    {%- for scriptfile in script_files %}
+        {{ js_tag(scriptfile) }}
+    {%- endfor %}
     <link rel="search" type="application/opensearchdescription+xml"
           title="Search within {{ docstitle }}"
           href="{{ pathto('_static/opensearch.xml', 1) }}"/>
