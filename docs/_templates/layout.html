@@ -34,8 +34,11 @@
         {%- endfor %}
 
         {%- block rootrellink %}
+            {%- set _logo_url = logo_url|default(pathto('_static/' + (logo or ""), 1)) %}
             {%- if logo %}
                 <li><a href="{{ pathto('index') }}"><img class="logo" src="{{ pathto('_static/' + logo.png, 1) }}" alt="EON logo" style="position:relative; left: -240px ; top: 0px"/></a></li>
+            {%- elif _logo_url %}
+                <li><a href="{{ pathto('index') }}"><img class="logo" src="{{ _logo_url }}" alt="EON Home" style="position:relative; left: -240px; top: 0px"/></a></li>
             {%- else %}
                 <li><a href="{{ pathto('index') }}">EON Home</a></li>
             {%- endif %}
