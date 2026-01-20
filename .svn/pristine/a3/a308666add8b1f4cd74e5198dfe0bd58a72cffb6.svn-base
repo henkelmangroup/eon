@@ -1,0 +1,228 @@
+
+.. _ase_interface:
+
+=============
+ASE Interface
+=============
+
+In order to build EON client with the ability to use ASE calculators as a potential,
+one must have `Python3 <https://www.python.org/downloads/>`_ and
+`pybind11 <https://pybind11.readthedocs.io/en/stable/index.html>`_ installed
+and available in the compilation environment
+(if using `Conda <https://conda.io/projects/conda/en/latest/user-guide/install/index.html>`_:
+activate your environment before compilation).
+
+
+Compilation
+============
+
+Go into ``eon/client`` (where ``Rules.mk`` should exist), and build EON client with the ASE interface enabled::
+
+    $ make ASE_POT=1  # can optionally add -jN for parallel compilation with N threads
+
+In some weird cases, this command needs to be run twice to complete the compilation.
+
+If the compilation is successful, you should see a line containing ``+ASE`` at the very bottom
+of the terminal.
+
+On the other hand, if there is a compilation error similar to 
+"``fatal error: Python.h: No such file or directory``", then EON client has failed to
+automatically detect the Python-related paths that are needed to compile the ASE interface.
+For automatic detection to work, the ``python3-config`` command must be available.
+Verify its availability by running::
+
+    $ which python3-config  # should print out the path to python3-config
+
+`Conda <https://conda.io/projects/conda/en/latest/user-guide/install/index.html>`_ environments
+already come with this command by default.
+If using a systemwide Python, the Python development package should be installed
+by the system administrator using the appropriate package managers, like ``apt``,
+``yum``, ``dnf``, etc (the package name is ``python3-dev``, ``python3-devel``,
+or similar).
+
+If automatic detection is not possible, refer to :ref:`this section <manually-adding-paths>`
+for information on how to manually add the paths for compilation.
+
+
+After Compilation
+=================
+
+For most installations, the binary ``eonclient`` can be copied to a directory in your
+``$PATH``. If you added ``$HOME/eon/bin`` to your path during the server installation the following command will install the client::
+
+    $ cp eonclient ../bin/eonclient
+
+Otherwise you will need to give the path to the client binary in your
+``config.ini``. 
+
+
+Using the ASE interface
+=======================
+
+When using EON's ASE interface, the Python dynamic library must still be visible to the ``eonclient``
+executable::
+
+    $ export LD_LIBRARY_PATH="$(python3-config --prefix)/lib:$LD_LIBRARY_PATH"
+
+*It is recommended that the Python version used to run EON client is the same as the
+Python version used to build EON client.*
+
+If ``python3-config`` is not available, replace ``$(python3-config --prefix)/lib`` with
+``/path/to/python/rootdir/lib`` from the :ref:`LDFLAGS <ldflags>` section.
+
+
+To use ASE calculators, ``config.ini`` should contain::
+
+    [Potential]
+    potential = ase
+    ext_pot_path = /path/to/the/ase_script.py
+
+The last line (``ext_pot_path``) is required, and it may be the relative or the absolute
+path to the Python script containing the desired ASE calculator (see next section).
+
+When running EON (e.g. AKMC jobs), which calls ``eonclient`` in the back, you can either
+1) provide the full absolute path to the Python script, or
+2) create a directory called ``potfiles/``, place the script inside that directory, and simply
+write ``ext_pot_path = ase_script.py``. For example, your EON job directory might look like::
+
+    [user@cluster eon_ase_test]$ ls
+    config.ini  pos.con  potfiles/
+    [user@cluster eon_ase_test]$ ls potfiles/
+    ase_script.py
+    [usre@cluster eon_ase_test]$ grep "ext_pot_path" config.ini  # print the ext_pot_path line in config.ini
+    ext_pot_path = ase_script.py
+
+
+Python script contents
+======================
+
+EON client imports this Python script to get the energy and forces.
+The script should look like this (e.g. using fairchem's UMA model)::
+
+    from ase import Atoms
+    from fairchem.core import pretrained_mlip, FAIRChemCalculator
+    import torch  # just for setting number of threads
+
+
+    def ase_calc():
+        # MODIFY THIS FUNCTION TO RETURN DESIRED ASE CALCULATOR
+
+        # For GPU, omit setting num_threads
+        torch.set_num_threads(32)  # limit to 0.5-1 socket for max efficiency (for CPU)
+        print(f"PyTorch will use {num_threads} threads for computations.", flush=True)
+
+        try:  # if potential file was downloaded to disk
+            model_path = '/scratch/common/uma/uma-m-1p1.pt'
+            calc = FAIRChemCalculator.from_model_checkpoint(
+                model_path,
+                device="cpu",  # use "cuda" for GPU
+                task_name="omat",  # Or "omol", "oc20", etc., depending on the model
+                seed=None,  # to suppress the deprecation error
+            )   
+        except ValueError:  # if model_path wasn't found
+            predictor = pretrained_mlip.get_predict_unit("uma-m-1p1", device="cpu",)
+            calc = FAIRChemCalculator(predictor, task_name="omat")
+
+        return calc
+
+    #=======================================================================
+    # DO NOT EDIT
+    def _calculate(R, atomicNrs, box, calc):
+        system = Atoms(symbols=atomicNrs, positions=R, pbc=True, cell=box)
+        system.calc = calc
+        forces = system.get_forces()
+        energy = system.get_potential_energy()
+        return energy, forces
+    #=======================================================================
+
+
+    if __name__ == '__main__':
+        # This is just to verify that the script runs properly with `python3 <this_script>`
+        from ase.io import read
+        atoms = read("...")  # structure file name
+        pos = atoms.positions  # array of positions (n x 3)
+        atomicNrs = atoms.get_atomic_numbers()  # array of atomic numbers (n)
+        cell = atoms.cell  # cell array (3 x 3)
+        calc = ase_calc()
+        e, f = _calculate(pos, atomicNrs, cell, calc)
+        print(f"E = {e}")
+        print("F =")
+        print(f)
+
+The user should customize the content of the function ``ase_calc()`` to use the desired ASE calculator,
+**but not that of ``_calculate()`` nor the function names**.
+
+Often, the ASE calculator may require an external potential file. When running EON (e.g. AKMC jobs) and
+an external file name is used in this script, **it is highly recommended to write the full absolute
+path to the external file**.
+
+Before using it, make sure that this script contains no errors on the Python side.
+
+
+.. _manually-adding-paths:
+
+Manually Adding Paths
+=====================
+
+If compilation was successful, there is no need to read this section.
+
+If automatic path detection is not possible during compilation, EON client's ``Rules.mk``
+must be slightly modified by hand. With EON's installed at
+``$EON_DIR``, open the file ``$EON_DIR/client/Rules.mk`` with a text editor and
+find the section that begins with ``ifdef ASE_POT``.
+
+Comment out the lines that begin with ``PYBIND11_INCLUDES`` and ``PYTHON_LDFLAGS``.
+Modify the lines that begin with ``CXXFLAGS`` and ``LDFLAGS`` according to the
+subsections below.
+
+
+``CXXFLAGS``
+------------
+
+2 paths should be included here::
+    
+    CXXFLAGS += -DASE_POT -I/path/to/python/rootdir/include -I/path/to/python/rootdir/include/python3.xx
+
+The first is where the directory ``pybind11/`` is located, which contains pybind11 header files.
+To be clear, the header file ``/path/to/python/rootdir/include/pybind11/pybind.h`` should exist,
+but write only ``-I/path/to/python/rootdir/include``, not anything after (i.e. ``pybind11/pybind11.h``).
+
+It is usually located in the ``include/`` directory of the Python installation.
+If using Python through a `Conda <https://conda.io/projects/conda/en/latest/user-guide/install/index.html>`_
+environment, this directory is at ``$CONDA_PREFIX/include`` and/or
+``$CONDA_PREFIX/lib/python3.xx/site-packages/pybind11/include``.
+If using a systemwide Python,
+it may be ``/usr/include`` or something similar, depending on the type of OS and the distro.
+If pybind11 is a user pip installation for a systemwide Python, it may be located at
+``$HOME/.local/lib/python3.xx/site-packages/pybind11/include``.
+
+The second is the directory where the header file ``Python.h`` is located. The directory ``python3.xx/`` is
+typically in the same parent directory as ``pybind11``.
+
+If using Python through a `Conda <https://conda.io/projects/conda/en/latest/user-guide/install/index.html>`_
+environment, this directory is at ``$CONDA_PREFIX/include/python3.xx``. If using a systemwide Python,
+it may be ``/usr/include/python3.xx`` or something similar, depending on the type of OS and the distro.
+
+**MAKE SURE TO CHANGE THE xx IN python3.xx TO THE PYTHON VERSION YOU'RE USING!**
+
+
+.. _ldflags:
+
+``LDFLAGS``
+-----------
+
+The ``LDFLAGS`` line looks like this::
+
+    LDFLAGS += -L/path/to/python/rootdir/lib -lpython3.xx
+
+The directory ``/path/to/python/rootdir/lib`` contains the Python dynamic library ``libpython3.xx.so``.
+It is usually located in the ``lib/`` directory of the Python installation, thus sharing the same parent
+directory as ``/path/to/python/rootdir/include`` from the ``CXXFLAGS`` line above.
+
+If using Python through a `Conda <https://conda.io/projects/conda/en/latest/user-guide/install/index.html>`_
+environment, this directory is at ``$CONDA_PREFIX/lib``. If using a systemwide Python
+it may be ``/usr/lib``, ``/usr/lib/x86_64-linux-gnu``, ``/usr/lib64``, or something similar depending on
+the OS.
+
+The second part ``-lpython3.xx`` is referring to the dynamic library. Once again,
+**MAKE SURE TO CHANGE THE xx IN python3.xx TO THE PYTHON VERSION YOU'RE USING!**
