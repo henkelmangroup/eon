@@ -16,7 +16,6 @@ public:
     bool contains_hyperF;
     bool reachridge;
     bool checknow;
-    double dt;
     double T;
     double dR;
     double phi_tol;
@@ -28,6 +27,7 @@ public:
     double curvature;
     double bisect_tol;
     double Eridge;
+    double biasPot;
     int checksteps;
     int maxForceCalls;
     int forceCalls;
@@ -39,7 +39,7 @@ public:
     Matter R0old;
     Matter Rmin;
     Matter Rdimer;
-    ImprovedDimer dimer;
+    ImprovedDimer *dimer;
     AtomMatrix hyperF, mode, Nguess;
     VectorXd N, Ftrans, Nridge, Fridge, V, F0;
     
@@ -59,6 +59,7 @@ private:
     Matter *matter; // Pointer to atom object \b outside the scope of the class.    
     Parameters *parameters; // Pointer to a structure outside the scope
                             // of the class containing runtime parameters. 
+    double dt;
 };
 
 class RidgeDimerAtoms {
