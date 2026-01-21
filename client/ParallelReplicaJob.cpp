@@ -41,8 +41,10 @@ std::vector<std::string> ParallelReplicaJob::run(void)
         trajectory->setBiasPotential(boostPot);
     }
 
-    if (parameters->biasPotential == "ridge_based"){
+    else if (parameters->biasPotential == "ridge_based"){
+        printf("ridge based if statement\n");
         boostPot = new RidgeBased(trajectory, parameters);
+        printf("made it past new\n");
         boostPot->initialize();
         trajectory->setBiasPotential(boostPot);
     }

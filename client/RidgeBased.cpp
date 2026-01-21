@@ -8,47 +8,58 @@
 
 RidgeBased::RidgeBased(Matter *matt, Parameters *params)
   : Hyperdynamics(matt, params),
-    R0(*matter), 
-    R0old(*matter), 
-    Rmin(*matter),
-    Rdimer(*matter),
-    dimer(&Rdimer, parameters)
+    R0(params), 
+    R0old(params), 
+    Rmin(params),
+    Rdimer(params)
 {
   // Where I place parameters in the class variables
   matter = matt;    
   parameters = params;
-  bool contains_hyperF = false;
-  bool reachridge = false;
-  bool checknow = false;
-  double dt = 1/(parameters->timeUnit); //Timestep in Angstrom*sqrt(u/eV) where u is the atomic mass unit
-  double T = parameters->temperature * parameters->kB;
-  double dR = parameters->finiteDifference;
-  double phi_tol = parameters->dimerConvergedAngle;
-  double rotationsMax = parameters->dimerRotationsMax;
-  double EBoostMax = parameters->ridgeBasedBMAX;
-  double EBoost = EBoostMax;
-  double EBoostOld = EBoostMax;
-  double maxStep = parameters->ridgeBasedMAXSTEP;
-  double curvature;
-  double biasPot = 0.0;
-  double bisect_tol = 0.02;
-  double Eridge;
-  int steps = 0;
-  int checksteps = parameters->ridgeBasedCHECKSTEPS;
-  int maxForceCalls = parameters->ridgeBasedMAXFCALLS;
-  int forceCalls = 0;
-  int objectCalls = 0; 
-  int opt_forceCalls = 0;
-  int dimerCalls = 0;
+  R0 = *matt;     
+  R0old = *matt;
+  Rmin = *matt;
+  Rdimer = *matt;
+  dimer = new ImprovedDimer(&Rdimer, params);
+  contains_hyperF = false;
+  reachridge = false;
+  checknow = false;
+  dt = parameters->mdTimeStep; //Timestep in Angstrom*sqrt(u/eV) where u is the atomic mass unit
+  T = parameters->temperature * parameters->kB;
+  dR = parameters->finiteDifference;
+  phi_tol = parameters->dimerConvergedAngle;
+  rotationsMax = parameters->dimerRotationsMax;
+  EBoostMax = parameters->ridgeBasedBMAX;
+  EBoost = EBoostMax;
+  EBoostOld = EBoostMax;
+  maxStep = parameters->ridgeBasedMAXSTEP;
+  curvature;
+  biasPot = 0.0;
+  bisect_tol = 0.02;
+  Eridge= 0.0;
+  steps = 0;
+  checksteps = parameters->ridgeBasedCHECKSTEPS;
+  maxForceCalls = parameters->ridgeBasedMAXFCALLS;
+  forceCalls = 0;
+  objectCalls = 0; 
+  opt_forceCalls = 0;
+  dimerCalls = 0;
   AtomMatrix mode = Eigen::MatrixXd::Random(matter->getPositions().size()/3, 3);
   AtomMatrix Nguess = mode;
   AtomMatrix hyperF = R0.getForces();
-  VectorXd N, Ftrans, Nridge, Fridge, V, F0;
+  int n_dof = matter->getPositions().size();
+  V = VectorXd::Zero(n_dof);
+  Ftrans = VectorXd::Zero(n_dof);
+  N = VectorXd::Zero(n_dof);
+  F0 = VectorXd::Zero(n_dof);
+  Fridge = VectorXd::Zero(n_dof);
+  Nridge = VectorXd::Zero(n_dof);
   return;
 }
 
 RidgeBased::~RidgeBased(){ //destructor 
  // clean/free up memory/deallocate
+ delete dimer;
  return;
 }
 
@@ -71,7 +82,8 @@ double RidgeBased::get_biasPot(){
   // Run Dimer
   AtomMatrix r0_pos = R0.getPositions();
   AtomMatrix r0_old_pos = R0old.getPositions();
-  if ((r0_pos - r0_old_pos).norm() == 0 && contains_hyperF == true) { 
+
+  if ((r0_pos - r0_old_pos).norm() < 1e-12 && contains_hyperF == true) { 
     // Remember to chainge contains_hyperF to true whenever we assign hyper_F.
     return EBoostOld;
   }
@@ -79,8 +91,8 @@ double RidgeBased::get_biasPot(){
   R0old = R0;
   steps = 0;
   dimerCalls = 0;
-  int forceCalls = 0;
   opt_forceCalls = 0;
+  forceCalls = 0;
   checknow = false;
   V *= 0.0;
   objectCalls += 1;
@@ -99,13 +111,14 @@ double RidgeBased::get_biasPot(){
     double phi_tol_copy = phi_tol / 3;
   }
 
-  ImprovedDimer dimer = ImprovedDimer(&Rdimer, parameters);
+  //ImprovedDimer dimer = ImprovedDimer(&Rdimer, parameters);
   reachridge = false;
   bool quite = true;
   EBoostOld = EBoost;
   double minForce = 0.01;
   int interval = 1;
-  RidgeBased::search(minForce, quite, maxForceCalls, interval);  
+  EBoost = RidgeBased::search(minForce, quite, maxForceCalls, interval);  
+  return EBoost;
 }
 
 double RidgeBased::search(double minForce = 0.01, bool quite = false, int maxForceCalls = 500, int interval = 1){
@@ -118,12 +131,12 @@ double RidgeBased::search(double minForce = 0.01, bool quite = false, int maxFor
     if (traj_dimer.size() > 1000){
       traj_dimer.erase(traj_dimer.begin());
       }
-    dE = dimer.x0->getPotentialEnergy() - matter->getPotentialEnergy();
+    dE = dimer->x0->getPotentialEnergy() - matter->getPotentialEnergy();
     try {
-      dE_dimer = traj_dimer[-1].getPotentialEnergy() -traj_dimer[-2].getPotentialEnergy();
+      dE_dimer = traj_dimer.back().getPotentialEnergy() -traj_dimer[traj_dimer.size()-2].getPotentialEnergy();
     }
     catch (double dE_dimer){
-      dE_dimer = 100;
+      dE_dimer = 100.0;
     }
     if ((dE >= EBoostMax && steps >= 1) || (dE_dimer < 0.01 && steps >= 3)) {
       printf("dE_dimer: %f", dE_dimer);
@@ -132,11 +145,11 @@ double RidgeBased::search(double minForce = 0.01, bool quite = false, int maxFor
         potdiff = ptmp.getPotentialEnergy() - R0.getPotentialEnergy();
         printf("%f",potdiff);
       }
-      bool inbool = RidgeBased::inbasin(Rmin, *dimer.x0);
+      bool inbool = RidgeBased::inbasin(Rmin, *dimer->x0);
       if (inbool){
         if (dE >= EBoostMax){
           // exceeds the max energy
-          hyperF = dimer.x0->getForces();
+          hyperF = dimer->x0->getForces();
           return EBoostMax;
         }
         else {
@@ -144,7 +157,7 @@ double RidgeBased::search(double minForce = 0.01, bool quite = false, int maxFor
           // exceeds the max energy
           dE = Eridge - R0.getPotentialEnergy();
           if (dE  >= EBoostMax){
-            hyperF = dimer.x0->getForces();
+            hyperF = dimer->x0->getForces();
             return EBoostMax;
           }
           else {
@@ -161,7 +174,7 @@ double RidgeBased::search(double minForce = 0.01, bool quite = false, int maxFor
         double potdiff = ptmp.getPotentialEnergy() - R0.getPotentialEnergy();
         printf("%f",potdiff);
       }
-      bool inbool = RidgeBased::inbasin(Rmin, *dimer.x0);
+      bool inbool = RidgeBased::inbasin(Rmin, *dimer->x0);
       if (inbool == false){
         // reached the ridge
         RidgeBased::bisect(traj_dimer, bisect_tol);
@@ -171,7 +184,7 @@ double RidgeBased::search(double minForce = 0.01, bool quite = false, int maxFor
       }
     }
     RidgeBased::step(); //Take a dimer step
-    if (dimer.getEigenvalue() >= 0.0){
+    if (dimer->getEigenvalue() >= 0.0){
       hyperF = F0.reshaped(F0.size()/3,3);
       return EBoostMax;
     }
@@ -179,10 +192,10 @@ double RidgeBased::search(double minForce = 0.01, bool quite = false, int maxFor
       int ii = steps;
       int nf;
       double ff, cc, ee;
-      ff = dimer.x0->maxForce();
-      cc = dimer.getEigenvalue();
-      ee = dimer.x0->getPotentialEnergy();
-      nf = dimer.x0->getForceCalls() + opt_forceCalls;
+      ff = dimer->x0->maxForce();
+      cc = dimer->getEigenvalue();
+      ee = dimer->x0->getPotentialEnergy();
+      nf = dimer->x0->getForceCalls() + opt_forceCalls;
       if (steps % 100 == 0 || steps == 1){
         printf("Iteration       Force       Curvature        Energy     ForceCalls");
         printf("-------------------------------------------------------------------------------");
@@ -192,16 +205,16 @@ double RidgeBased::search(double minForce = 0.01, bool quite = false, int maxFor
         printf("%3i %13.6f %13.6f %13.6f %3i",ii,ff,cc,ee,nf);
         }
       }
-    forceCalls = dimer.x0->getForceCalls() + opt_forceCalls;
+    forceCalls = dimer->x0->getForceCalls() + opt_forceCalls;
   }
   if (dE < EBoostMax){
     // simple estimate
     // more accurate hyperforces, but has little affect on the rate
-    hyperF = RidgeBased::rotateFridge(dimer.x0->getForces().reshaped<Eigen::RowMajor>(), N, dimer.tau);
+    hyperF = RidgeBased::rotateFridge(dimer->x0->getForces().reshaped<Eigen::RowMajor>(), N, dimer->tau);
     return std::max(dE, 0.0);
   }
   else {
-    hyperF = dimer.x0->getForces();
+    hyperF = dimer->x0->getForces();
     return EBoostMax;
   }
 }
@@ -230,7 +243,7 @@ bool RidgeBased::inbasin(Matter& Rmin0, Matter& Rcur){
 void RidgeBased::step(){
   Nguess = Nguess / Nguess.norm();
   steps += 1;
-  double ENew = dimer.x0->getPotentialEnergy();
+  double ENew = dimer->x0->getPotentialEnergy();
   //updating the forces parallel to the dimer.
   if (steps >= checksteps-1){
     Ftrans = RidgeBased::getdimerforces(); 
@@ -248,14 +261,14 @@ void RidgeBased::step(){
     V = dV;
     step = V * dt;
   }
-  dimer.x0->setPositions(step.reshaped(V.size()/3, 3));
+  dimer->x0->setPositions(step.reshaped(V.size()/3, 3));
 }
 
 // This function returns the forces parallel to the dimer.
 VectorXd RidgeBased::getdimerforces(){
   dimerCalls += 1;
-  F0 = dimer.x0->getForces().reshaped<RowMajor>(); //dimer forces
-  N = dimer.tau; // dimer mode
+  F0 = dimer->x0->getForces().reshaped<RowMajor>(); //dimer forces
+  N = dimer->tau; // dimer mode
   return N;
 }
 
@@ -276,7 +289,7 @@ void RidgeBased::bisect(std::vector<Matter> traj_dimer, double tol = 0.02){
     printf("starting point of dimer is outside the basin");
     Fridge = F0.reshaped(F0.size()/3, 3);
     Eridge = R0.getPotentialEnergy();
-    Nridge = dimer.tau;
+    Nridge = dimer->tau;
     return;
   }
   AtomMatrix r0 = pin.getPositions();
