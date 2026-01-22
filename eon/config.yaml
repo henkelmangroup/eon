@@ -647,6 +647,22 @@ Hyperdynamics:
             kind: string
             default: 
 
+        rb_bmax:
+            kind: float
+            default: 0.2
+
+        rb_maxstep:
+            kind: float
+            default: 0.4
+
+        rb_checksteps:
+            kind: int
+            default: 5
+
+        rb_maxfcalls:
+            kind: int
+            default: 100
+
 ################################################################################
 
 Process Search:
