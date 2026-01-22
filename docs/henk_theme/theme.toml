@@ -1,0 +1,9 @@
+# use TOML file is using Sphinx >= 7
+[theme]
+inherit = "basic"
+stylesheets = ["custom.css"]
+pygments_stype = {default = "sphinx", dark = "grovbox"}
+sidebars = [
+    "localtoc.html",
+    "sourcelink.html"
+]
