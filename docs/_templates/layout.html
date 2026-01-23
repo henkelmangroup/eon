@@ -16,12 +16,12 @@
         -->
         <!-- this prints the "<root_name>" link-->
         <!-- EMDW: updated to match template for Sphinx >= 7 -->
-        <!-- NOTE: Using sphinx's logo_url means the image size changes with page. Change this?-->
+        <!-- NOTE: max_width stops the image resizing. Change this?-->
          <!-- {%- set _logo_url = logo_url|default(pathto('_static/' + (logo or ""), 1)) %} -->
         {%- block rootrellink %}
             <li class="nav-item nav-item-0">
               <a href="{{ pathto(root_doc)|e }}">
-                <img class="logo" src="{{ logo_url|e }}" alt="EON Home" style="position:relative; left: -240px; top: 0px"/>
+                <img class="logo" src="{{ logo_url|e }}" alt="EON Home" style="position:relative; left: -240px; top: 0px; max-width: none;"/>
               </a>
             </li>      
         {%- endblock %}
