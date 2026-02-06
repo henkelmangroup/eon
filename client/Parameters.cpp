@@ -210,9 +210,10 @@ Parameters::Parameters() {
     bondBoostRMDTimeInput = 100.0;
 
     // [Ridge-Based] //
-    ridgeBasedBMAX = 0.0;
+    ridgeBasedBMAX = 0.2;
     ridgeBasedMAXSTEP = 0.2;
     ridgeBasedCHECKSTEPS = 0;
+    ridgeBasedMAXFCALLS = 100;
 
     // [Basin Hopping] //
     basinHoppingDisplacement = 0.5;
@@ -705,7 +706,7 @@ int Parameters::load(FILE *file){
             ridgeBasedCHECKSTEPS);
         ridgeBasedMAXFCALLS =
             ini.GetValueI("Hyperdynamics", "rb_maxfcalls",
-            ridgeBasedCHECKSTEPS);
+            ridgeBasedMAXFCALLS);
 
         // [Saddle Search] //
 

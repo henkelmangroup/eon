@@ -6,8 +6,10 @@
 #include "Matter.h"
 #include "Parameters.h"
 #include "ImprovedDimer.h"
-
+#include <memory>
 #include "Eigen.h"
+#include "SaddleSearchJob.h"
+#include "MinModeSaddleSearch.h"
 
 class RidgeBased: public Hyperdynamics{
 public:
@@ -35,23 +37,25 @@ public:
     int objectCalls;
     int opt_forceCalls;
     int dimerCalls;
+    int inbasin_checks;
     Matter R0;
     Matter R0old;
     Matter Rmin;
     Matter Rdimer;
-    ImprovedDimer *dimer;
-    AtomMatrix hyperF, mode, Nguess;
-    VectorXd N, Ftrans, Nridge, Fridge, V, F0;
+    std::unique_ptr<MinModeSaddleSearch> dim;
+    AtomMatrix V, hyperF, mode, Nguess, Ftrans;
+    VectorXd N, Nridge, Fridge, F0;
     
 
     void initialize() override;
-    void bisect(std::vector<Matter> traj_dimer , double tol);
+    void bisect(const std::vector<std::shared_ptr<Matter>>& traj_dimer , double tol);
     void step();
     double boost() override;
     double get_biasPot();
     double search(double minForce, bool quite, int maxForceCalls, int interval);
-    bool inbasin(Matter& Rmin0, Matter& Rcur);
-    VectorXd getdimerforces();
+    bool inbasin(Matter& Rmin0,const Matter& Rcur);
+    //AtomMatrix getdimerforces();
+    AtomMatrix getdimerforces();
     AtomMatrix rotateFridge(VectorXd Fridge,VectorXd Ncur,VectorXd Nridge);
 
 

@@ -36,7 +36,6 @@ ImprovedDimer::~ImprovedDimer() {
 
 void ImprovedDimer::compute(Matter *matter, AtomMatrix initialDirectionAtomMatrix)
 {
-
     VectorXd initialDirection = VectorXd::Map(initialDirectionAtomMatrix.data(),
                                               3*matter->numberOfAtoms());
     tau = initialDirection.array() * matter->getFreeV().array();
@@ -66,6 +65,7 @@ void ImprovedDimer::compute(Matter *matter, AtomMatrix initialDirectionAtomMatri
     double phi_tol = M_PI * (parameters->dimerConvergedAngle / 180.0);
     double phi_prime = 0.0;
     double phi_min = 0.0;
+    //log("[IDimerRot] parameters->dimerConvergedAngle: %3.5f\n", phi_tol);
 
     statsRotations = 0;
 
@@ -272,13 +272,14 @@ void ImprovedDimer::compute(Matter *matter, AtomMatrix initialDirectionAtomMatri
             statsTorque = F_R.norm() / (2.0 * parameters->finiteDifference);
             statsRotations += 1;
 
-            log_file("[IDimerRot]  -----   ---------   ---------- "
-                     " ------------------   %9.4f   %7.3f   %6.2f   %4ld\n",
-                     C_tau, statsTorque, statsAngle, statsRotations);
+      //      log_file("[IDimerRot]\n");
+	    //log_file("[IDimerRot] C_tau   statsTorque   statsAngle    statsRotations\n");
+	    //log_file("[IDimerRot] -----   -----------   ----------  ------------------\n");
+	    //log_file("[IDimerRot] %3.4f      %3.3f        %3.2f            %3ld\n",C_tau, statsTorque, statsAngle, statsRotations);
         } else {
-            log_file("[IDimerRot]  -----   ---------   ---------- "
-                     " ------------------   %9.4f   %7.3f   ------   ----\n",
-                     C_tau, F_R.norm() / delta);
+      //      log_file("[IDimerRot]  C_tau F_R.norm/delta\n");
+	    //log_file("[IDimerRot]  ----- --------------\n");
+      //      log_file("[IDimerRot]  %9.4f     %7.3f\n",C_tau, F_R.norm() / delta);
         }
 
     } while (abs(phi_prime) > abs(phi_tol) and abs(phi_min) > abs(phi_tol) and

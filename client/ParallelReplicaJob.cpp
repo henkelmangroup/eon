@@ -42,9 +42,7 @@ std::vector<std::string> ParallelReplicaJob::run(void)
     }
 
     else if (parameters->biasPotential == "ridge_based"){
-        printf("ridge based if statement\n");
         boostPot = new RidgeBased(trajectory, parameters);
-        printf("made it past new\n");
         boostPot->initialize();
         trajectory->setBiasPotential(boostPot);
     }
@@ -75,16 +73,18 @@ std::vector<std::string> ParallelReplicaJob::run(void)
     for (int step = 1; step <= parameters->mdSteps; step++) {
         dynamics.oneStep();
         double boost = 1.0;
+        double boostPotential = 0.0;   
         // For hyperdynamics we must take into account the simulation time speedup
         if (parameters->biasPotential == Hyperdynamics::BOND_BOOST) {
-            double boostPotential = boostPot->boost();   
+            boostPotential = boostPot->boost();   
             double kB = parameters->kB;
-            boost = exp(boostPotential / kB / parameters->temperature);   
+            boost = exp(boostPotential / kB / parameters->temperature);
             simulationTime += parameters->mdTimeStep * boost;
         }
         else if (parameters->biasPotential == Hyperdynamics::RIDGE_BASED) {
-            double boostPotential = boostPot->boost();
+            boostPotential = boostPot->boost();
             double kB = parameters->kB;
+            log("%s boostPotential:   %3.3f\n", LOG_PREFIX, boostPotential);
             boost = exp(boostPotential / kB / parameters->temperature);
             simulationTime += parameters->mdTimeStep * boost;
         }
@@ -103,7 +103,7 @@ std::vector<std::string> ParallelReplicaJob::run(void)
                         step, simulationTime * parameters->timeUnit * 1e-15,
                         kinE, potE, kinE + potE, kinT);
             } else {
-                double boostPotential = boostPot->boost();   
+                //double boostPotential = boostPot->boost();   
                 log("%s %8ld %12.4e %10.3e %10.4f %12.4f %12.4f %10.2f\n", LOG_PREFIX,
                         step, simulationTime * parameters->timeUnit * 1e-15,
                         boost, kinE, potE + boostPotential,

@@ -206,6 +206,7 @@ int MinModeSaddleSearch::run()
             return STATUS_NONNEGATIVE_ABORT;
         }
     }
+    //log("[Dimer] probably got past this then\n");
     Optimizer *optimizer = Optimizer::getOptimizer(&objf, parameters);
 
     while (!objf.isConverged() || iteration == 0) {
@@ -216,6 +217,7 @@ int MinModeSaddleSearch::run()
                                         parameters->saddleNonlocalDistanceAbort);
                 if (nm >= parameters->saddleNonlocalCountAbort) {
                     status = STATUS_NONLOCAL_ABORT;
+                    //log("[Dimer] First break statement\n");
                     break;
                 }
             }
@@ -226,13 +228,15 @@ int MinModeSaddleSearch::run()
                 parameters->saddleZeroModeAbortCurvature) {
                 printf("%f\n", minModeMethod->getEigenvalue());
                 status = STATUS_ZEROMODE_ABORT;
+                //log("[Dimer] Second break statement\n");
                 break;
             }
         }
         firstIteration = 0;
-
+        //log("[Dimer] iteration: %d    parameters->saddleMaxIterations:   %d\n", iteration, parameters->saddleMaxIterations);
         if (iteration >= parameters->saddleMaxIterations) {
             status = STATUS_BAD_MAX_ITERATIONS;
+            //log("[Dimer] third break statement\n");
             break;
         }
 
@@ -253,6 +257,7 @@ int MinModeSaddleSearch::run()
 
         if (optStatus < 0) {
             status = STATUS_OPTIMIZER_ERROR;
+            //log("[Dimer] fourth break statement\n");
             break;
         }
 

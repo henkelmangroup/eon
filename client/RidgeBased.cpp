@@ -5,6 +5,12 @@
 #include "Eigen.h"
 #include <math.h>
 #include <vector>
+#include "Log.h"
+#include <memory>
+#include "SaddleSearchJob.h"
+#include "MinModeSaddleSearch.h"
+
+static const char LOG_PREFIX[] = "[RidgeBased]";
 
 RidgeBased::RidgeBased(Matter *matt, Parameters *params)
   : Hyperdynamics(matt, params),
@@ -17,10 +23,9 @@ RidgeBased::RidgeBased(Matter *matt, Parameters *params)
   matter = matt;    
   parameters = params;
   R0 = *matt;     
-  R0old = *matt;
+  R0old = R0;
   Rmin = *matt;
   Rdimer = *matt;
-  dimer = new ImprovedDimer(&Rdimer, params);
   contains_hyperF = false;
   reachridge = false;
   checknow = false;
@@ -31,9 +36,9 @@ RidgeBased::RidgeBased(Matter *matt, Parameters *params)
   rotationsMax = parameters->dimerRotationsMax;
   EBoostMax = parameters->ridgeBasedBMAX;
   EBoost = EBoostMax;
+  log("%s EBoost value at initialization: %3.3f\n", LOG_PREFIX, EBoost);
   EBoostOld = EBoostMax;
   maxStep = parameters->ridgeBasedMAXSTEP;
-  curvature;
   biasPot = 0.0;
   bisect_tol = 0.02;
   Eridge= 0.0;
@@ -44,12 +49,14 @@ RidgeBased::RidgeBased(Matter *matt, Parameters *params)
   objectCalls = 0; 
   opt_forceCalls = 0;
   dimerCalls = 0;
-  AtomMatrix mode = Eigen::MatrixXd::Random(matter->getPositions().size()/3, 3);
-  AtomMatrix Nguess = mode;
+  inbasin_checks = 0;
+  mode = Eigen::MatrixXd::Random(matter->getPositions().size()/3, 3);
+  Nguess = mode;
   AtomMatrix hyperF = R0.getForces();
+  Ftrans = R0.getForces();
+  dim = std::make_unique<MinModeSaddleSearch>(&Rdimer, mode, R0.getPotentialEnergy(), parameters);
   int n_dof = matter->getPositions().size();
-  V = VectorXd::Zero(n_dof);
-  Ftrans = VectorXd::Zero(n_dof);
+  V = Eigen::MatrixXd::Random(matter->getPositions().size()/3, 3);
   N = VectorXd::Zero(n_dof);
   F0 = VectorXd::Zero(n_dof);
   Fridge = VectorXd::Zero(n_dof);
@@ -59,16 +66,17 @@ RidgeBased::RidgeBased(Matter *matt, Parameters *params)
 
 RidgeBased::~RidgeBased(){ //destructor 
  // clean/free up memory/deallocate
- delete dimer;
  return;
 }
 
 void RidgeBased::initialize(){
-  printf("Ridge-Based Hyperdynamics used\n");
 }
 
 double RidgeBased::boost(){
+  R0.setPositions(matter->getPositions()); // gets new positions so that we can compare to old. (R0old)
+  R0.getPotentialEnergy();
   EBoost = RidgeBased::get_biasPot(); //in Penghao's code this function is called get_biasPot
+  log("%s EBoost value inside of boost() function %3.3f\n", LOG_PREFIX, EBoost);
   return EBoost;
 }
 
@@ -82,12 +90,11 @@ double RidgeBased::get_biasPot(){
   // Run Dimer
   AtomMatrix r0_pos = R0.getPositions();
   AtomMatrix r0_old_pos = R0old.getPositions();
-
+  double distance = (r0_pos - r0_old_pos).norm();
   if ((r0_pos - r0_old_pos).norm() < 1e-12 && contains_hyperF == true) { 
     // Remember to chainge contains_hyperF to true whenever we assign hyper_F.
     return EBoostOld;
   }
-  
   R0old = R0;
   steps = 0;
   dimerCalls = 0;
@@ -96,190 +103,242 @@ double RidgeBased::get_biasPot(){
   checknow = false;
   V *= 0.0;
   objectCalls += 1;
+  inbasin_checks = 0;
   Nguess = Nguess / Nguess.norm();
  
+  
+  Rdimer = R0;
+  double minForce = 0.01;
+  int interval = 1;
+  
   if (EBoost == EBoostMax && EBoostOld == EBoostMax){
-    if (objectCalls %5 != 1){ //checking every 5 steps if we are in max Boost region.
+    if (objectCalls %5 != 0){ //checking every 5 steps if we are in max Boost region.
       //Eigen::Matrix3f st = Eigen::Matrix3f::Zero(); //I think this matrix is in penghao code to accomodate for SSDimer. Uncomment if we need it for out dimer.
       hyperF = R0.getForces();
       contains_hyperF = true;
       return EBoostOld;
+    }
+    else{ // make dimer settings more liberal
+      parameters->finiteDifference = 0.4;
+      parameters->dimerConvergedAngle = 3.0;
+      //return EBoostOld; //Not yet I think we need to allow for dimer to search
     }
   }
   else {
     double maxStep_copy = maxStep / 4;
     double phi_tol_copy = phi_tol / 3;
   }
-
-  //ImprovedDimer dimer = ImprovedDimer(&Rdimer, parameters);
+  
+  //dim->matter = &Rdimer; //Use the global dim so that both this function and search can see it and the modifications done to it.
+  EBoostOld = EBoost;
   reachridge = false;
   bool quite = true;
-  EBoostOld = EBoost;
-  double minForce = 0.01;
-  int interval = 1;
-  EBoost = RidgeBased::search(minForce, quite, maxForceCalls, interval);  
+
+  EBoost = RidgeBased::search(minForce, quite, maxForceCalls, interval); //Should be out of max boost region
+  log("%s EBoost value from ridge-dimer search: %10.4f\n", LOG_PREFIX,EBoost);
+  log("%s number of times inbasin was called for this EBoost value: %d\n", LOG_PREFIX, inbasin_checks);
+    
   return EBoost;
 }
 
 double RidgeBased::search(double minForce = 0.01, bool quite = false, int maxForceCalls = 500, int interval = 1){
   bool converged = false;
   double dE, dE_dimer;
-  std::vector<Matter> traj_dimer;
+  std::vector<std::shared_ptr<Matter>> traj_dimer;
   while (forceCalls < maxForceCalls){
-    Matter pt = Rdimer;
-    traj_dimer.push_back(pt);
-    if (traj_dimer.size() > 1000){
+    Matter pt = Rdimer; //might segfault . The MinModeSaddleSearch::run modifies the Rdimer directly. At least basinhoppingsaddlesearch implies that.
+    traj_dimer.push_back(std::make_shared<Matter>(pt));
+
+    if (traj_dimer.size() > 1000){ // restaring the traj object 
       traj_dimer.erase(traj_dimer.begin());
       }
-    dE = dimer->x0->getPotentialEnergy() - matter->getPotentialEnergy();
-    try {
-      dE_dimer = traj_dimer.back().getPotentialEnergy() -traj_dimer[traj_dimer.size()-2].getPotentialEnergy();
+    dE = Rdimer.getPotentialEnergy() - R0.getPotentialEnergy(); //Comparing dimer image energy with energy of current MD step.
+                                                                    //This dimer energy should be different because the dimer
+                                                                    //Should be approaching the saddle.
+    
+    if (traj_dimer.size() >= 2){
+	    dE_dimer = traj_dimer.back()->getPotentialEnergy() - traj_dimer[traj_dimer.size()-2]->getPotentialEnergy(); //Comparing previous dimer image with current if it already ran.
     }
-    catch (double dE_dimer){
-      dE_dimer = 100.0;
+    else {
+	    dE_dimer = 100.0;
     }
+
     if ((dE >= EBoostMax && steps >= 1) || (dE_dimer < 0.01 && steps >= 3)) {
-      printf("dE_dimer: %f", dE_dimer);
       double potdiff;
-      for (Matter ptmp : traj_dimer){
-        potdiff = ptmp.getPotentialEnergy() - R0.getPotentialEnergy();
-        printf("%f",potdiff);
+      for (const std::shared_ptr<Matter>&  ptmp : traj_dimer){
+        potdiff = abs(ptmp->getPotentialEnergy() - R0.getPotentialEnergy());
+        log("%s Energy difference between Saddle Search and current MD step: %3.3f.\n",LOG_PREFIX, potdiff);
       }
-      bool inbool = RidgeBased::inbasin(Rmin, *dimer->x0);
+      bool inbool = RidgeBased::inbasin(Rmin, Rdimer); //Minimize the climber to see if goes back to Rmin.
+      inbasin_checks += 1;
       if (inbool){
         if (dE >= EBoostMax){
-          // exceeds the max energy
-          hyperF = dimer->x0->getForces();
+          // Exceeds the max boost region energy so boost value is still max boost value.
+          hyperF = Rdimer.getForces();
+          log("%s In basin; Basin check did not minimize to antoher state.; In max boost region. \n");
+          return EBoostMax;
+        }
+      }
+      else {
+        RidgeBased::bisect(traj_dimer, bisect_tol); // Out of max boost region. We start to apply dimer search min mode forces. Function bounds of Ridge.
+        dE = Eridge - R0.getPotentialEnergy(); // bisect updates Eridge and we comapare this value to R0.
+        if (dE  >= EBoostMax){
+          hyperF = R0.getForces();
+          log("%s Climber found ridge region;System still in max boost region; Returning normal forces\n");
           return EBoostMax;
         }
         else {
-          RidgeBased::bisect(traj_dimer, bisect_tol);
-          // exceeds the max energy
-          dE = Eridge - R0.getPotentialEnergy();
-          if (dE  >= EBoostMax){
-            hyperF = dimer->x0->getForces();
-            return EBoostMax;
-          }
-          else {
-            // reached the ridge
-            hyperF = RidgeBased::rotateFridge(Fridge, N, Nridge);
-            return std::max(dE, 0.0);
-          }
-        }
+          // reached the ridge
+          hyperF = RidgeBased::rotateFridge(Fridge, N, Nridge);
+          log("%s Climber found ridge region;System out of max boost region; Returning rotating ridge forces and returning hyper forces\n");
+          return std::max(dE, 0.0);
+       }
       }
     }
     else if (steps+2 == checksteps) {
-      printf("reach self.checksteps:");
-      for (Matter ptmp : traj_dimer){
-        double potdiff = ptmp.getPotentialEnergy() - R0.getPotentialEnergy();
+      for (const std::shared_ptr<Matter>& ptmp : traj_dimer){
+        double potdiff = ptmp->getPotentialEnergy() - R0.getPotentialEnergy();
         printf("%f",potdiff);
       }
-      bool inbool = RidgeBased::inbasin(Rmin, *dimer->x0);
+      bool inbool = RidgeBased::inbasin(Rmin, Rdimer);
+      inbasin_checks += 1;
       if (inbool == false){
         // reached the ridge
         RidgeBased::bisect(traj_dimer, bisect_tol);
         hyperF = rotateFridge(Fridge, N, Nridge);
         dE = Eridge - R0.getPotentialEnergy();
+        log("%s Climber found ridge region;Check because check+2 reached checksteps\n");
         return std::max(dE, 0.0);
       }
     }
+    dim->iteration = 0;
     RidgeBased::step(); //Take a dimer step
-    if (dimer->getEigenvalue() >= 0.0){
+    if (dim->getEigenvalue() >= 0.0){
       hyperF = F0.reshaped(F0.size()/3,3);
+      log("%s Positive curvature; Returning max boost value\n", LOG_PREFIX);
       return EBoostMax;
     }
     if (quite == false){
       int ii = steps;
       int nf;
       double ff, cc, ee;
-      ff = dimer->x0->maxForce();
-      cc = dimer->getEigenvalue();
-      ee = dimer->x0->getPotentialEnergy();
-      nf = dimer->x0->getForceCalls() + opt_forceCalls;
+      ff = Rdimer.maxForce();
+      cc = dim->getEigenvalue();
+      ee = Rdimer.getPotentialEnergy();
+      nf = Rdimer.getForceCalls() + opt_forceCalls;
       if (steps % 100 == 0 || steps == 1){
-        printf("Iteration       Force       Curvature        Energy     ForceCalls");
-        printf("-------------------------------------------------------------------------------");
-        printf("%3i %13.6f %13.6f %13.6f %3i",ii,ff,cc,ee,nf);          
+        log("%s Iteration       Force       Curvature        Energy     ForceCalls\n", LOG_PREFIX);
+        log("-------------------------------------------------------------------------------\n");
+        log("%s %3i %13.6f %13.6f %13.6f %3i\n",LOG_PREFIX,ii,ff,cc,ee,nf);          
         }
       else{
-        printf("%3i %13.6f %13.6f %13.6f %3i",ii,ff,cc,ee,nf);
+        log("%s %3i %13.6f %13.6f %13.6f %3i\n",LOG_PREFIX,ii,ff,cc,ee,nf);
         }
       }
-    forceCalls = dimer->x0->getForceCalls() + opt_forceCalls;
+    forceCalls = Rdimer.getForceCalls() + opt_forceCalls;
   }
   if (dE < EBoostMax){
     // simple estimate
     // more accurate hyperforces, but has little affect on the rate
-    hyperF = RidgeBased::rotateFridge(dimer->x0->getForces().reshaped<Eigen::RowMajor>(), N, dimer->tau);
-    return std::max(dE, 0.0);
+    hyperF = RidgeBased::rotateFridge(Rdimer.getForces().reshaped<Eigen::RowMajor>(), N, dim->getEigenvector().reshaped());
+    log("%s Accurate ridge forces for when out of boost region\n", LOG_PREFIX);
+    log("%s dE before return statement: %3.3f\n", LOG_PREFIX, abs(dE));
+    return std::max(abs(dE), 0.0);
   }
   else {
-    hyperF = dimer->x0->getForces();
+    hyperF = Rdimer.getForces();
+    log("%s Final return statement if nothing else returns\n.", LOG_PREFIX);
     return EBoostMax;
   }
 }
 
-bool RidgeBased::inbasin(Matter& Rmin0, Matter& Rcur){
+bool RidgeBased::inbasin(Matter& Rmin0,const Matter& Rcur){
   // Minimize Rcur to see if minimize to Rmin0.
   // We start with minimizing using quickmin, then FIRE (this is how Penghao did it).
-  Matter Rmin1(Rcur);
+  Matter Rmin1(parameters);
+  Rmin1 = Rcur;
+  
   parameters->optMethod = "qm";
   parameters->optConvergedForce = 0.001; //opt_ediffg
   parameters->optTimeStepInput = 0.2;
   parameters->optMaxIterations = 30; 
-  bool first_check = Rmin1.relax();
-  opt_forceCalls += Rmin1.getRelaxIterations();
-  if (first_check == true){return first_check;}
+  bool converged = Rmin1.relax();
+  opt_forceCalls += Rmin1.getRelaxIterations(); 
   parameters->optMethod = "fire";
-  parameters->optConvergedForce = 0.05; //opt_ediffg
+  parameters->optConvergedForce = 0.005; //opt_ediffg
   parameters->optTimeStepInput = 0.1; 
   parameters->optMaxMove = 0.1; 
-  parameters->optMaxIterations = 200;
-  bool second_check = Rmin1.relax();
+  parameters->optMaxIterations = 1000;
+  converged = Rmin1.relax();
   opt_forceCalls += Rmin1.getRelaxIterations(); 
-  return second_check;
+  log("%s did it converge?? %d\n", LOG_PREFIX, converged);
+  return converged;
 }
 
 void RidgeBased::step(){
   Nguess = Nguess / Nguess.norm();
   steps += 1;
-  double ENew = dimer->x0->getPotentialEnergy();
+  parameters->saddleMaxIterations=1;
+  double ENew = Rdimer.getPotentialEnergy();
   //updating the forces parallel to the dimer.
-  if (steps >= checksteps-1){
-    Ftrans = RidgeBased::getdimerforces(); 
+  dimerCalls += 1;
+  dim->run();//The position and forces will be updated here automatically.
+  if (dimerCalls == 1){
+    F0 = Rdimer.getForces().reshaped<RowMajor>(); //dimer forces
+    N = dim->getEigenvector().reshaped(); // dimer mode
   }
-  VectorXd temp_Ftrans = Ftrans;
-  VectorXd dV = temp_Ftrans * dt; //Shouldn't this be dr??? Question for Penghao.
-  VectorXd step;
-  double inner_product; 
-  if (((V.array(), Ftrans.array()).sum() > 0) || (steps == 0)){
-    V = V / V.norm();
-    step = maxStep * V;
-    checknow = false;
+    if (steps <= checksteps-1){
+    //Ftrans = RidgeBased::getdimerforces();  //instead of getdimerforces, since we have MinModeSaddleSearch in eon, we can just take a step with that.
+    log("%s making the dimer min mode search\n", LOG_PREFIX);
   }
-  else{
-    V = dV;
-    step = V * dt;
-  }
-  dimer->x0->setPositions(step.reshaped(V.size()/3, 3));
+  
+  //log("%s CONTINUED\n", LOG_PREFIX);
+  //AtomMatrix temp_Ftrans = Ftrans;
+  //AtomMatrix dV = temp_Ftrans * dt; //Shouldn't this be dr??? Question for Penghao.
+  //AtomMatrix step = Eigen::MatrixXd::Random(matter->getPositions().size()/3, 3);
+  //double inner_product; 
+  //inner_product = V.reshaped().dot(Ftrans.reshaped());
+  //if ((inner_product > 0) || (steps == 1)){
+  //  V = Ftrans / Ftrans.reshaped().norm();
+  //  log("%s DEBUG: V Norm: %.10f, First Element: %.10f\n", LOG_PREFIX, V.norm(), V(0));
+  //  step = maxStep * V;
+  //  checknow = false;
+  //}
+  //else{
+  //  V = dV;
+  //  step = V * dt;
+  //}
+  //dimer->x0->setPositions(step.reshaped(V.size()/3, 3));
+  
+  //AtomMatrix new_positions = dimer->x0->getPositions() + step;
+  //dimer->x0->setPositions(new_positions);
+  //dimer->x0->matter2con("x0.con");
 }
 
 // This function returns the forces parallel to the dimer.
-VectorXd RidgeBased::getdimerforces(){
-  dimerCalls += 1;
-  F0 = dimer->x0->getForces().reshaped<RowMajor>(); //dimer forces
-  N = dimer->tau; // dimer mode
-  return N;
-}
+//AtomMatrix RidgeBased::getdimerforces(){
+//  dimerCalls += 1;
+//  dim->run(); //In penghaos code, Ftrans was used in step funciton to update dimer image. But run here does that for us 
+//              //I feel like there is no need ot have Ftrans if we already are updating here, but check the update.
+//  // Only update the N and F0 if its is the first dimer call because otherwise this doesnt make sense. Basically add an if statement here.
+//  if (dimerCalls == 1){
+//    F0 = Rdimer.getForces().reshaped<RowMajor>(); //dimer forces
+//    N = dim->getEigenvector().reshaped(); // dimer mode
+//  }
+//  return N.reshaped<Eigen::RowMajor>(N.size()/3, 3);
+//}
 
 // Finds the true point of the ridge along the dimer trajectory by linear inrterpolation between nearest two dimer points.
-void RidgeBased::bisect(std::vector<Matter> traj_dimer, double tol = 0.02){
+void RidgeBased::bisect(const std::vector<std::shared_ptr<Matter>>& traj_dimer, double tol = 0.02){
+  log("%s In bisect function\n", LOG_PREFIX);
   bool inbool;
   Matter pout(*matter), pin(*matter), pt(*matter), pmid(*matter); 
   for (int i; i <= traj_dimer.size()-1; i++){
-    Matter pout = traj_dimer[-1-i];
-    Matter pt = traj_dimer[-2-i];
+    const Matter& pout = *traj_dimer[traj_dimer.size()-1-i];
+    const Matter& pt = *traj_dimer[traj_dimer.size()-2-i];
+    log("%s Before in basin inside of bisect\n", LOG_PREFIX);
     inbool = RidgeBased::inbasin(Rmin, pt);
+    inbasin_checks += 1;
     if (inbool == true){
       Matter pin = pt;
       break;
@@ -289,7 +348,7 @@ void RidgeBased::bisect(std::vector<Matter> traj_dimer, double tol = 0.02){
     printf("starting point of dimer is outside the basin");
     Fridge = F0.reshaped(F0.size()/3, 3);
     Eridge = R0.getPotentialEnergy();
-    Nridge = dimer->tau;
+    Nridge = dim->getEigenvector().reshaped();
     return;
   }
   AtomMatrix r0 = pin.getPositions();
@@ -300,6 +359,7 @@ void RidgeBased::bisect(std::vector<Matter> traj_dimer, double tol = 0.02){
     AtomMatrix rmid = 0.5*(r0 + r1);
     Matter pmid = pin;
     pmid.setPositions(rmid);
+    log("%s Before in basin inside of bisect but the one in while loop\n", LOG_PREFIX);
     inbool = RidgeBased::inbasin(Rmin, pmid);
     if (inbool = true){
       pin = pmid;
@@ -311,6 +371,8 @@ void RidgeBased::bisect(std::vector<Matter> traj_dimer, double tol = 0.02){
     r1 = pout.getPositions();
     mode = r1 - r0;
     dR = mode.norm();
+    log("%s dR:   %10.6f  tol:  %10.6f\n", LOG_PREFIX, dR, tol);
+
   }
   //std::vector<std::vector<double>> st(3, std::vector<double>(3, 0));
   Fridge = pmid.getForces().reshaped<Eigen::RowMajor>();
@@ -325,6 +387,7 @@ AtomMatrix RidgeBased::rotateFridge(VectorXd Fridge, VectorXd Ncur, VectorXd Nri
   VectorXd N2perp = Ncur;
   VectorXd N1perp = Ncur;
   double N1N2 = N1.dot(N2);
+  log("%s N1N2:  %3.3f\n",LOG_PREFIX,N1N2);
   AtomMatrix hyper_F;
   if (1-abs(N1N2) < 1){
     hyper_F = Fridge.reshaped(Fridge.size()/3, 3);
