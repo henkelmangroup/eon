@@ -641,7 +641,6 @@ bool helper_functions::identical(const Matter* m1, const Matter* m2,
         for (int k = 0; k < N; k++) {
             if (matched.count(j) == 1)
                 break;
-
             if (fabs((m1->pbc(r1.row(j) - r2.row(k))).norm()) < tolerance && 
                 m1->getAtomicNr(j) == m2->getAtomicNr(k)) {
                     matched.insert(j);

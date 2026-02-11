@@ -45,6 +45,7 @@ public:
     std::unique_ptr<MinModeSaddleSearch> dim;
     AtomMatrix V, hyperF, mode, Nguess, Ftrans;
     VectorXd N, Nridge, Fridge, F0;
+    std::vector<std::shared_ptr<Matter>> traj_dimer;
     
 
     void initialize() override;
@@ -54,9 +55,10 @@ public:
     double get_biasPot();
     double search(double minForce, bool quite, int maxForceCalls, int interval);
     bool inbasin(Matter& Rmin0,const Matter& Rcur);
-    //AtomMatrix getdimerforces();
     AtomMatrix getdimerforces();
     AtomMatrix rotateFridge(VectorXd Fridge,VectorXd Ncur,VectorXd Nridge);
+    std::vector<std::shared_ptr<Matter>> saddleTrajectory();
+    bool identical(const Matter* m1, const Matter* m2, const double tolerance);
 
 
 private:

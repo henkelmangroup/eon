@@ -172,7 +172,7 @@ MinModeSaddleSearch::~MinModeSaddleSearch() {
 
 int MinModeSaddleSearch::run()
 {
-    log("Saddle point search started from reactant with energy %f eV.\n",
+    log("[MinModeSaddleSearch] Saddle point search started from reactant with energy %f eV.\n",
         reactantEnergy);
 
     int optStatus;

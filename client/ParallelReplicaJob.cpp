@@ -71,7 +71,6 @@ std::vector<std::string> ParallelReplicaJob::run(void)
             "Step", "Time (s)", "Boost", "KE", "PE", "TE", "KinT");
     }
     for (int step = 1; step <= parameters->mdSteps; step++) {
-        dynamics.oneStep();
         double boost = 1.0;
         double boostPotential = 0.0;   
         // For hyperdynamics we must take into account the simulation time speedup
@@ -91,6 +90,9 @@ std::vector<std::string> ParallelReplicaJob::run(void)
         else {
             simulationTime += parameters->mdTimeStep;
         }
+        log("%s before oneStep\n", LOG_PREFIX);
+        dynamics.oneStep();
+        log("%s after oneStep\n", LOG_PREFIX);
 
         double kinE = trajectory->getKineticEnergy();
         double potE = trajectory->getPotentialEnergy();
@@ -116,6 +118,7 @@ std::vector<std::string> ParallelReplicaJob::run(void)
             Matter *tmp = new Matter(parameters);    
             *tmp = *trajectory;
             MDSnapshots.push_back(tmp);
+            tmp->matter2con("movie.con", true);
             MDTimes.push_back(simulationTime);
         }
 
@@ -131,6 +134,23 @@ std::vector<std::string> ParallelReplicaJob::run(void)
             // only check for a transition if one has yet to occur 
             if (!min.compare(reactant) && transitionTime == 0) {
                 log("%s Transition occurred\n", LOG_PREFIX);
+                // Try to cast it to the child class
+                RidgeBased* rb = dynamic_cast<RidgeBased*>(boostPot);
+
+                if (rb != nullptr) {
+                // Success! Now you can call the child-only function
+                  auto ss_traj = rb->saddleTrajectory();
+                  string ss_traj_name = "saddle_search_" + std::to_string(step) + ".con";
+                  for (const std::shared_ptr<Matter>&  ptmp : ss_traj){
+                    ptmp->matter2con(ss_traj_name, true);
+                    string ss_traj_energy = "saddle_search_" + std::to_string(step) + ".log";
+                    std::ofstream logFile(ss_traj_energy, std::ios::app);
+                    logFile << std::to_string(ptmp->getPotentialEnergy()) << std::endl;
+                  }
+                } else {
+                    // The object pointed to was NOT actually a RidgeBased object
+                  log("Error: Object is not of type RidgeBased");
+                }
 
                 //perform the binary search for the transition structure
                 if (parameters->parrepRefineTransition) {
@@ -151,6 +171,9 @@ std::vector<std::string> ParallelReplicaJob::run(void)
                 }
                 log("%s Transition time: %.3e s\n",
                     LOG_PREFIX, transitionTime * parameters->timeUnit * 1e-15);
+                if (parameters->parrepAutoStop == true){
+                    break; // Transition has been found and refined by this point.
+                }
 
             // at the end of the simulation perform the refinement if it hasn't
             // happened yet this ensures that if a transition isn't seen that the
