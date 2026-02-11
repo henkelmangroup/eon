@@ -311,14 +311,18 @@ void RidgeBased::step(){
 // Finds the true point of the ridge along the dimer trajectory by linear inrterpolation between nearest two dimer points.
 void RidgeBased::bisect(const std::vector<std::shared_ptr<Matter>>& traj_dimer, double tol = 0.02){
   log("%s In bisect function\n", LOG_PREFIX);
-  bool inbool;
-  //const Matter& pout = *traj_dimer[traj_dimer.size()-1];
-  //const Matter& pt = *traj_dimer[traj_dimer.size()-1] ;
-  Matter pout(*matter), pin(*matter), pt(*matter), pmid(*matter); 
+  bool inbool = false;
+  Matter pout(*matter), pin(*matter), pt(*matter), pmid(*matter);
+  if (traj_dimer.empty()) {
+  log("%s traj_dimer is empty!\n", LOG_PREFIX);
+  return;
+  } 
+
   log("%s traj_dimer.size(): %d\n", LOG_PREFIX, traj_dimer.size());
   if ((traj_dimer.size() == 1) || (inbool == false)){
-    printf("starting point of dimer is outside the basin");
-    Fridge = F0.reshaped(F0.size()/3, 3);
+    log("%s starting point of dimer is outside the basin\n", LOG_PREFIX);
+    //Fridge = F0.reshaped(F0.size()/3, 3);
+    Fridge = F0;
     Eridge = R0.getPotentialEnergy();
     Nridge = dim->getEigenvector().reshaped();
     return;
