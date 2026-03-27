@@ -1,0 +1,32 @@
+name: eon-website
+on:
+  push:
+    branches:
+      - main
+  # so we can manually trigger
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install required APT packages
+        run: |
+          sudo apt install python3 python3-pip
+          python3 -m pip install --upgrade pip
+          pip install sphinx
+      
+      - name: Build documentation
+        run: |
+          cd docs
+          make html
+          # block Github Jekyll
+          touch ../docs/_build/html/.nojekyll
+      
+      - name: Deploy website
+        # if: ${{ github.ref == 'refs/heads/master' }}
+        uses: JamesIves/github-pages-deploy-action@v4.3.3
+        with:
+          branch: gh-pages
+          folder: ./docs/_build/html
