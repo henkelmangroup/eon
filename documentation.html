@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Documentation &#8212; EON: Long Timescale Dynamics</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/henkv2.css?v=8af8e032" />
+    <link rel="stylesheet" type="text/css" href="_static/henkv2.css?v=8af8e032" />
+    <script src="_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+  </head><body> <!-- relbar1 comes before the document-->
+  <div class="related" role="navigation" aria-label="Related" style="display:flex">
+      <h3>Navigation</h3>
+      <ul>
+        <!-- EMDW: commenting this out because as far as I can tell, multiplying by 0 deletes the links so what's the point?-->
+        <!--
+        -->
+        <!-- this prints the "<root_name>" link-->
+        <!-- EMDW: updated to match template for Sphinx >= 7 -->
+        <!-- NOTE: max_width stops the image resizing. Change this?-->
+         <!-- -->
+            <li class="nav-item nav-item-0">
+              <a href="index.html">
+                <img class="logo" src="_static/eon_logo.png" alt="EON Home" style="position:relative; left: -240px; top: 0px; max-width: none;"/>
+              </a>
+            </li>
+        <!-- EMDW: sidebarsearch is already defined so name it something else-->
+            <li class="rel-search">
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" size="18" placeholder="Where is . . ."/>
+      <input type="submit" value="Search" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script></li>
+      </ul>
+    </div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="documentation">
+<span id="id1"></span><h1>Documentation<a class="headerlink" href="#documentation" title="Link to this heading">¶</a></h1>
+<p>The EON program can run the following methods or tasks to explore the configuration space of molecular systems and to accelerate the simulation of their dynamics over long times.  To run EON, a config.ini file must be generated using the options specified in the documentation. Each section header is denoted by square brackets, and is followed by the key/value pairs. For example, to set the <em>job_type</em> key of the <em>[Main]</em> section to the value <em>process_search</em>, your config.ini file would include the lines:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>[Main]
+job_type = process_search
+</pre></div>
+</div>
+<p>There are specific options for each method, and a set of general options which are shared between methods.  Examples of these general options include specificion of the interatomic potential and the parameters for doing structural optimizations and comparisons.</p>
+<p>EON is designed to run in serial on one computer or in parallel using a communicator to send jobs from a server to clients and receive the results back.  Several parallelization schemes have been implemented, including local communication through files, cluster communication via a queuing system or via mpi.  Methods run in parallel are broken up by the eon server into tasks which are run by client program.  The server then compiles the information sent back by the clients in a way that can be used by the sampling or dynamics methods.</p>
+<section id="jobs">
+<h2>Jobs<a class="headerlink" href="#jobs" title="Link to this heading">¶</a></h2>
+<p><a class="reference internal" href="akmc.html#akmc"><span class="std std-ref">Adaptive kinetic Monte Carlo</span></a>: uses saddle searches to find possible reactive events and KMC to determine the state-to-state kinetics.</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="recycling.html#recycling"><span class="std std-ref">Recycling</span></a>: reactive events (processes) between states to speed up AKMC.</p></li>
+<li><p><a class="reference internal" href="kdb.html#kdb"><span class="std std-ref">Kinetic Database</span></a>: of reactive events so they can be reused between AKMC runs.</p></li>
+<li><p><a class="reference internal" href="coarse_graining.html#coarse-graining"><span class="std std-ref">Coarse Graining</span></a>: to identify and escape groups of states connected by low barriers.</p></li>
+</ul>
+<p><a class="reference internal" href="parallel_replica.html#parallel-replica"><span class="std std-ref">Parallel Replica Dynamics</span></a>: uses a set of trajectories to accerate the rate of escape from states.</p>
+<p><a class="reference internal" href="dynamics.html#dynamics"><span class="std std-ref">Molecular Dynamics</span></a>: standard classical dynamics.</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="hyperdynamics.html#hyperdynamics"><span class="std std-ref">Hyperdynamics</span></a>: uses a bias potential to accelerate transitions between states.</p></li>
+</ul>
+<p><a class="reference internal" href="basin_hopping.html#basin-hopping"><span class="std std-ref">Basin Hopping</span></a>: lowers the barrier between states to accelerate Monte Carlo sampling.</p>
+<p><a class="reference internal" href="process_search.html#process-search"><span class="std std-ref">Process Search</span></a>: finds possible escape mechanisms from a state.</p>
+<p><a class="reference internal" href="saddle_search.html#saddle-search"><span class="std std-ref">Saddle Search</span></a>: finds a nearby saddle point.</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="dimer.html#dimer"><span class="std std-ref">Dimer</span></a>: method to find the lowest curvature mode.</p></li>
+<li><p><a class="reference internal" href="lanczos.html#lanczos"><span class="std std-ref">Lanczos</span></a>: method to find the lowest curvature mode.</p></li>
+</ul>
+<p><a class="reference internal" href="minimization.html#minimization"><span class="std std-ref">Minimization</span></a>: optimize the geometry of a structure.</p>
+<p><a class="reference internal" href="neb.html#neb"><span class="std std-ref">Nudged Elastic Band</span></a>: Locate minimum energy pathways using nudged elastic band calculation.</p>
+</section>
+<section id="general-options">
+<h2>General Options<a class="headerlink" href="#general-options" title="Link to this heading">¶</a></h2>
+<p><a class="reference internal" href="main.html#main"><span class="std std-ref">Main</span></a>: options which not specific to a single job type.</p>
+<p><a class="reference internal" href="communicator.html#communicator"><span class="std std-ref">Communicator</span></a>: methods by which the code can be run in parallel.</p>
+<p><a class="reference internal" href="potential.html#potential"><span class="std std-ref">Potential</span></a>: the interatomic potentials available, as well as interfaces to LAMMPS and DFT codes.</p>
+<p><a class="reference internal" href="optimizer.html#optimizer"><span class="std std-ref">Optimizer</span></a>: methods for optimizing atomic structures.</p>
+<p><a class="reference internal" href="hessian.html#hessian"><span class="std std-ref">Hessian</span></a>: options for controlling the calculation of Hessian matricies.</p>
+<p><a class="reference internal" href="prefactor.html#prefactor"><span class="std std-ref">Prefactor</span></a>: options for controlling the calculation of harmonic transition state theory prefactors.</p>
+<p><a class="reference internal" href="structure_comparison.html#structure-comparison"><span class="std std-ref">Structure Comparison</span></a>: options for determining if two structures are the same.</p>
+<p><a class="reference internal" href="paths.html#paths"><span class="std std-ref">Paths</span></a>: directories in which the calculations will be run.</p>
+<p><a class="reference internal" href="debug.html#debug"><span class="std std-ref">Debug</span></a>: options for printing more information to help debug calculations.</p>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+
+<h3><a href="index.html">EON</a></h3>
+<ul class="this-page-menu">
+  <li><a href="download.html">Download</a></li>
+  <li><a href="installation.html">Installation</a></li>
+  <li><a href="#">Documentation</a></li>
+  <li><a href="tutorials.html">Tutorials</a></li>
+</ul>
+<h3>Development</h3>
+<ul class="this-page-menu">
+  <li><a href="http://theory.cm.utexas.edu/redmine/projects/eon/repository">Source Code Browser</a></li>
+  <li><a href="http://theory.cm.utexas.edu/redmine/projects/eon/issues">Bug Tracker</a></li>
+</ul>
+  <div>
+      <h3>This page</h3>
+      <ul>
+<li><a class="reference internal" href="#">Documentation</a><ul>
+<li><a class="reference internal" href="#jobs">Jobs</a></li>
+<li><a class="reference internal" href="#general-options">General Options</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div role="note" aria-label="source link">
+    <!-- <h3>This Page</h3> -->
+    <ul class="this-page-menu">
+      <li><a href="_sources/documentation.txt"
+            rel="nofollow">Page Source</a></li>
+    </ul>
+   </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  </body>
+</html>

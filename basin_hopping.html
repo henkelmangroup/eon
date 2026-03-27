@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Basin Hopping &#8212; EON: Long Timescale Dynamics</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/henkv2.css?v=8af8e032" />
+    <link rel="stylesheet" type="text/css" href="_static/henkv2.css?v=8af8e032" />
+    <script src="_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+  </head><body> <!-- relbar1 comes before the document-->
+  <div class="related" role="navigation" aria-label="Related" style="display:flex">
+      <h3>Navigation</h3>
+      <ul>
+        <!-- EMDW: commenting this out because as far as I can tell, multiplying by 0 deletes the links so what's the point?-->
+        <!--
+        -->
+        <!-- this prints the "<root_name>" link-->
+        <!-- EMDW: updated to match template for Sphinx >= 7 -->
+        <!-- NOTE: max_width stops the image resizing. Change this?-->
+         <!-- -->
+            <li class="nav-item nav-item-0">
+              <a href="index.html">
+                <img class="logo" src="_static/eon_logo.png" alt="EON Home" style="position:relative; left: -240px; top: 0px; max-width: none;"/>
+              </a>
+            </li>
+        <!-- EMDW: sidebarsearch is already defined so name it something else-->
+            <li class="rel-search">
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" size="18" placeholder="Where is . . ."/>
+      <input type="submit" value="Search" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script></li>
+      </ul>
+    </div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="basin-hopping">
+<span id="id1"></span><h1>Basin Hopping<a class="headerlink" href="#basin-hopping" title="Link to this heading">¶</a></h1>
+<p>Basin hopping is a Monte Carlo method in which the energy of each configuration
+is taken to be the energy of a local minimum. <a class="footnote-reference brackets" href="#wales" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a></p>
+<p>At each basin hopping step the client will print out the current energy
+(current), the trial energy (trial), the lowest energy found (global min), the
+number of force calls needed to minimize the structure (fc), the acceptance
+ratio (ar), and the current max displacement (md).</p>
+<section id="basin-hopping-options">
+<h2>[Basin Hopping] Options<a class="headerlink" href="#basin-hopping-options" title="Link to this heading">¶</a></h2>
+<p><strong>steps</strong>: Number at steps to take at the assigned temeprature.</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">10000</span></code></p>
+</div></blockquote>
+<p><strong>displacement</strong>: Displacement in each degree of freedom.</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">0.5</span></code></p>
+</div></blockquote>
+<p><strong>write_unique</strong>: If <code class="docutils literal notranslate"><span class="pre">true</span></code> the client will write out all the unique geometries
+that it sees and there energies to files named min_xxxxx.con and energy_xxxxx.con
+where the number in the filename corresponds to the monte carlo step where
+that structure was first seen. For clusters it is important to set <strong>check_rotation</strong>
+in the <strong>[Structure Comparison]</strong> section.</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">false</span></code></p>
+</div></blockquote>
+<p><strong>initial_state_pool_size</strong>: The number of lowest energy states in the pool from
+which the initial structures are drawn.  The default value of 1 corresponds to a
+simulation which will always start from the lowest energy found so far.</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">1</span></code></p>
+</div></blockquote>
+<p><strong>initial_random_structure_probability</strong>: Probability that the initial structure
+is generated at random.</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">0.0</span></code></p>
+</div></blockquote>
+<p><strong>push_apart_distance</strong>: Push atoms apart until now atoms are closer than this distance. This critera is enforced for the initial structure and all those generated by random displacements.
+trial move.</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">0.4</span></code></p>
+</div></blockquote>
+<p><strong>adjust_displacement</strong>: Flag to automatically adjust the displacement to meet
+the target acceptance ratio.</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">true</span></code></p>
+</div></blockquote>
+<p><strong>adjust_fraction</strong>: The fraction by which to change the step size in order to
+meet the target acceptance ratio.</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">0.05</span></code></p>
+</div></blockquote>
+<p><strong>adjust_period</strong>: The number of Monte Carlo steps between adjustments of the
+step size.</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">10</span></code></p>
+</div></blockquote>
+<p><strong>target_ratio</strong>: The target acceptance ratio that will be used to determine
+whether to increase or decrease the step size.</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">0.5</span></code></p>
+</div></blockquote>
+<p><strong>displacement_distribution</strong>: The distribution used for the displacement of
+each atom.</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">gaussian</span></code></p>
+<p>options:</p>
+<blockquote>
+<div><p><code class="docutils literal notranslate"><span class="pre">gaussian</span></code>: The <strong>displacement</strong> serves as the standard deviation of a
+gaussian distribution used to select displacements.</p>
+<p><code class="docutils literal notranslate"><span class="pre">uniform</span></code>: A random number is selected between -<strong>displacement</strong> and <strong>displacement</strong>.</p>
+</div></blockquote>
+</div></blockquote>
+<p><strong>swap_probability</strong>: The probability in range [0,1] that a swapping step
+takes place instead of a displacement step. The swap step selects two atoms of
+different elements and swaps their position.</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">0.0</span></code></p>
+</div></blockquote>
+<p><strong>single_atom_displace</strong>: If <code class="docutils literal notranslate"><span class="pre">True</span></code>, selects a single random atom from the candidate pool to displace.
+The candidate pool is determined by <strong>displace_atom_list</strong> or <strong>displace_type_list</strong> if specified; otherwise all atoms are candidates.</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
+</div></blockquote>
+<p><strong>displace_atom_list</strong>: Comma-separated list of atom indices (0-based) to consider for displacement.
+If specified, displacement is restricted to these atoms.
+Example: <code class="docutils literal notranslate"><span class="pre">0,1,2</span></code> or <code class="docutils literal notranslate"><span class="pre">10,20,-1</span></code>.</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">empty</span></code> (all atoms)</p>
+</div></blockquote>
+<p><strong>displace_type_list</strong>: Comma-separated list of atomic numbers or element symbols to consider for displacement.
+Used only if <strong>displace_atom_list</strong> is empty.
+Example: <code class="docutils literal notranslate"><span class="pre">78,79</span></code> or <code class="docutils literal notranslate"><span class="pre">Pt,Au</span></code>.</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">empty</span></code> (all atoms)</p>
+</div></blockquote>
+<p><strong>jump_max</strong>: The number of consecutive rejected steps after which jump steps
+should be taken. This serves to provide a more global search when the structure
+is stuck in a certain basin. The number of jump steps is assigned in
+jump_steps. See paper on the Basin Hopping with Occasional Jumping algorithm by
+Iwamatsu and Okabe. <a class="footnote-reference brackets" href="#iwamatsu" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a></p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">0</span></code></p>
+</div></blockquote>
+<p><strong>significant_structure</strong>: Displace from minimized structures. <a class="footnote-reference brackets" href="#white" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a></p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">True</span></code></p>
+</div></blockquote>
+<p><strong>jump_steps</strong>: The number of jump steps to take after the jump_max number of
+consecutive rejections have taken place.</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">0</span></code></p>
+</div></blockquote>
+<p class="rubric">References</p>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="wales" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">1</a><span class="fn-bracket">]</span></span>
+<p>D.J. Wales and J.P.K. Doye, “Global optimization by basin-hopping and the lowest energy structures of Lennard-Jones clusters containing up to 110 atoms,” <em>J. Phys. Chem. A</em> <strong>101</strong>, 5111 (1997). doi:<a class="reference external" href="http://dx.doi.org/10.1021/jp970984n">10.1021/jp970984n</a></p>
+</aside>
+<aside class="footnote brackets" id="iwamatsu" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">2</a><span class="fn-bracket">]</span></span>
+<ol class="upperalpha simple" start="13">
+<li><p>Iwamatsu and Y. Okabe, “Basin hopping with occasional jumping,” <em>Chem. Phys. Lett.</em> <strong>399</strong> 396 (2004). doi:<a class="reference external" href="http://dx.doi.org/10.1016/j.cplett.2004.10.032">10.1016/j.cplett.2004.10.032</a></p></li>
+</ol>
+</aside>
+<aside class="footnote brackets" id="white" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id4">3</a><span class="fn-bracket">]</span></span>
+<p>R.P. White and H.R. Mayne, “An investigation of two approaches to basin hopping minimization for atomic and molecular clusters,” <em>Chem. Phys. Lett.</em> <strong>289</strong>, 463 (1998). doi:<a class="reference external" href="http://dx.doi.org/10.1016/S0009-2614(98)00431-X">10.1016/S0009-2614(98)00431-X</a></p>
+</aside>
+</aside>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+
+<h3><a href="index.html">EON</a></h3>
+<ul class="this-page-menu">
+  <li><a href="download.html">Download</a></li>
+  <li><a href="installation.html">Installation</a></li>
+  <li><a href="documentation.html">Documentation</a></li>
+  <li><a href="tutorials.html">Tutorials</a></li>
+</ul>
+<h3>Development</h3>
+<ul class="this-page-menu">
+  <li><a href="http://theory.cm.utexas.edu/redmine/projects/eon/repository">Source Code Browser</a></li>
+  <li><a href="http://theory.cm.utexas.edu/redmine/projects/eon/issues">Bug Tracker</a></li>
+</ul>
+  <div>
+      <h3>This page</h3>
+      <ul>
+<li><a class="reference internal" href="#">Basin Hopping</a><ul>
+<li><a class="reference internal" href="#basin-hopping-options">[Basin Hopping] Options</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div role="note" aria-label="source link">
+    <!-- <h3>This Page</h3> -->
+    <ul class="this-page-menu">
+      <li><a href="_sources/basin_hopping.txt"
+            rel="nofollow">Page Source</a></li>
+    </ul>
+   </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  </body>
+</html>

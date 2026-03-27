@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Contents &#8212; EON: Long Timescale Dynamics</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/henkv2.css?v=8af8e032" />
+    <link rel="stylesheet" type="text/css" href="_static/henkv2.css?v=8af8e032" />
+    <script src="_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+  </head><body> <!-- relbar1 comes before the document-->
+  <div class="related" role="navigation" aria-label="Related" style="display:flex">
+      <h3>Navigation</h3>
+      <ul>
+        <!-- EMDW: commenting this out because as far as I can tell, multiplying by 0 deletes the links so what's the point?-->
+        <!--
+        -->
+        <!-- this prints the "<root_name>" link-->
+        <!-- EMDW: updated to match template for Sphinx >= 7 -->
+        <!-- NOTE: max_width stops the image resizing. Change this?-->
+         <!-- -->
+            <li class="nav-item nav-item-0">
+              <a href="index.html">
+                <img class="logo" src="_static/eon_logo.png" alt="EON Home" style="position:relative; left: -240px; top: 0px; max-width: none;"/>
+              </a>
+            </li>
+        <!-- EMDW: sidebarsearch is already defined so name it something else-->
+            <li class="rel-search">
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" size="18" placeholder="Where is . . ."/>
+      <input type="submit" value="Search" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script></li>
+      </ul>
+    </div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="contents">
+<h1>Contents<a class="headerlink" href="#contents" title="Link to this heading">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="eon.html">General Simulation Parameters</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="eon.html#main-section"><strong>[Main]</strong> section</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eon.html#structure-comparison-section"><strong>[Structure Comparison]</strong> section</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eon.html#paths-section"><strong>[Paths]</strong> section</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eon.html#id1"><strong>[Paths]</strong> section</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="download.html">Download</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html#dependencies">Dependencies</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#server-requirements">Server Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#client-requirements">Client Requirements</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html#eon-server-installation">EON Server Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#user-installation">User Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#global-installation">Global Installation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html#eonclient-installation">EONClient Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#fortran-support">Fortran Support</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html#ase-calculator">ASE Calculator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html#lammps-potential">LAMMPS Potential</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html#mpi-communicator">MPI Communicator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html#test-run">Test Run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html#id2">Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html#server-installation">Server Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html#client-installation">Client Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="documentation.html">Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#jobs">Jobs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#general-options">General Options</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="akmc.html">Adaptive kinetic Monte Carlo</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="akmc.html#akmc-options">[AKMC] Options</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="parallel_replica.html">Parallel Replica</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="parallel_replica.html#parallel-replica-options">[Parallel Replica] Options</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="basin_hopping.html">Basin Hopping</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="basin_hopping.html#basin-hopping-options">[Basin Hopping] Options</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="prefactor.html">Prefactor</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="prefactor.html#prefactor-options">[Prefactor] Options</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="process_search.html">Process Search</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="process_search.html#process-search-options">[Process Search] Options</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="saddle_search.html">Saddle Search</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="saddle_search.html#saddle-search-options">[Saddle Search] Options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="saddle_search.html#options-for-dynamics-method">Options for Dynamics Method</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="hessian.html">Hessian</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="hessian.html#hessian-options">[Hessian] Options</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="dynamics.html">Dynamics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="dynamics.html#dynamics-options">[Dynamics] Options</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="hyperdynamics.html">Hyperdynamics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="hyperdynamics.html#hyperdynamics-options">[Hyperdynamics] Options</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="main.html">Main</a></li>
+<li class="toctree-l1"><a class="reference internal" href="communicator.html">Parallelization</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="communicator.html#communicator-options">[Communicator] Options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="communicator.html#local">Local</a></li>
+<li class="toctree-l2"><a class="reference internal" href="communicator.html#cluster">Cluster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="communicator.html#mpi">MPI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="communicator.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="potential.html">Potential</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mpi_potential.html">MPI Potential</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="mpi_potential.html#vasp">VASP</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="lammps_potential.html">LAMMPS Potential</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="lammps_potential.html#meam">MEAM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lammps_potential.html#openmp">OpenMP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lammps_potential.html#options">Options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lammps_potential.html#notes-for-intel-compilers">Notes for Intel Compilers</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ase_interface.html">ASE Interface</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ase_interface.html#compilation">Compilation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ase_interface.html#after-compilation">After Compilation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ase_interface.html#using-the-ase-interface">Using the ASE interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ase_interface.html#python-script-contents">Python script contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ase_interface.html#manually-adding-paths">Manually Adding Paths</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="optimizer.html">Optimizer</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="optimizer.html#optimizer-parameters"><strong>[Optimizer]</strong> parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="optimizer.html#l-bfgs">L-BFGS</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="structure_comparison.html">Structure Comparison</a></li>
+<li class="toctree-l1"><a class="reference internal" href="paths.html">Paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="debug.html">Debug</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="debug.html#debug-options">[Debug] Options</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_akmc.html">AKMC Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_parrep.html">Running a Parallel Replica Job</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorial_parrep.html#parallel-replica-with-hyperdynamics">Parallel Replica with Hyperdynamics</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_basin_hopping.html">Basin Hopping Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="minimization.html">Minimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="neb.html">Nudged Elastic Band</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="neb.html#nudged-elastic-band-options">[Nudged Elastic Band] Options</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="dimer.html">Dimer</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="dimer.html#dimer-options">[Dimer] Options</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="lanczos.html">Lanczos</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="lanczos.html#lanczos-options">[Lanczos] Options</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="coarse_graining.html">Coarse Graining</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="coarse_graining.html#monte-carlo-with-absorbing-markov-chains">Monte Carlo with Absorbing Markov Chains</a></li>
+<li class="toctree-l2"><a class="reference internal" href="coarse_graining.html#accelerated-superbasin-kinetic-monte-carlo">Accelerated Superbasin Kinetic Monte Carlo</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="kdb.html">Kinetic Database</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="kdb.html#dependencies">Dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kdb.html#kdb-options">[KDB] Options</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="recycling.html">Recycling</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="recycling.html#recycling-options">[Recycling] Options</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="server_config.html">Server configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html">EON: Long timescale dynamics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="index.html#systems-which-can-be-modelled">Systems which can be modelled</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#interatomic-interactions">Interatomic Interactions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#parallel-interfaces">Parallel Interfaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#the-eon-team">The EON team</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+
+<h3><a href="index.html">EON</a></h3>
+<ul class="this-page-menu">
+  <li><a href="download.html">Download</a></li>
+  <li><a href="installation.html">Installation</a></li>
+  <li><a href="documentation.html">Documentation</a></li>
+  <li><a href="tutorials.html">Tutorials</a></li>
+</ul>
+<h3>Development</h3>
+<ul class="this-page-menu">
+  <li><a href="http://theory.cm.utexas.edu/redmine/projects/eon/repository">Source Code Browser</a></li>
+  <li><a href="http://theory.cm.utexas.edu/redmine/projects/eon/issues">Bug Tracker</a></li>
+</ul>
+  <div role="note" aria-label="source link">
+    <!-- <h3>This Page</h3> -->
+    <ul class="this-page-menu">
+      <li><a href="_sources/contents.txt"
+            rel="nofollow">Page Source</a></li>
+    </ul>
+   </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  </body>
+</html>

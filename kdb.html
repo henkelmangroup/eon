@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Kinetic Database &#8212; EON: Long Timescale Dynamics</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/henkv2.css?v=8af8e032" />
+    <link rel="stylesheet" type="text/css" href="_static/henkv2.css?v=8af8e032" />
+    <script src="_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+  </head><body> <!-- relbar1 comes before the document-->
+  <div class="related" role="navigation" aria-label="Related" style="display:flex">
+      <h3>Navigation</h3>
+      <ul>
+        <!-- EMDW: commenting this out because as far as I can tell, multiplying by 0 deletes the links so what's the point?-->
+        <!--
+        -->
+        <!-- this prints the "<root_name>" link-->
+        <!-- EMDW: updated to match template for Sphinx >= 7 -->
+        <!-- NOTE: max_width stops the image resizing. Change this?-->
+         <!-- -->
+            <li class="nav-item nav-item-0">
+              <a href="index.html">
+                <img class="logo" src="_static/eon_logo.png" alt="EON Home" style="position:relative; left: -240px; top: 0px; max-width: none;"/>
+              </a>
+            </li>
+        <!-- EMDW: sidebarsearch is already defined so name it something else-->
+            <li class="rel-search">
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" size="18" placeholder="Where is . . ."/>
+      <input type="submit" value="Search" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script></li>
+      </ul>
+    </div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="kinetic-database">
+<span id="kdb"></span><h1>Kinetic Database<a class="headerlink" href="#kinetic-database" title="Link to this heading">¶</a></h1>
+<p>One of the bottlenecks in an aKMC simulation is performing the saddle point
+searches.  The kinetic database is used to ameliorate this cost by
+storing information about processes as they are found and using it to predict
+future saddle points.</p>
+<p>In the following figure, the hydrogen of a carboxyl group on an Au(111) surface
+transfers to the other oxygen (a). In this process, the hydrogen is determined
+to be the only moving atom, and the two oxygen atoms to be its neighbors. The
+other atoms are stripped from the system and the resulting configurations are
+stored in the database (b). If in the future the system passes through a state
+with a local configuration closely resembling either minimum of (b), the
+kinetic database will suggest a saddle to converge with a dimer search. The
+dimer starts with this suggested configuration and mode, and if it is a good
+suggestion, converges very rapidly to the saddle.</p>
+<img alt="_images/kdb_insert.png" class="align-center" src="_images/kdb_insert.png" />
+<section id="dependencies">
+<h2>Dependencies<a class="headerlink" href="#dependencies" title="Link to this heading">¶</a></h2>
+<p>The kinetic database is contained in a library seperate from eOn. It can be found in our
+<em>tsase</em> Python module located <a class="reference external" href="http://theory.cm.utexas.edu/tsase">here</a>.</p>
+</section>
+<section id="kdb-options">
+<h2>[KDB] Options<a class="headerlink" href="#kdb-options" title="Link to this heading">¶</a></h2>
+<p><strong>use_kdb</strong>: Turn KDB on/off.</p>
+<blockquote>
+<div><p>type: boolean</p>
+<p>default: <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
+</div></blockquote>
+<p><strong>remove_duplicates</strong>: KDB will not make duplicate suggestions. This can slow KDB querying, so it may be best to use this only for slow potentials (DFT, etc.).</p>
+<blockquote>
+<div><p>type: boolean</p>
+<p>default: <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
+</div></blockquote>
+<p><strong>kdb_only</strong>: Only use kdb in an akmc simulation, no random searches.</p>
+<blockquote>
+<div><p>type: boolean</p>
+<p>default: <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
+</div></blockquote>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+
+<h3><a href="index.html">EON</a></h3>
+<ul class="this-page-menu">
+  <li><a href="download.html">Download</a></li>
+  <li><a href="installation.html">Installation</a></li>
+  <li><a href="documentation.html">Documentation</a></li>
+  <li><a href="tutorials.html">Tutorials</a></li>
+</ul>
+<h3>Development</h3>
+<ul class="this-page-menu">
+  <li><a href="http://theory.cm.utexas.edu/redmine/projects/eon/repository">Source Code Browser</a></li>
+  <li><a href="http://theory.cm.utexas.edu/redmine/projects/eon/issues">Bug Tracker</a></li>
+</ul>
+  <div>
+      <h3>This page</h3>
+      <ul>
+<li><a class="reference internal" href="#">Kinetic Database</a><ul>
+<li><a class="reference internal" href="#dependencies">Dependencies</a></li>
+<li><a class="reference internal" href="#kdb-options">[KDB] Options</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div role="note" aria-label="source link">
+    <!-- <h3>This Page</h3> -->
+    <ul class="this-page-menu">
+      <li><a href="_sources/kdb.txt"
+            rel="nofollow">Page Source</a></li>
+    </ul>
+   </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  </body>
+</html>

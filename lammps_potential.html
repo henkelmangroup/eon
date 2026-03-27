@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>LAMMPS Potential &#8212; EON: Long Timescale Dynamics</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/henkv2.css?v=8af8e032" />
+    <link rel="stylesheet" type="text/css" href="_static/henkv2.css?v=8af8e032" />
+    <script src="_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+  </head><body> <!-- relbar1 comes before the document-->
+  <div class="related" role="navigation" aria-label="Related" style="display:flex">
+      <h3>Navigation</h3>
+      <ul>
+        <!-- EMDW: commenting this out because as far as I can tell, multiplying by 0 deletes the links so what's the point?-->
+        <!--
+        -->
+        <!-- this prints the "<root_name>" link-->
+        <!-- EMDW: updated to match template for Sphinx >= 7 -->
+        <!-- NOTE: max_width stops the image resizing. Change this?-->
+         <!-- -->
+            <li class="nav-item nav-item-0">
+              <a href="index.html">
+                <img class="logo" src="_static/eon_logo.png" alt="EON Home" style="position:relative; left: -240px; top: 0px; max-width: none;"/>
+              </a>
+            </li>
+        <!-- EMDW: sidebarsearch is already defined so name it something else-->
+            <li class="rel-search">
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" size="18" placeholder="Where is . . ."/>
+      <input type="submit" value="Search" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script></li>
+      </ul>
+    </div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="lammps-potential">
+<span id="id1"></span><h1>LAMMPS Potential<a class="headerlink" href="#lammps-potential" title="Link to this heading">¶</a></h1>
+<p>In order to use the LAMMPS potential you must first build the serial library
+version of LAMMPS. This can be done by following the instructions in the
+<a class="reference external" href="https://lammps.sandia.gov/doc/Manual.html">lammps documentation</a> . For
+most cases executing these commands from the LAMMPS <code class="docutils literal notranslate"><span class="pre">src</span></code> folder should work:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd STUBS
+$ make
+$ cd ..
+$ make yes-manybody serial mode=lib
+</pre></div>
+</div>
+<p>Once you have compiled the library copy <code class="docutils literal notranslate"><span class="pre">liblammps_serial.a</span></code> and
+<code class="docutils literal notranslate"><span class="pre">STUBS/libmpi_stubs.a</span></code> to the client/potentials/LAMMPS directory in the Eon
+source code.  The Eon client can then be built like so:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ make LAMMPS_POT=1
+</pre></div>
+</div>
+<p>After setting the potential to <code class="docutils literal notranslate"><span class="pre">lammps</span></code> in <code class="docutils literal notranslate"><span class="pre">config.ini</span></code> you need to place a
+LAMMPS input file in the <code class="docutils literal notranslate"><span class="pre">potfiles</span></code> directory in your simulation. This file should
+be named <code class="docutils literal notranslate"><span class="pre">in.lammps</span></code> and it needs to specify what potential LAMMPS should use.
+Here is an example in.lammps file that uses the morse potential:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pair_style</span> <span class="n">morse</span> <span class="mf">9.5</span> <span class="c1">#morse potential with 9.5 Angstrom cutoff</span>
+<span class="n">pair_coeff</span> <span class="o">*</span> <span class="o">*</span> <span class="mf">0.7102</span> <span class="mf">1.6047</span> <span class="mf">2.797</span> <span class="c1">#specify parameters</span>
+<span class="n">pair_modify</span> <span class="n">shift</span> <span class="n">yes</span> <span class="c1">#shift the potential to be zero at the cutoff</span>
+</pre></div>
+</div>
+<section id="meam">
+<h2>MEAM<a class="headerlink" href="#meam" title="Link to this heading">¶</a></h2>
+<p>If you compiled LAMMPS with the MEAM package you need to copy
+<code class="docutils literal notranslate"><span class="pre">lib/meam/libmeam.a</span></code> from the LAMMPS directory to
+<code class="docutils literal notranslate"><span class="pre">potentials/LAMMPS</span></code> in EON. After that, add the following line to
+<code class="docutils literal notranslate"><span class="pre">client/Makefile</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">LDFLAGS</span> <span class="o">+=</span> <span class="n">potentials</span><span class="o">/</span><span class="n">LAMMPS</span><span class="o">/</span><span class="n">libmeam</span><span class="o">.</span><span class="n">a</span>
+</pre></div>
+</div>
+</section>
+<section id="openmp">
+<h2>OpenMP<a class="headerlink" href="#openmp" title="Link to this heading">¶</a></h2>
+<p>Compile LAMMPS with the USER-OMP package. Then add the following line
+to <code class="docutils literal notranslate"><span class="pre">client/Makefile</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">LDFLAGS</span> <span class="o">+=</span> <span class="o">-</span><span class="n">fopenmp</span>
+</pre></div>
+</div>
+<p>See below for setting the number of threads.</p>
+</section>
+<section id="options">
+<h2>Options<a class="headerlink" href="#options" title="Link to this heading">¶</a></h2>
+<p><strong>lammps_logging</strong>: This option enables/disables the LAMMPS logfile. If enabled
+LAMMPS will log to the file <code class="docutils literal notranslate"><span class="pre">log.lammps</span></code>.</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">false</span></code></p>
+</div></blockquote>
+<p><strong>lammps_threads</strong>: Controls how many threads to use if LAMMPS has been
+compiled with OpenMP support via the USER-OMP LAMMPS package.</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">0</span></code></p>
+</div></blockquote>
+</section>
+<section id="notes-for-intel-compilers">
+<h2>Notes for Intel Compilers<a class="headerlink" href="#notes-for-intel-compilers" title="Link to this heading">¶</a></h2>
+<p>To build the LAMMPS serial library with Intel compilers, make these following
+modifications (from the LAMMPS <code class="docutils literal notranslate"><span class="pre">src</span></code> directory):</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">STUBS/Makefile</span></code>       : set <code class="docutils literal notranslate"><span class="pre">CC</span></code> to <code class="docutils literal notranslate"><span class="pre">icpc</span></code> or <code class="docutils literal notranslate"><span class="pre">icpx</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MAKE/Makefile.serial</span></code> : set <code class="docutils literal notranslate"><span class="pre">CC</span></code> and <code class="docutils literal notranslate"><span class="pre">LINK</span></code> to <code class="docutils literal notranslate"><span class="pre">icpc</span></code> or <code class="docutils literal notranslate"><span class="pre">icpx</span></code></p></li>
+</ul>
+<p>To build the EON client with Intel compilers, make these following modifications
+to EON’s <code class="docutils literal notranslate"><span class="pre">client/Makefile</span></code>:</p>
+<ul class="simple">
+<li><p>Set <code class="docutils literal notranslate"><span class="pre">CC</span></code> to <code class="docutils literal notranslate"><span class="pre">icc</span></code></p></li>
+<li><p>Set <code class="docutils literal notranslate"><span class="pre">CXX</span></code> to <code class="docutils literal notranslate"><span class="pre">icpc</span></code></p></li>
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">-std=c++11</span></code> to <code class="docutils literal notranslate"><span class="pre">CXXFLAGS</span></code></p></li>
+<li><p>In the <code class="docutils literal notranslate"><span class="pre">Fortran</span> <span class="pre">compiler</span> <span class="pre">settings</span></code> section, comment out the <code class="docutils literal notranslate"><span class="pre">FC</span></code>, <code class="docutils literal notranslate"><span class="pre">FFLAGS</span></code>, <code class="docutils literal notranslate"><span class="pre">FAR</span></code>, and <code class="docutils literal notranslate"><span class="pre">LDFLAGS</span></code> lines under <code class="docutils literal notranslate"><span class="pre">#gfortran</span></code>, and uncomment them under <code class="docutils literal notranslate"><span class="pre">#ifort</span></code></p></li>
+</ul>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+
+<h3><a href="index.html">EON</a></h3>
+<ul class="this-page-menu">
+  <li><a href="download.html">Download</a></li>
+  <li><a href="installation.html">Installation</a></li>
+  <li><a href="documentation.html">Documentation</a></li>
+  <li><a href="tutorials.html">Tutorials</a></li>
+</ul>
+<h3>Development</h3>
+<ul class="this-page-menu">
+  <li><a href="http://theory.cm.utexas.edu/redmine/projects/eon/repository">Source Code Browser</a></li>
+  <li><a href="http://theory.cm.utexas.edu/redmine/projects/eon/issues">Bug Tracker</a></li>
+</ul>
+  <div>
+      <h3>This page</h3>
+      <ul>
+<li><a class="reference internal" href="#">LAMMPS Potential</a><ul>
+<li><a class="reference internal" href="#meam">MEAM</a></li>
+<li><a class="reference internal" href="#openmp">OpenMP</a></li>
+<li><a class="reference internal" href="#options">Options</a></li>
+<li><a class="reference internal" href="#notes-for-intel-compilers">Notes for Intel Compilers</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div role="note" aria-label="source link">
+    <!-- <h3>This Page</h3> -->
+    <ul class="this-page-menu">
+      <li><a href="_sources/lammps_potential.txt"
+            rel="nofollow">Page Source</a></li>
+    </ul>
+   </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  </body>
+</html>

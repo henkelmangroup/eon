@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>General Simulation Parameters &#8212; EON: Long Timescale Dynamics</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/henkv2.css?v=8af8e032" />
+    <link rel="stylesheet" type="text/css" href="_static/henkv2.css?v=8af8e032" />
+    <script src="_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+  </head><body> <!-- relbar1 comes before the document-->
+  <div class="related" role="navigation" aria-label="Related" style="display:flex">
+      <h3>Navigation</h3>
+      <ul>
+        <!-- EMDW: commenting this out because as far as I can tell, multiplying by 0 deletes the links so what's the point?-->
+        <!--
+        -->
+        <!-- this prints the "<root_name>" link-->
+        <!-- EMDW: updated to match template for Sphinx >= 7 -->
+        <!-- NOTE: max_width stops the image resizing. Change this?-->
+         <!-- -->
+            <li class="nav-item nav-item-0">
+              <a href="index.html">
+                <img class="logo" src="_static/eon_logo.png" alt="EON Home" style="position:relative; left: -240px; top: 0px; max-width: none;"/>
+              </a>
+            </li>
+        <!-- EMDW: sidebarsearch is already defined so name it something else-->
+            <li class="rel-search">
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" size="18" placeholder="Where is . . ."/>
+      <input type="submit" value="Search" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script></li>
+      </ul>
+    </div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="general-simulation-parameters">
+<span id="eon"></span><h1>General Simulation Parameters<a class="headerlink" href="#general-simulation-parameters" title="Link to this heading">¶</a></h1>
+<p>The following contains general options which specify the calculation to be done
+and general parameters which are shared between job types.</p>
+<p>These are the options that go in the following sections of the config.ini file.</p>
+<section id="main-section">
+<h2><strong>[Main]</strong> section<a class="headerlink" href="#main-section" title="Link to this heading">¶</a></h2>
+<p><strong>job</strong>: The type of job to execute.</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">akmc</span></code></p>
+<p>options:</p>
+<blockquote>
+<div><p><code class="docutils literal notranslate"><span class="pre">md</span></code>: Molecular dynamics.</p>
+<p><code class="docutils literal notranslate"><span class="pre">parallel_replica</span></code>: Calculate the rare-event dynamics of the system by combining transitions observed from multiple trajectories run in parallel.</p>
+<p><code class="docutils literal notranslate"><span class="pre">saddle_search</span></code>: Do a saddle point search using a minimum mode method.</p>
+<p><code class="docutils literal notranslate"><span class="pre">displacement_sampling</span></code>: Job to sample different displacement methods and parameters to see which are the most efficient.</p>
+<p><code class="docutils literal notranslate"><span class="pre">process_search</span></code>: Combined saddle search, minimizations, and prefactor calculations. Used by the aKMC method.</p>
+<p><code class="docutils literal notranslate"><span class="pre">basin_hopping</span></code>: Search for global minimum using basin hopping method.</p>
+<p><code class="docutils literal notranslate"><span class="pre">minimization</span></code>: Find the minimum from an initial configuration.</p>
+<p><code class="docutils literal notranslate"><span class="pre">akmc</span></code>: Run an adaptive kinetic monte carlo simulation.</p>
+<p><code class="docutils literal notranslate"><span class="pre">hessian</span></code>: Calculate the Hessian matrix for the specified configuration in a process.</p>
+<p><code class="docutils literal notranslate"><span class="pre">prefactor</span></code>: Calculate the eigenfrequencies for a given configuration.</p>
+</div></blockquote>
+</div></blockquote>
+<p><strong>potential</strong>: the type of potential to execute</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">lj</span></code></p>
+<p>options:</p>
+<blockquote>
+<div><p><code class="docutils literal notranslate"><span class="pre">qsc</span></code>: Quantum Sutton-Chen potential, for FCC metals.</p>
+<p><code class="docutils literal notranslate"><span class="pre">lenosky_Si</span></code>: Lenosky potential, for silicon.</p>
+<p><code class="docutils literal notranslate"><span class="pre">lammps</span></code>: The LAMMPS potentials.</p>
+<p><code class="docutils literal notranslate"><span class="pre">sw_si</span></code>: Stillinger-Weber potential, for silicon.</p>
+<p><code class="docutils literal notranslate"><span class="pre">edip</span></code>: Environment-Dependent Interatomic Potential, for carbon.</p>
+<p><code class="docutils literal notranslate"><span class="pre">lj</span></code>: Lennard-Jones potential in reduced units.</p>
+<p><code class="docutils literal notranslate"><span class="pre">morse_pt</span></code>: Morse potential for platinum.</p>
+<p><code class="docutils literal notranslate"><span class="pre">zpice</span></code>: Water on platinum.</p>
+<p><code class="docutils literal notranslate"><span class="pre">mpi</span></code>: Communicate with a mpi process to calculate energy and forces.</p>
+<p><code class="docutils literal notranslate"><span class="pre">bopfox</span></code>: Bond order potential, for metals.</p>
+<p><code class="docutils literal notranslate"><span class="pre">emt</span></code>: Effective medium theory, for metals.</p>
+<p><code class="docutils literal notranslate"><span class="pre">eam_al</span></code>: Embedded atom method parameterized for aluminum.</p>
+<p><code class="docutils literal notranslate"><span class="pre">vasp</span></code>: Vienna Ab-Initio Simulation Program (VASP) interface.</p>
+<p><code class="docutils literal notranslate"><span class="pre">tersoff_si</span></code>: Tersoff pair potential with angular terms, for silicon.</p>
+<p><code class="docutils literal notranslate"><span class="pre">tip4p</span></code>: Point charge model for water.</p>
+</div></blockquote>
+</div></blockquote>
+<p><strong>random_seed</strong>: Takes an integer number for the random seed. If this number is less than zero the current time is used as the random seed.</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">-1</span></code></p>
+</div></blockquote>
+<p><strong>temperature</strong>: The temperature that the job will run at.</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">300.0</span></code></p>
+</div></blockquote>
+<p><strong>finite_difference</strong>: The finite difference distance to use for dimer, hessian, lanczos, and optimization methods.</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">0.01</span></code></p>
+</div></blockquote>
+<p><strong>quiet</strong>:</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
+</div></blockquote>
+</section>
+<section id="structure-comparison-section">
+<h2><strong>[Structure Comparison]</strong> section<a class="headerlink" href="#structure-comparison-section" title="Link to this heading">¶</a></h2>
+<p><strong>use_covalent</strong>: Use the covalent radii of atoms to determine neighbors.</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
+</div></blockquote>
+<p><strong>energy_difference</strong>: How close in energy two configurations must be to be considered energetically equivalent.</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">0.01</span></code></p>
+</div></blockquote>
+<p><strong>brute_neighbors</strong>: Determine neighbors by brute force (use this with nonorthogonal boxes).</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
+</div></blockquote>
+<p><strong>check_rotation</strong>: Finds optimal overlap of structures via rotation before comparing them. Use this option in systems where structures can become rotated, such as nanoparticles.</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
+</div></blockquote>
+<p><strong>neighbor_cutoff</strong>: Atoms within this distance of each other are considered neighbors.</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">3.3</span></code></p>
+</div></blockquote>
+<p><strong>indistinguishable_atoms</strong>: Use an algorithm to compare structures that does not distinguish between atoms of the same element. That is to say the numbering of the atoms does not affect the structural comparison.</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">True</span></code></p>
+</div></blockquote>
+<p><strong>distance_difference</strong>: The maximum distance two mapped atoms may be for two configurations to be considered equivalent.</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">0.05</span></code></p>
+</div></blockquote>
+</section>
+<section id="paths-section">
+<h2><strong>[Paths]</strong> section<a class="headerlink" href="#paths-section" title="Link to this heading">¶</a></h2>
+<p>Location of files related to the sending and receiving data on the server.</p>
+<p><strong>superbasin_recycling</strong>:</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">%(main_directory)s/SB_recycling</span></code></p>
+</div></blockquote>
+<p><strong>superbasins</strong>:</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">%(main_directory)s/superbasins/</span></code></p>
+</div></blockquote>
+<p><strong>main_directory</strong>: This is the root directory of the simulation. Configuration files and the initial reactant are here and by default all of the simulation data will be stored under this directory.</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">./</span></code></p>
+</div></blockquote>
+<p><strong>scratch</strong>:</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">%(main_directory)s/jobs/scratch/</span></code></p>
+</div></blockquote>
+<p><strong>results</strong>:</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">%(main_directory)s</span></code></p>
+</div></blockquote>
+<p><strong>kdb</strong>:</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">%(main_directory)s/kdb/</span></code></p>
+</div></blockquote>
+<p><strong>kdb_scratch</strong>:</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">%(main_directory)s/kdbscratch/</span></code></p>
+</div></blockquote>
+<p><strong>states</strong>: Where all of the information about individual states is located.</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">%(main_directory)s/states/</span></code></p>
+</div></blockquote>
+<p><strong>potential_files</strong>: For extra files needed by the client for the potential.</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">%(main_directory)s/potfiles</span></code></p>
+</div></blockquote>
+<p><strong>jobs_in</strong>:</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">%(main_directory)s/jobs/in/</span></code></p>
+</div></blockquote>
+<p><strong>jobs_out</strong>:</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">%(main_directory)s/jobs/out/</span></code></p>
+</div></blockquote>
+<p><strong>incomplete</strong>:</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">%(main_directory)s/jobs/incomplete/</span></code></p>
+</div></blockquote>
+<p><strong>bh_minima</strong>:</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">%(main_directory)s/minima</span></code></p>
+</div></blockquote>
+</section>
+<section id="id1">
+<h2><strong>[Paths]</strong> section<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
+<p><strong>save_stdout</strong>: Save the standard output from the client to a file named stdout_0.dat</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
+</div></blockquote>
+<p><strong>interactive_shell</strong>:</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">True</span></code></p>
+</div></blockquote>
+<p><strong>result_files_path</strong>: Where to store all result files. Defaults to ‘debug_results’.</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">./debug_results/</span></code></p>
+</div></blockquote>
+<p><strong>use_mean_time</strong>: Select transition times from the mean of the exponential distribution of escape times.</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
+</div></blockquote>
+<p><strong>register_extra_results</strong>: Register processes found for a state after leaving that state.</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
+</div></blockquote>
+<p><strong>target_trajectory</strong>: Follow the state-to-state trajectory of another akmc simulation.</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
+</div></blockquote>
+<p><strong>keep_bad_saddles</strong>: Keep data about bad saddles. If true, the result files for failed saddle searches are kept in the badprocdata directory within the state directory for that search.</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
+</div></blockquote>
+<p><strong>keep_all_result_files</strong>: Stores all result files in main_directory/results</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
+</div></blockquote>
+<p><strong>write_movies</strong>:</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
+</div></blockquote>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+
+<h3><a href="index.html">EON</a></h3>
+<ul class="this-page-menu">
+  <li><a href="download.html">Download</a></li>
+  <li><a href="installation.html">Installation</a></li>
+  <li><a href="documentation.html">Documentation</a></li>
+  <li><a href="tutorials.html">Tutorials</a></li>
+</ul>
+<h3>Development</h3>
+<ul class="this-page-menu">
+  <li><a href="http://theory.cm.utexas.edu/redmine/projects/eon/repository">Source Code Browser</a></li>
+  <li><a href="http://theory.cm.utexas.edu/redmine/projects/eon/issues">Bug Tracker</a></li>
+</ul>
+  <div>
+      <h3>This page</h3>
+      <ul>
+<li><a class="reference internal" href="#">General Simulation Parameters</a><ul>
+<li><a class="reference internal" href="#main-section"><strong>[Main]</strong> section</a></li>
+<li><a class="reference internal" href="#structure-comparison-section"><strong>[Structure Comparison]</strong> section</a></li>
+<li><a class="reference internal" href="#paths-section"><strong>[Paths]</strong> section</a></li>
+<li><a class="reference internal" href="#id1"><strong>[Paths]</strong> section</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div role="note" aria-label="source link">
+    <!-- <h3>This Page</h3> -->
+    <ul class="this-page-menu">
+      <li><a href="_sources/eon.txt"
+            rel="nofollow">Page Source</a></li>
+    </ul>
+   </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  </body>
+</html>

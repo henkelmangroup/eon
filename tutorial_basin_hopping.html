@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Basin Hopping Tutorial &#8212; EON: Long Timescale Dynamics</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/henkv2.css?v=8af8e032" />
+    <link rel="stylesheet" type="text/css" href="_static/henkv2.css?v=8af8e032" />
+    <script src="_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+  </head><body> <!-- relbar1 comes before the document-->
+  <div class="related" role="navigation" aria-label="Related" style="display:flex">
+      <h3>Navigation</h3>
+      <ul>
+        <!-- EMDW: commenting this out because as far as I can tell, multiplying by 0 deletes the links so what's the point?-->
+        <!--
+        -->
+        <!-- this prints the "<root_name>" link-->
+        <!-- EMDW: updated to match template for Sphinx >= 7 -->
+        <!-- NOTE: max_width stops the image resizing. Change this?-->
+         <!-- -->
+            <li class="nav-item nav-item-0">
+              <a href="index.html">
+                <img class="logo" src="_static/eon_logo.png" alt="EON Home" style="position:relative; left: -240px; top: 0px; max-width: none;"/>
+              </a>
+            </li>
+        <!-- EMDW: sidebarsearch is already defined so name it something else-->
+            <li class="rel-search">
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" size="18" placeholder="Where is . . ."/>
+      <input type="submit" value="Search" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script></li>
+      </ul>
+    </div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="basin-hopping-tutorial">
+<span id="tutorial-basin-hopping"></span><h1>Basin Hopping Tutorial<a class="headerlink" href="#basin-hopping-tutorial" title="Link to this heading">¶</a></h1>
+<p>This tutorial explains how to run a basin hopping global optimization
+calculation on a Lennard-Jones 13 particle.</p>
+<img alt="_images/lj13.png" class="align-center" src="_images/lj13.png" />
+<p>Here is the con file of our starting structure:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Generated</span> <span class="n">by</span> <span class="n">tsase</span>
+
+<span class="mf">101.942400</span>	<span class="mf">103.142600</span>	<span class="mf">102.605500</span>
+<span class="mf">90.000000</span>	<span class="mf">90.000000</span>	<span class="mf">90.000000</span>
+
+
+<span class="mi">1</span>
+<span class="mi">13</span> 
+<span class="mf">1.000000</span> 
+<span class="n">H</span>
+<span class="n">Coordinates</span> <span class="n">of</span> <span class="n">Component</span> <span class="mi">1</span>
+  <span class="mf">50.594227</span>	  <span class="mf">52.017165</span>	  <span class="mf">52.277482</span>	<span class="mi">0</span>	<span class="mi">0</span>
+  <span class="mf">51.578540</span>	  <span class="mf">52.642148</span>	  <span class="mf">51.195222</span>	<span class="mi">0</span>	<span class="mi">1</span>
+  <span class="mf">51.243758</span>	  <span class="mf">52.919086</span>	  <span class="mf">52.218383</span>	<span class="mi">0</span>	<span class="mi">2</span>
+  <span class="mf">50.490127</span>	  <span class="mf">52.736378</span>	  <span class="mf">51.417663</span>	<span class="mi">0</span>	<span class="mi">3</span>
+  <span class="mf">51.522643</span>	  <span class="mf">50.884535</span>	  <span class="mf">51.656125</span>	<span class="mi">0</span>	<span class="mi">4</span>
+  <span class="mf">50.927263</span>	  <span class="mf">51.743087</span>	  <span class="mf">51.272643</span>	<span class="mi">0</span>	<span class="mi">5</span>
+  <span class="mf">51.240676</span>	  <span class="mf">50.960436</span>	  <span class="mf">50.573042</span>	<span class="mi">0</span>	<span class="mi">6</span>
+  <span class="mf">51.275727</span>	  <span class="mf">52.061877</span>	  <span class="mf">50.284160</span>	<span class="mi">0</span>	<span class="mi">7</span>
+  <span class="mf">50.434110</span>	  <span class="mf">50.976423</span>	  <span class="mf">51.879062</span>	<span class="mi">0</span>	<span class="mi">8</span>
+  <span class="mf">51.695007</span>	  <span class="mf">51.919472</span>	  <span class="mf">52.038680</span>	<span class="mi">0</span>	<span class="mi">9</span>
+  <span class="mf">51.363596</span>	  <span class="mf">52.199101</span>	  <span class="mf">53.064923</span>	<span class="mi">0</span>	<span class="mi">10</span>
+  <span class="mf">52.017483</span>	  <span class="mf">51.639074</span>	  <span class="mf">51.008389</span>	<span class="mi">0</span>	<span class="mi">11</span>
+  <span class="mf">51.187843</span>	  <span class="mf">51.165217</span>	  <span class="mf">52.678225</span>	<span class="mi">0</span>	<span class="mi">12</span>
+</pre></div>
+</div>
+<p>Here is the config.ini file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">Main</span><span class="p">]</span>
+<span class="n">job</span><span class="o">=</span><span class="n">basin_hopping</span>
+<span class="c1"># specify the temperature used in the Monte-Carlo step acceptance</span>
+<span class="n">temperature</span><span class="o">=</span><span class="mi">500</span>
+
+<span class="p">[</span><span class="n">Potential</span><span class="p">]</span>
+<span class="c1"># use the lennard-jones potential, in reduced-units</span>
+<span class="n">potential</span><span class="o">=</span><span class="n">lj</span>
+
+<span class="p">[</span><span class="n">Communicator</span><span class="p">]</span>
+<span class="c1"># run the client locally</span>
+<span class="nb">type</span><span class="o">=</span><span class="n">local</span>
+<span class="c1"># only run 1 client at a time</span>
+<span class="n">number_of_cpus</span><span class="o">=</span><span class="mi">1</span>
+<span class="c1"># run 10 jobs per invocation of eon</span>
+<span class="n">num_jobs</span><span class="o">=</span><span class="mi">10</span>
+<span class="c1"># search $PATH for a binary named eonclient</span>
+<span class="n">client_path</span><span class="o">=</span><span class="n">eonclient</span>
+
+<span class="p">[</span><span class="n">Basin</span> <span class="n">Hopping</span><span class="p">]</span>
+<span class="c1"># perform 100 Monte-Carlo steps</span>
+<span class="n">steps</span><span class="o">=</span><span class="mi">100</span>
+<span class="c1"># use a gaussian distribution for the displacements instead of a uniform distribution</span>
+<span class="n">displacement_distribution</span><span class="o">=</span><span class="n">gaussian</span>
+<span class="c1"># the standard deviation for the gaussian which is used to displace each degree of freedom</span>
+<span class="n">displacement</span><span class="o">=</span><span class="mf">0.3</span>
+
+<span class="p">[</span><span class="n">Optimizer</span><span class="p">]</span>
+<span class="c1"># use the lbfgs optimizer</span>
+<span class="n">opt_method</span><span class="o">=</span><span class="n">lbfgs</span>
+<span class="c1"># stop the optimization once the max force per atom drops below 0.001 eV/A</span>
+<span class="n">converged_force</span><span class="o">=</span><span class="mf">0.001</span>
+<span class="c1"># specifies the value of 1/H0 used in the lbfgs optimizer</span>
+<span class="n">lbfgs_inverse_curvature</span><span class="o">=</span><span class="mf">0.01</span>
+</pre></div>
+</div>
+<p>You should now have a directory with two files in it: <code class="docutils literal notranslate"><span class="pre">config.ini</span></code> and
+<code class="docutils literal notranslate"><span class="pre">reactant.con</span></code>. To run the calculation run the <code class="docutils literal notranslate"><span class="pre">eon</span></code> script:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ eon
+registering results
+0 (result) searches processed
+0 searches in the queue
+making 10 searches
+10 from random structures 0 from previous minima
+job finished in .//jobs/scratch/0
+job finished in .//jobs/scratch/1
+job finished in .//jobs/scratch/2
+job finished in .//jobs/scratch/3
+job finished in .//jobs/scratch/4
+job finished in .//jobs/scratch/5
+job finished in .//jobs/scratch/6
+job finished in .//jobs/scratch/7
+job finished in .//jobs/scratch/8
+job finished in .//jobs/scratch/9
+10 searches created
+</pre></div>
+</div>
+<p>Eon first looks for any completed jobs. As this is the first time you have run
+Eon, it finds no previous calculations to register. It then makes the input
+files needed for the 10 basin hopping jobs and writes them to
+<code class="docutils literal notranslate"><span class="pre">jobs/scratch/0..9</span></code>. Then eonclient is run in each of these directories.</p>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+
+<h3><a href="index.html">EON</a></h3>
+<ul class="this-page-menu">
+  <li><a href="download.html">Download</a></li>
+  <li><a href="installation.html">Installation</a></li>
+  <li><a href="documentation.html">Documentation</a></li>
+  <li><a href="tutorials.html">Tutorials</a></li>
+</ul>
+<h3>Development</h3>
+<ul class="this-page-menu">
+  <li><a href="http://theory.cm.utexas.edu/redmine/projects/eon/repository">Source Code Browser</a></li>
+  <li><a href="http://theory.cm.utexas.edu/redmine/projects/eon/issues">Bug Tracker</a></li>
+</ul>
+  <div role="note" aria-label="source link">
+    <!-- <h3>This Page</h3> -->
+    <ul class="this-page-menu">
+      <li><a href="_sources/tutorial_basin_hopping.txt"
+            rel="nofollow">Page Source</a></li>
+    </ul>
+   </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  </body>
+</html>

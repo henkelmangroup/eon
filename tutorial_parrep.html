@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Running a Parallel Replica Job &#8212; EON: Long Timescale Dynamics</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/henkv2.css?v=8af8e032" />
+    <link rel="stylesheet" type="text/css" href="_static/henkv2.css?v=8af8e032" />
+    <script src="_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+  </head><body> <!-- relbar1 comes before the document-->
+  <div class="related" role="navigation" aria-label="Related" style="display:flex">
+      <h3>Navigation</h3>
+      <ul>
+        <!-- EMDW: commenting this out because as far as I can tell, multiplying by 0 deletes the links so what's the point?-->
+        <!--
+        -->
+        <!-- this prints the "<root_name>" link-->
+        <!-- EMDW: updated to match template for Sphinx >= 7 -->
+        <!-- NOTE: max_width stops the image resizing. Change this?-->
+         <!-- -->
+            <li class="nav-item nav-item-0">
+              <a href="index.html">
+                <img class="logo" src="_static/eon_logo.png" alt="EON Home" style="position:relative; left: -240px; top: 0px; max-width: none;"/>
+              </a>
+            </li>
+        <!-- EMDW: sidebarsearch is already defined so name it something else-->
+            <li class="rel-search">
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" size="18" placeholder="Where is . . ."/>
+      <input type="submit" value="Search" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script></li>
+      </ul>
+    </div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="running-a-parallel-replica-job">
+<span id="tutorial-parrep"></span><h1>Running a Parallel Replica Job<a class="headerlink" href="#running-a-parallel-replica-job" title="Link to this heading">¶</a></h1>
+<p>A sample parallel replica simulation can be found in the directory: <code class="docutils literal notranslate"><span class="pre">examples/parallel-replica/</span></code>. Two input files <code class="docutils literal notranslate"><span class="pre">config.ini</span></code> and <code class="docutils literal notranslate"><span class="pre">pos.con</span></code> are required for EON simlution.</p>
+<p>The example system is the diffusion of an Al adatom on the Al(100) surface. A snapshot of the system is given below:</p>
+<img alt="_images/aladatom1.png" class="align-center" src="_images/aladatom1.png" />
+<p>The <code class="docutils literal notranslate"><span class="pre">config.ini</span></code> file will run a parallel replica job with 2 replicas on one local core.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>[Main]
+job = parallel_replica 
+temperature = 500                   ; temperature of the MD simulations
+random_seed = 1024
+
+[Potential]
+potential = eam_al                  ; embedded atom method potential for aluminum
+
+[Communicator]
+type = local                        ; run the client locally
+client_path =../../client/client    ; $PATH for the client binary
+number_of_cpus = 1                  ; number of jobs to run locally
+num_jobs = 2                        ; total number of trajectories to run
+
+[Dynamics]
+time_step = 2.0                     ; timestep of the MD simulation (in fs)
+time = 12000.0                      ; total number of MD steps to run
+thermostat = andersen               ; Andersen thermostat with Verlet algorithm
+andersen_alpha = 0.2                ; collision strength in the andersen thermostat
+andersen_collision_period = 10.0    ; collision period of andersen thermostat (in fs)
+
+[Parallel Replica]
+dephase_time = 200                  ; number of steps used to decorrelate the replica trajectories.
+state_check_interval = 3000         ; number of steps between quanches to check if a new state is found
+state_save_interval  = 200          ; number of steps recorded to a buffer array to refine the transition time
+post_transition_time = 200          ; number of additional MD steps run after a new state is found
+stop_after_transition = false       ; flag to stop the job when a new state is found
+
+[Optimizer]
+opt_method = cg                     ; use the conjugate gradient optimizer
+converged_force = 0.005             ; stop optimizations when the max force per atom reaches 0.005 eV/A
+
+
+</pre></div>
+</div>
+<p>Now we can run the trajectory by executing the command <code class="docutils literal notranslate"><span class="pre">../../bin/eon</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ ../../bin/eon
+simulation time is 0.000000e+00
+state list path does not exist, creating .//states/
+registering results
+0 (result) searches processed
+time in current state is 0.000000e+00
+0 searches in the queue
+making 2 searches
+job finished in .//jobs/scratch/0_0
+job finished in .//jobs/scratch/0_1
+2 searches created
+</pre></div>
+</div>
+<p>Then use “../../bin/eon -n” to register the result:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ ../../bin/eon -n
+simulation time is 0.000000e+00
+registering results
+found transition with time 8.200e-12
+2 (result) searches processed
+Average Speedup is  1.000000
+time in current state is 0.000000e+00
+currently in state 1
+0 searches in the queue
+making 0 searches
+</pre></div>
+</div>
+<p>Information from the trajectoy is written in the <code class="docutils literal notranslate"><span class="pre">dynamics.txt</span></code> file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">step</span><span class="o">-</span><span class="n">number</span>   <span class="n">reactant</span><span class="o">-</span><span class="nb">id</span>    <span class="n">process</span><span class="o">-</span><span class="nb">id</span>    <span class="n">product</span><span class="o">-</span><span class="nb">id</span>     <span class="n">step</span><span class="o">-</span><span class="n">time</span>    <span class="n">total</span><span class="o">-</span><span class="n">time</span>       <span class="n">barrier</span>          <span class="n">rate</span>
+<span class="o">---------------------------------------------------------------------------------------------------------------</span>
+            <span class="mi">0</span>             <span class="mi">0</span>             <span class="mi">0</span>             <span class="mi">1</span>  <span class="mf">8.200000e-12</span>  <span class="mf">8.200000e-12</span>      <span class="mf">0.000000</span>  <span class="mf">0.000000e+00</span>
+</pre></div>
+</div>
+<p>The first column contains the number of the trajectories which find a transition label the successful searches, in this case all the three searches are successful. The second and fouth column label the reactant and product; Column 5 and Column 6 are the transition time for each success searches and the accumulated simulation time.</p>
+<p>Detailed information of the simulation is stored in the folder <code class="docutils literal notranslate"><span class="pre">states</span></code>. where the geometric and energy of the visited states are stored in the sub-folder labeled as state id. You can find the geometric of the prodcut in <code class="docutils literal notranslate"><span class="pre">states/1/reactant.con/</span></code>, a snapshot is shown below:</p>
+<img alt="_images/aladatom2.png" class="align-center" src="_images/aladatom2.png" />
+<p>Compared to the reactant geometric, we can tell that the transition we found follows the exchange mechanism.</p>
+<section id="parallel-replica-with-hyperdynamics">
+<h2>Parallel Replica with Hyperdynamics<a class="headerlink" href="#parallel-replica-with-hyperdynamics" title="Link to this heading">¶</a></h2>
+<p>You can turn on the hyperdynamics method by adding the following section to your <code class="docutils literal notranslate"><span class="pre">config.ini</span></code> file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">Hyperdynamics</span><span class="p">]</span>
+<span class="n">bias_potential</span><span class="o">=</span><span class="n">bond_boost</span>       <span class="p">;</span> <span class="n">bond_boost</span> <span class="n">bias</span> <span class="n">potential</span>
+<span class="n">bb_boost_atomlist</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span><span class="mi">26</span><span class="p">,</span><span class="mi">50</span><span class="p">,</span><span class="mi">56</span><span class="p">,</span><span class="mi">150</span> <span class="p">;</span> <span class="n">atoms</span> <span class="n">that</span> <span class="n">are</span> <span class="n">boosted</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">bias</span> <span class="n">potential</span>
+<span class="n">bb_rcut</span><span class="o">=</span><span class="mf">3.0</span>                     <span class="p">;</span> <span class="n">boost</span> <span class="n">radius</span>
+<span class="n">bb_rmd_time</span><span class="o">=</span><span class="mf">100.0</span>               <span class="p">;</span> <span class="n">MD</span> <span class="n">time</span> <span class="n">to</span> <span class="n">obtain</span> <span class="n">the</span> <span class="n">equilibrium</span> <span class="n">configuration</span>
+<span class="n">bb_dvmax</span><span class="o">=</span><span class="mf">0.4</span>                    <span class="p">;</span> <span class="n">magnitude</span> <span class="n">of</span> <span class="n">the</span> <span class="n">bond</span><span class="o">-</span><span class="n">boost</span> <span class="n">bias</span> <span class="n">potential</span>
+<span class="n">bb_stretch_threshold</span><span class="o">=</span><span class="mf">0.2</span>        <span class="p">;</span> <span class="n">defines</span> <span class="n">the</span> <span class="n">bond</span><span class="o">-</span><span class="n">boost</span> <span class="n">dividing</span> <span class="n">surface</span>
+<span class="n">bb_ds_curvature</span><span class="o">=</span><span class="mf">0.95</span>            <span class="p">;</span> <span class="n">curvature</span> <span class="n">near</span> <span class="n">the</span> <span class="n">bond</span><span class="o">-</span><span class="n">boost</span> <span class="n">dividing</span> <span class="n">surface</span><span class="p">,</span> <span class="n">it</span> <span class="n">should</span> <span class="n">be</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">a</span> <span class="n">value</span> <span class="n">of</span> <span class="mf">0.9</span><span class="o">-</span><span class="mf">0.98</span> <span class="ow">is</span> <span class="n">recommended</span>
+</pre></div>
+</div>
+<p>All other settings and output infomation are as in a regular parallel replica dynamics simulation.</p>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+
+<h3><a href="index.html">EON</a></h3>
+<ul class="this-page-menu">
+  <li><a href="download.html">Download</a></li>
+  <li><a href="installation.html">Installation</a></li>
+  <li><a href="documentation.html">Documentation</a></li>
+  <li><a href="tutorials.html">Tutorials</a></li>
+</ul>
+<h3>Development</h3>
+<ul class="this-page-menu">
+  <li><a href="http://theory.cm.utexas.edu/redmine/projects/eon/repository">Source Code Browser</a></li>
+  <li><a href="http://theory.cm.utexas.edu/redmine/projects/eon/issues">Bug Tracker</a></li>
+</ul>
+  <div>
+      <h3>This page</h3>
+      <ul>
+<li><a class="reference internal" href="#">Running a Parallel Replica Job</a><ul>
+<li><a class="reference internal" href="#parallel-replica-with-hyperdynamics">Parallel Replica with Hyperdynamics</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div role="note" aria-label="source link">
+    <!-- <h3>This Page</h3> -->
+    <ul class="this-page-menu">
+      <li><a href="_sources/tutorial_parrep.txt"
+            rel="nofollow">Page Source</a></li>
+    </ul>
+   </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  </body>
+</html>

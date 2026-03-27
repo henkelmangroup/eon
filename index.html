@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>EON: Long timescale dynamics &#8212; EON: Long Timescale Dynamics</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/henkv2.css?v=8af8e032" />
+    <link rel="stylesheet" type="text/css" href="_static/henkv2.css?v=8af8e032" />
+    <script src="_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+  </head><body> <!-- relbar1 comes before the document-->
+  <div class="related" role="navigation" aria-label="Related" style="display:flex">
+      <h3>Navigation</h3>
+      <ul>
+        <!-- EMDW: commenting this out because as far as I can tell, multiplying by 0 deletes the links so what's the point?-->
+        <!--
+        -->
+        <!-- this prints the "<root_name>" link-->
+        <!-- EMDW: updated to match template for Sphinx >= 7 -->
+        <!-- NOTE: max_width stops the image resizing. Change this?-->
+         <!-- -->
+            <li class="nav-item nav-item-0">
+              <a href="#">
+                <img class="logo" src="_static/eon_logo.png" alt="EON Home" style="position:relative; left: -240px; top: 0px; max-width: none;"/>
+              </a>
+            </li>
+        <!-- EMDW: sidebarsearch is already defined so name it something else-->
+            <li class="rel-search">
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" size="18" placeholder="Where is . . ."/>
+      <input type="submit" value="Search" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script></li>
+      </ul>
+    </div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="eon-long-timescale-dynamics">
+<h1>EON: Long timescale dynamics<a class="headerlink" href="#eon-long-timescale-dynamics" title="Link to this heading">¶</a></h1>
+<p>The EON software package contains a set of algorithms used primarily to model the
+evolution of atomic scale systems over long time scales.  Standard molecular
+dynamics algorithms, based upon solving Newton’s equations, are limited by the
+femtosecond time scale of atomic vibrations.  EON simulations are designed for
+rare event systems where the interesting dynamics can be described by fast
+transition between stable states.  In each algorithm, the residence time in the
+stable states is modeled with statistical mechanics, and the important
+state-to-state dynamics are modeled stochastically.</p>
+<p>The algorithms currently implemented include parallel replica dynamics, hyperdyamics,
+adaptive kinetic Monte Carlo, and basin hopping.</p>
+<section id="systems-which-can-be-modelled">
+<h2>Systems which can be modelled<a class="headerlink" href="#systems-which-can-be-modelled" title="Link to this heading">¶</a></h2>
+<img alt="_images/eon_systems.png" class="align-center" src="_images/eon_systems.png" />
+<p>The systems which are best modelled using EON are those in which
+the important kinetics are governed by rare events. Diffusion in solids and chemical
+reactions at surface are particularly suitable when there is a
+clear separation of time scales
+between atomic vibrations at the diffusion or catalytic events of interest.</p>
+<img alt="_images/alripe.png" class="align-center" src="_images/alripe.png" />
+<p>In the example showing ripening dynamics on an Al(100) surface, a compact island
+forms after 65720 transitions in a time scale of a ms at 300K.</p>
+</section>
+<section id="interatomic-interactions">
+<h2>Interatomic Interactions<a class="headerlink" href="#interatomic-interactions" title="Link to this heading">¶</a></h2>
+<p>There are a variety of empirical potentials included with EON.  You can also use
+the potentials built into the LAMMPS library.  EON also provides an interace to
+the VASP and GPAW density functional theory codes.</p>
+</section>
+<section id="parallel-interfaces">
+<h2>Parallel Interfaces<a class="headerlink" href="#parallel-interfaces" title="Link to this heading">¶</a></h2>
+<p>The algorithms in EON can be run in parallel using a set of communication options
+including local communication, distribution over a cluster using a queueing system,
+multiple process multiple data MPI jobs, and distributed computing environments.</p>
+</section>
+<section id="the-eon-team">
+<h2>The EON team<a class="headerlink" href="#the-eon-team" title="Link to this heading">¶</a></h2>
+<p>The EON software is a collaboration between the Henkelman and Jónsson research groups.
+The primary developers are:</p>
+<p>Henkelman Group (UT Austin)</p>
+<ul class="simple">
+<li><p>Samuel Chill</p></li>
+<li><p>Rye Terrell</p></li>
+<li><p>Matthew Welborn</p></li>
+<li><p>Liang Zhang</p></li>
+</ul>
+<p>Jónsson Group (University of Iceland)</p>
+<ul class="simple">
+<li><p>Andreas Pederson</p></li>
+<li><p>Rohit Goswami</p></li>
+</ul>
+<p>With contributions from a number of other developers:</p>
+<ul class="simple">
+<li><p>Tobias Brink (TU Darmstadt)</p></li>
+<li><p>Ian Johnson (UT)</p></li>
+<li><p>Saif Kazim (UT)</p></li>
+<li><p>Jean Claude Berthet (Iceland)</p></li>
+<li><p>Raymond Smith (UT)</p></li>
+<li><p>Erik Edelmann (Finland)</p></li>
+<li><p>Jutta Rogal (Bochum)</p></li>
+</ul>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+
+<h3><a href="#">EON</a></h3>
+<ul class="this-page-menu">
+  <li><a href="download.html">Download</a></li>
+  <li><a href="installation.html">Installation</a></li>
+  <li><a href="documentation.html">Documentation</a></li>
+  <li><a href="tutorials.html">Tutorials</a></li>
+</ul>
+<h3>Development</h3>
+<ul class="this-page-menu">
+  <li><a href="http://theory.cm.utexas.edu/redmine/projects/eon/repository">Source Code Browser</a></li>
+  <li><a href="http://theory.cm.utexas.edu/redmine/projects/eon/issues">Bug Tracker</a></li>
+</ul>
+  <div role="note" aria-label="source link">
+    <!-- <h3>This Page</h3> -->
+    <ul class="this-page-menu">
+      <li><a href="_sources/index.txt"
+            rel="nofollow">Page Source</a></li>
+    </ul>
+   </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  </body>
+</html>

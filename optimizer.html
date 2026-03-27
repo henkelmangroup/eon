@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Optimizer &#8212; EON: Long Timescale Dynamics</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/henkv2.css?v=8af8e032" />
+    <link rel="stylesheet" type="text/css" href="_static/henkv2.css?v=8af8e032" />
+    <script src="_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+  </head><body> <!-- relbar1 comes before the document-->
+  <div class="related" role="navigation" aria-label="Related" style="display:flex">
+      <h3>Navigation</h3>
+      <ul>
+        <!-- EMDW: commenting this out because as far as I can tell, multiplying by 0 deletes the links so what's the point?-->
+        <!--
+        -->
+        <!-- this prints the "<root_name>" link-->
+        <!-- EMDW: updated to match template for Sphinx >= 7 -->
+        <!-- NOTE: max_width stops the image resizing. Change this?-->
+         <!-- -->
+            <li class="nav-item nav-item-0">
+              <a href="index.html">
+                <img class="logo" src="_static/eon_logo.png" alt="EON Home" style="position:relative; left: -240px; top: 0px; max-width: none;"/>
+              </a>
+            </li>
+        <!-- EMDW: sidebarsearch is already defined so name it something else-->
+            <li class="rel-search">
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" size="18" placeholder="Where is . . ."/>
+      <input type="submit" value="Search" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script></li>
+      </ul>
+    </div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="optimizer">
+<span id="id1"></span><h1>Optimizer<a class="headerlink" href="#optimizer" title="Link to this heading">¶</a></h1>
+<p>The eon client provides three optimizers quick-min, conjugate gradients, and L-BFGS.</p>
+<section id="optimizer-parameters">
+<h2><strong>[Optimizer]</strong> parameters<a class="headerlink" href="#optimizer-parameters" title="Link to this heading">¶</a></h2>
+<p><strong>opt_method</strong>: The optimization method to use.</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">cg</span></code></p>
+<p>options:</p>
+<blockquote>
+<div><p><code class="docutils literal notranslate"><span class="pre">box</span></code>: Optimizes the atom positions and box using quickmin</p>
+<p><code class="docutils literal notranslate"><span class="pre">cg</span></code>: Conjugate gradient</p>
+<p><code class="docutils literal notranslate"><span class="pre">qm</span></code>: Quickmin</p>
+<p><code class="docutils literal notranslate"><span class="pre">lbfgs</span></code>: Limited Memory Broyden-Fletcher-Goldfarb-Shanno QuasiNewton
+optimizer</p>
+<p><code class="docutils literal notranslate"><span class="pre">fire</span></code>: Fast inertial relaxation engine</p>
+</div></blockquote>
+</div></blockquote>
+<p><strong>convergence_metric</strong>: The metric to use to determine when an optimization is complete.</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">norm</span></code></p>
+<p>options:</p>
+<blockquote>
+<div><p><code class="docutils literal notranslate"><span class="pre">norm</span></code>: The norm of the entire force vector</p>
+<p><code class="docutils literal notranslate"><span class="pre">max_atom</span></code>: The maximum force on any non-frozen atom</p>
+<p><code class="docutils literal notranslate"><span class="pre">max_component</span></code>: The maximum force on any non-frozen degree of freedom</p>
+</div></blockquote>
+</div></blockquote>
+<p><strong>converged_force</strong>: When the <strong>convergence_metric</strong> is
+smaller than this value (eV/A), the structure is considered minimized.</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">0.01</span></code></p>
+</div></blockquote>
+<p><strong>max_move</strong>: Maximum distance that an atom may be moved in a single
+optimization step (Angstoms).</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">0.2</span></code></p>
+</div></blockquote>
+<p><strong>time_step</strong>: The dynamical timestep for the quickmin algorithm (fs).</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">1.0</span></code></p>
+</div></blockquote>
+<p><strong>max_iterations</strong>: The maximum number of optimization iterations that the will
+be performed.</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">1000</span></code></p>
+</div></blockquote>
+</section>
+<section id="l-bfgs">
+<h2>L-BFGS<a class="headerlink" href="#l-bfgs" title="Link to this heading">¶</a></h2>
+<p>The L-BFGS implementation in Eon resets its memory if a move larger than the max_move is
+attemped or if the angle between the force and the L-BFGS direction is larger than 90 degrees.</p>
+<p><strong>lbfgs_memory</strong>: The maximum number of previous gradients and positions that
+are kept in memory for the L-BFGS algorithm.</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">20</span></code></p>
+</div></blockquote>
+<p><strong>lbfgs_inverse_curvature</strong>: The initial guess for inverse curvature at each step, which is used to
+construct the inverse Hessian matrix. This setting is only used when <strong>lbfgs_auto_scale</strong> is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+<blockquote>
+<div><p>default: 0.01</p>
+</div></blockquote>
+<p><strong>lbfgs_auto_scale</strong>: The initial guess for the inverse hessian at each step is constructed by
+estimating the curvature along the previous step direction. At the first step a forward finite difference
+calculation along the force is used to estimate the curvature.</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">True</span></code></p>
+</div></blockquote>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+
+<h3><a href="index.html">EON</a></h3>
+<ul class="this-page-menu">
+  <li><a href="download.html">Download</a></li>
+  <li><a href="installation.html">Installation</a></li>
+  <li><a href="documentation.html">Documentation</a></li>
+  <li><a href="tutorials.html">Tutorials</a></li>
+</ul>
+<h3>Development</h3>
+<ul class="this-page-menu">
+  <li><a href="http://theory.cm.utexas.edu/redmine/projects/eon/repository">Source Code Browser</a></li>
+  <li><a href="http://theory.cm.utexas.edu/redmine/projects/eon/issues">Bug Tracker</a></li>
+</ul>
+  <div>
+      <h3>This page</h3>
+      <ul>
+<li><a class="reference internal" href="#">Optimizer</a><ul>
+<li><a class="reference internal" href="#optimizer-parameters"><strong>[Optimizer]</strong> parameters</a></li>
+<li><a class="reference internal" href="#l-bfgs">L-BFGS</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div role="note" aria-label="source link">
+    <!-- <h3>This Page</h3> -->
+    <ul class="this-page-menu">
+      <li><a href="_sources/optimizer.txt"
+            rel="nofollow">Page Source</a></li>
+    </ul>
+   </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>ASE Interface &#8212; EON: Long Timescale Dynamics</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/henkv2.css?v=8af8e032" />
+    <link rel="stylesheet" type="text/css" href="_static/henkv2.css?v=8af8e032" />
+    <script src="_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+  </head><body> <!-- relbar1 comes before the document-->
+  <div class="related" role="navigation" aria-label="Related" style="display:flex">
+      <h3>Navigation</h3>
+      <ul>
+        <!-- EMDW: commenting this out because as far as I can tell, multiplying by 0 deletes the links so what's the point?-->
+        <!--
+        -->
+        <!-- this prints the "<root_name>" link-->
+        <!-- EMDW: updated to match template for Sphinx >= 7 -->
+        <!-- NOTE: max_width stops the image resizing. Change this?-->
+         <!-- -->
+            <li class="nav-item nav-item-0">
+              <a href="index.html">
+                <img class="logo" src="_static/eon_logo.png" alt="EON Home" style="position:relative; left: -240px; top: 0px; max-width: none;"/>
+              </a>
+            </li>
+        <!-- EMDW: sidebarsearch is already defined so name it something else-->
+            <li class="rel-search">
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" size="18" placeholder="Where is . . ."/>
+      <input type="submit" value="Search" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script></li>
+      </ul>
+    </div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="ase-interface">
+<span id="id1"></span><h1>ASE Interface<a class="headerlink" href="#ase-interface" title="Link to this heading">¶</a></h1>
+<p>In order to build EON client with the ability to use ASE calculators as a potential,
+one must have <a class="reference external" href="https://www.python.org/downloads/">Python3</a> and
+<a class="reference external" href="https://pybind11.readthedocs.io/en/stable/index.html">pybind11</a> installed
+and available in the compilation environment
+(if using <a class="reference external" href="https://conda.io/projects/conda/en/latest/user-guide/install/index.html">Conda</a>:
+activate your environment before compilation).</p>
+<section id="compilation">
+<h2>Compilation<a class="headerlink" href="#compilation" title="Link to this heading">¶</a></h2>
+<p>Go into <code class="docutils literal notranslate"><span class="pre">eon/client</span></code> (where <code class="docutils literal notranslate"><span class="pre">Rules.mk</span></code> should exist), and build EON client with the ASE interface enabled:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ make ASE_POT=1  # can optionally add -jN for parallel compilation with N threads
+</pre></div>
+</div>
+<p>In some weird cases, this command needs to be run twice to complete the compilation.</p>
+<p>If the compilation is successful, you should see a line containing <code class="docutils literal notranslate"><span class="pre">+ASE</span></code> at the very bottom
+of the terminal.</p>
+<p>On the other hand, if there is a compilation error similar to
+“<code class="docutils literal notranslate"><span class="pre">fatal</span> <span class="pre">error:</span> <span class="pre">Python.h:</span> <span class="pre">No</span> <span class="pre">such</span> <span class="pre">file</span> <span class="pre">or</span> <span class="pre">directory</span></code>”, then EON client has failed to
+automatically detect the Python-related paths that are needed to compile the ASE interface.
+For automatic detection to work, the <code class="docutils literal notranslate"><span class="pre">python3-config</span></code> command must be available.
+Verify its availability by running:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ which python3-config  # should print out the path to python3-config
+</pre></div>
+</div>
+<p><a class="reference external" href="https://conda.io/projects/conda/en/latest/user-guide/install/index.html">Conda</a> environments
+already come with this command by default.
+If using a systemwide Python, the Python development package should be installed
+by the system administrator using the appropriate package managers, like <code class="docutils literal notranslate"><span class="pre">apt</span></code>,
+<code class="docutils literal notranslate"><span class="pre">yum</span></code>, <code class="docutils literal notranslate"><span class="pre">dnf</span></code>, etc (the package name is <code class="docutils literal notranslate"><span class="pre">python3-dev</span></code>, <code class="docutils literal notranslate"><span class="pre">python3-devel</span></code>,
+or similar).</p>
+<p>If automatic detection is not possible, refer to <a class="reference internal" href="#manually-adding-paths"><span class="std std-ref">this section</span></a>
+for information on how to manually add the paths for compilation.</p>
+</section>
+<section id="after-compilation">
+<h2>After Compilation<a class="headerlink" href="#after-compilation" title="Link to this heading">¶</a></h2>
+<p>For most installations, the binary <code class="docutils literal notranslate"><span class="pre">eonclient</span></code> can be copied to a directory in your
+<code class="docutils literal notranslate"><span class="pre">$PATH</span></code>. If you added <code class="docutils literal notranslate"><span class="pre">$HOME/eon/bin</span></code> to your path during the server installation the following command will install the client:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cp eonclient ../bin/eonclient
+</pre></div>
+</div>
+<p>Otherwise you will need to give the path to the client binary in your
+<code class="docutils literal notranslate"><span class="pre">config.ini</span></code>.</p>
+</section>
+<section id="using-the-ase-interface">
+<h2>Using the ASE interface<a class="headerlink" href="#using-the-ase-interface" title="Link to this heading">¶</a></h2>
+<p>When using EON’s ASE interface, the Python dynamic library must still be visible to the <code class="docutils literal notranslate"><span class="pre">eonclient</span></code>
+executable:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ export LD_LIBRARY_PATH=&quot;$(python3-config --prefix)/lib:$LD_LIBRARY_PATH&quot;
+</pre></div>
+</div>
+<p><em>It is recommended that the Python version used to run EON client is the same as the
+Python version used to build EON client.</em></p>
+<p>If <code class="docutils literal notranslate"><span class="pre">python3-config</span></code> is not available, replace <code class="docutils literal notranslate"><span class="pre">$(python3-config</span> <span class="pre">--prefix)/lib</span></code> with
+<code class="docutils literal notranslate"><span class="pre">/path/to/python/rootdir/lib</span></code> from the <a class="reference internal" href="#ldflags"><span class="std std-ref">LDFLAGS</span></a> section.</p>
+<p>To use ASE calculators, <code class="docutils literal notranslate"><span class="pre">config.ini</span></code> should contain:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">Potential</span><span class="p">]</span>
+<span class="n">potential</span> <span class="o">=</span> <span class="n">ase</span>
+<span class="n">ext_pot_path</span> <span class="o">=</span> <span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">the</span><span class="o">/</span><span class="n">ase_script</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p>The last line (<code class="docutils literal notranslate"><span class="pre">ext_pot_path</span></code>) is required, and it may be the relative or the absolute
+path to the Python script containing the desired ASE calculator (see next section).</p>
+<p>When running EON (e.g. AKMC jobs), which calls <code class="docutils literal notranslate"><span class="pre">eonclient</span></code> in the back, you can either
+1) provide the full absolute path to the Python script, or
+2) create a directory called <code class="docutils literal notranslate"><span class="pre">potfiles/</span></code>, place the script inside that directory, and simply
+write <code class="docutils literal notranslate"><span class="pre">ext_pot_path</span> <span class="pre">=</span> <span class="pre">ase_script.py</span></code>. For example, your EON job directory might look like:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>[user@cluster eon_ase_test]$ ls
+config.ini  pos.con  potfiles/
+[user@cluster eon_ase_test]$ ls potfiles/
+ase_script.py
+[usre@cluster eon_ase_test]$ grep &quot;ext_pot_path&quot; config.ini  # print the ext_pot_path line in config.ini
+ext_pot_path = ase_script.py
+</pre></div>
+</div>
+</section>
+<section id="python-script-contents">
+<h2>Python script contents<a class="headerlink" href="#python-script-contents" title="Link to this heading">¶</a></h2>
+<p>EON client imports this Python script to get the energy and forces.
+The script should look like this (e.g. using fairchem’s UMA model):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ase</span> <span class="kn">import</span> <span class="n">Atoms</span>
+<span class="kn">from</span> <span class="nn">fairchem.core</span> <span class="kn">import</span> <span class="n">pretrained_mlip</span><span class="p">,</span> <span class="n">FAIRChemCalculator</span>
+<span class="kn">import</span> <span class="nn">torch</span>  <span class="c1"># just for setting number of threads</span>
+
+
+<span class="k">def</span> <span class="nf">ase_calc</span><span class="p">():</span>
+    <span class="c1"># MODIFY THIS FUNCTION TO RETURN DESIRED ASE CALCULATOR</span>
+
+    <span class="c1"># For GPU, omit setting num_threads</span>
+    <span class="n">torch</span><span class="o">.</span><span class="n">set_num_threads</span><span class="p">(</span><span class="mi">32</span><span class="p">)</span>  <span class="c1"># limit to 0.5-1 socket for max efficiency (for CPU)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;PyTorch will use </span><span class="si">{</span><span class="n">num_threads</span><span class="si">}</span><span class="s2"> threads for computations.&quot;</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>  <span class="c1"># if potential file was downloaded to disk</span>
+        <span class="n">model_path</span> <span class="o">=</span> <span class="s1">&#39;/scratch/common/uma/uma-m-1p1.pt&#39;</span>
+        <span class="n">calc</span> <span class="o">=</span> <span class="n">FAIRChemCalculator</span><span class="o">.</span><span class="n">from_model_checkpoint</span><span class="p">(</span>
+            <span class="n">model_path</span><span class="p">,</span>
+            <span class="n">device</span><span class="o">=</span><span class="s2">&quot;cpu&quot;</span><span class="p">,</span>  <span class="c1"># use &quot;cuda&quot; for GPU</span>
+            <span class="n">task_name</span><span class="o">=</span><span class="s2">&quot;omat&quot;</span><span class="p">,</span>  <span class="c1"># Or &quot;omol&quot;, &quot;oc20&quot;, etc., depending on the model</span>
+            <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># to suppress the deprecation error</span>
+        <span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>  <span class="c1"># if model_path wasn&#39;t found</span>
+        <span class="n">predictor</span> <span class="o">=</span> <span class="n">pretrained_mlip</span><span class="o">.</span><span class="n">get_predict_unit</span><span class="p">(</span><span class="s2">&quot;uma-m-1p1&quot;</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s2">&quot;cpu&quot;</span><span class="p">,)</span>
+        <span class="n">calc</span> <span class="o">=</span> <span class="n">FAIRChemCalculator</span><span class="p">(</span><span class="n">predictor</span><span class="p">,</span> <span class="n">task_name</span><span class="o">=</span><span class="s2">&quot;omat&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">calc</span>
+
+<span class="c1">#=======================================================================</span>
+<span class="c1"># DO NOT EDIT</span>
+<span class="k">def</span> <span class="nf">_calculate</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">atomicNrs</span><span class="p">,</span> <span class="n">box</span><span class="p">,</span> <span class="n">calc</span><span class="p">):</span>
+    <span class="n">system</span> <span class="o">=</span> <span class="n">Atoms</span><span class="p">(</span><span class="n">symbols</span><span class="o">=</span><span class="n">atomicNrs</span><span class="p">,</span> <span class="n">positions</span><span class="o">=</span><span class="n">R</span><span class="p">,</span> <span class="n">pbc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cell</span><span class="o">=</span><span class="n">box</span><span class="p">)</span>
+    <span class="n">system</span><span class="o">.</span><span class="n">calc</span> <span class="o">=</span> <span class="n">calc</span>
+    <span class="n">forces</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_forces</span><span class="p">()</span>
+    <span class="n">energy</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_potential_energy</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">energy</span><span class="p">,</span> <span class="n">forces</span>
+<span class="c1">#=======================================================================</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="c1"># This is just to verify that the script runs properly with `python3 &lt;this_script&gt;`</span>
+    <span class="kn">from</span> <span class="nn">ase.io</span> <span class="kn">import</span> <span class="n">read</span>
+    <span class="n">atoms</span> <span class="o">=</span> <span class="n">read</span><span class="p">(</span><span class="s2">&quot;...&quot;</span><span class="p">)</span>  <span class="c1"># structure file name</span>
+    <span class="n">pos</span> <span class="o">=</span> <span class="n">atoms</span><span class="o">.</span><span class="n">positions</span>  <span class="c1"># array of positions (n x 3)</span>
+    <span class="n">atomicNrs</span> <span class="o">=</span> <span class="n">atoms</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">()</span>  <span class="c1"># array of atomic numbers (n)</span>
+    <span class="n">cell</span> <span class="o">=</span> <span class="n">atoms</span><span class="o">.</span><span class="n">cell</span>  <span class="c1"># cell array (3 x 3)</span>
+    <span class="n">calc</span> <span class="o">=</span> <span class="n">ase_calc</span><span class="p">()</span>
+    <span class="n">e</span><span class="p">,</span> <span class="n">f</span> <span class="o">=</span> <span class="n">_calculate</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">atomicNrs</span><span class="p">,</span> <span class="n">cell</span><span class="p">,</span> <span class="n">calc</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;E = </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;F =&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The user should customize the content of the function <code class="docutils literal notranslate"><span class="pre">ase_calc()</span></code> to use the desired ASE calculator,
+<strong>but not that of ``_calculate()`` nor the function names</strong>.</p>
+<p>Often, the ASE calculator may require an external potential file. When running EON (e.g. AKMC jobs) and
+an external file name is used in this script, <strong>it is highly recommended to write the full absolute
+path to the external file</strong>.</p>
+<p>Before using it, make sure that this script contains no errors on the Python side.</p>
+</section>
+<section id="manually-adding-paths">
+<span id="id3"></span><h2>Manually Adding Paths<a class="headerlink" href="#manually-adding-paths" title="Link to this heading">¶</a></h2>
+<p>If compilation was successful, there is no need to read this section.</p>
+<p>If automatic path detection is not possible during compilation, EON client’s <code class="docutils literal notranslate"><span class="pre">Rules.mk</span></code>
+must be slightly modified by hand. With EON’s installed at
+<code class="docutils literal notranslate"><span class="pre">$EON_DIR</span></code>, open the file <code class="docutils literal notranslate"><span class="pre">$EON_DIR/client/Rules.mk</span></code> with a text editor and
+find the section that begins with <code class="docutils literal notranslate"><span class="pre">ifdef</span> <span class="pre">ASE_POT</span></code>.</p>
+<p>Comment out the lines that begin with <code class="docutils literal notranslate"><span class="pre">PYBIND11_INCLUDES</span></code> and <code class="docutils literal notranslate"><span class="pre">PYTHON_LDFLAGS</span></code>.
+Modify the lines that begin with <code class="docutils literal notranslate"><span class="pre">CXXFLAGS</span></code> and <code class="docutils literal notranslate"><span class="pre">LDFLAGS</span></code> according to the
+subsections below.</p>
+<section id="cxxflags">
+<h3><code class="docutils literal notranslate"><span class="pre">CXXFLAGS</span></code><a class="headerlink" href="#cxxflags" title="Link to this heading">¶</a></h3>
+<p>2 paths should be included here:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">CXXFLAGS</span> <span class="o">+=</span> <span class="o">-</span><span class="n">DASE_POT</span> <span class="o">-</span><span class="n">I</span><span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">python</span><span class="o">/</span><span class="n">rootdir</span><span class="o">/</span><span class="n">include</span> <span class="o">-</span><span class="n">I</span><span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">python</span><span class="o">/</span><span class="n">rootdir</span><span class="o">/</span><span class="n">include</span><span class="o">/</span><span class="n">python3</span><span class="o">.</span><span class="n">xx</span>
+</pre></div>
+</div>
+<p>The first is where the directory <code class="docutils literal notranslate"><span class="pre">pybind11/</span></code> is located, which contains pybind11 header files.
+To be clear, the header file <code class="docutils literal notranslate"><span class="pre">/path/to/python/rootdir/include/pybind11/pybind.h</span></code> should exist,
+but write only <code class="docutils literal notranslate"><span class="pre">-I/path/to/python/rootdir/include</span></code>, not anything after (i.e. <code class="docutils literal notranslate"><span class="pre">pybind11/pybind11.h</span></code>).</p>
+<p>It is usually located in the <code class="docutils literal notranslate"><span class="pre">include/</span></code> directory of the Python installation.
+If using Python through a <a class="reference external" href="https://conda.io/projects/conda/en/latest/user-guide/install/index.html">Conda</a>
+environment, this directory is at <code class="docutils literal notranslate"><span class="pre">$CONDA_PREFIX/include</span></code> and/or
+<code class="docutils literal notranslate"><span class="pre">$CONDA_PREFIX/lib/python3.xx/site-packages/pybind11/include</span></code>.
+If using a systemwide Python,
+it may be <code class="docutils literal notranslate"><span class="pre">/usr/include</span></code> or something similar, depending on the type of OS and the distro.
+If pybind11 is a user pip installation for a systemwide Python, it may be located at
+<code class="docutils literal notranslate"><span class="pre">$HOME/.local/lib/python3.xx/site-packages/pybind11/include</span></code>.</p>
+<p>The second is the directory where the header file <code class="docutils literal notranslate"><span class="pre">Python.h</span></code> is located. The directory <code class="docutils literal notranslate"><span class="pre">python3.xx/</span></code> is
+typically in the same parent directory as <code class="docutils literal notranslate"><span class="pre">pybind11</span></code>.</p>
+<p>If using Python through a <a class="reference external" href="https://conda.io/projects/conda/en/latest/user-guide/install/index.html">Conda</a>
+environment, this directory is at <code class="docutils literal notranslate"><span class="pre">$CONDA_PREFIX/include/python3.xx</span></code>. If using a systemwide Python,
+it may be <code class="docutils literal notranslate"><span class="pre">/usr/include/python3.xx</span></code> or something similar, depending on the type of OS and the distro.</p>
+<p><strong>MAKE SURE TO CHANGE THE xx IN python3.xx TO THE PYTHON VERSION YOU’RE USING!</strong></p>
+</section>
+<section id="ldflags">
+<span id="id6"></span><h3><code class="docutils literal notranslate"><span class="pre">LDFLAGS</span></code><a class="headerlink" href="#ldflags" title="Link to this heading">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">LDFLAGS</span></code> line looks like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">LDFLAGS</span> <span class="o">+=</span> <span class="o">-</span><span class="n">L</span><span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">python</span><span class="o">/</span><span class="n">rootdir</span><span class="o">/</span><span class="n">lib</span> <span class="o">-</span><span class="n">lpython3</span><span class="o">.</span><span class="n">xx</span>
+</pre></div>
+</div>
+<p>The directory <code class="docutils literal notranslate"><span class="pre">/path/to/python/rootdir/lib</span></code> contains the Python dynamic library <code class="docutils literal notranslate"><span class="pre">libpython3.xx.so</span></code>.
+It is usually located in the <code class="docutils literal notranslate"><span class="pre">lib/</span></code> directory of the Python installation, thus sharing the same parent
+directory as <code class="docutils literal notranslate"><span class="pre">/path/to/python/rootdir/include</span></code> from the <code class="docutils literal notranslate"><span class="pre">CXXFLAGS</span></code> line above.</p>
+<p>If using Python through a <a class="reference external" href="https://conda.io/projects/conda/en/latest/user-guide/install/index.html">Conda</a>
+environment, this directory is at <code class="docutils literal notranslate"><span class="pre">$CONDA_PREFIX/lib</span></code>. If using a systemwide Python
+it may be <code class="docutils literal notranslate"><span class="pre">/usr/lib</span></code>, <code class="docutils literal notranslate"><span class="pre">/usr/lib/x86_64-linux-gnu</span></code>, <code class="docutils literal notranslate"><span class="pre">/usr/lib64</span></code>, or something similar depending on
+the OS.</p>
+<p>The second part <code class="docutils literal notranslate"><span class="pre">-lpython3.xx</span></code> is referring to the dynamic library. Once again,
+<strong>MAKE SURE TO CHANGE THE xx IN python3.xx TO THE PYTHON VERSION YOU’RE USING!</strong></p>
+</section>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+
+<h3><a href="index.html">EON</a></h3>
+<ul class="this-page-menu">
+  <li><a href="download.html">Download</a></li>
+  <li><a href="installation.html">Installation</a></li>
+  <li><a href="documentation.html">Documentation</a></li>
+  <li><a href="tutorials.html">Tutorials</a></li>
+</ul>
+<h3>Development</h3>
+<ul class="this-page-menu">
+  <li><a href="http://theory.cm.utexas.edu/redmine/projects/eon/repository">Source Code Browser</a></li>
+  <li><a href="http://theory.cm.utexas.edu/redmine/projects/eon/issues">Bug Tracker</a></li>
+</ul>
+  <div>
+      <h3>This page</h3>
+      <ul>
+<li><a class="reference internal" href="#">ASE Interface</a><ul>
+<li><a class="reference internal" href="#compilation">Compilation</a></li>
+<li><a class="reference internal" href="#after-compilation">After Compilation</a></li>
+<li><a class="reference internal" href="#using-the-ase-interface">Using the ASE interface</a></li>
+<li><a class="reference internal" href="#python-script-contents">Python script contents</a></li>
+<li><a class="reference internal" href="#manually-adding-paths">Manually Adding Paths</a><ul>
+<li><a class="reference internal" href="#cxxflags"><code class="docutils literal notranslate"><span class="pre">CXXFLAGS</span></code></a></li>
+<li><a class="reference internal" href="#ldflags"><code class="docutils literal notranslate"><span class="pre">LDFLAGS</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div role="note" aria-label="source link">
+    <!-- <h3>This Page</h3> -->
+    <ul class="this-page-menu">
+      <li><a href="_sources/ase_interface.txt"
+            rel="nofollow">Page Source</a></li>
+    </ul>
+   </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  </body>
+</html>

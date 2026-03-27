@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Hyperdynamics &#8212; EON: Long Timescale Dynamics</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/henkv2.css?v=8af8e032" />
+    <link rel="stylesheet" type="text/css" href="_static/henkv2.css?v=8af8e032" />
+    <script src="_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <link rel="icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+  </head><body> <!-- relbar1 comes before the document-->
+  <div class="related" role="navigation" aria-label="Related" style="display:flex">
+      <h3>Navigation</h3>
+      <ul>
+        <!-- EMDW: commenting this out because as far as I can tell, multiplying by 0 deletes the links so what's the point?-->
+        <!--
+        -->
+        <!-- this prints the "<root_name>" link-->
+        <!-- EMDW: updated to match template for Sphinx >= 7 -->
+        <!-- NOTE: max_width stops the image resizing. Change this?-->
+         <!-- -->
+            <li class="nav-item nav-item-0">
+              <a href="index.html">
+                <img class="logo" src="_static/eon_logo.png" alt="EON Home" style="position:relative; left: -240px; top: 0px; max-width: none;"/>
+              </a>
+            </li>
+        <!-- EMDW: sidebarsearch is already defined so name it something else-->
+            <li class="rel-search">
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" size="18" placeholder="Where is . . ."/>
+      <input type="submit" value="Search" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script></li>
+      </ul>
+    </div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="hyperdynamics">
+<span id="id1"></span><h1>Hyperdynamics<a class="headerlink" href="#hyperdynamics" title="Link to this heading">¶</a></h1>
+<p>The hyperdynamics method uses a bias potential which should be zero at
+transition states and positive in minima in order to accelerate the rate of
+transitions. <a class="footnote-reference brackets" href="#voter97-3908" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> The hyperdynamics time step <span class="math notranslate nohighlight">\(\delta t\)</span>
+can be obtained from the molecular dynamics simulation time step <span class="math notranslate nohighlight">\(\delta
+t^b\)</span> multiplied by a boost factor <span class="math notranslate nohighlight">\(e^{\beta \Delta V}\)</span>, where
+<span class="math notranslate nohighlight">\({\Delta V}\)</span> is the bias potential.</p>
+<p>There are several possible forms of bias potential. In EON, we have implemented
+the bond-boost method, <a class="footnote-reference brackets" href="#miron03-6210" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a> where the bias potential is controlled
+by the maximal (fractional) change in any bond length in the system.  This is a
+good bias potential for systems in which the dynamics is governed by bond
+breaking and forming events.</p>
+<p>You can run a hyperdynamics job by setting the <strong>bias_potential</strong> option.
+It should be run with the <code class="docutils literal notranslate"><span class="pre">parallel_replica</span></code> job.</p>
+<section id="hyperdynamics-options">
+<h2>[Hyperdynamics] Options<a class="headerlink" href="#hyperdynamics-options" title="Link to this heading">¶</a></h2>
+<p><strong>bias_potential</strong>:</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">none</span></code></p>
+<p>options:</p>
+<blockquote>
+<div><p><code class="docutils literal notranslate"><span class="pre">bond_boost</span></code>: bond boost method</p>
+<p><code class="docutils literal notranslate"><span class="pre">none</span></code>: with no bias potential, run regular MD</p>
+</div></blockquote>
+</div></blockquote>
+<p><strong>bb_dvmax</strong>:</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">0.0</span></code></p>
+<p>The magnitude of the bond-boost bias potential.</p>
+</div></blockquote>
+<p><strong>bb_rmd_time</strong>:</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">100.0</span></code></p>
+<p>Regular MD duration used to determine the equilibrium bond length before the bias potential is added.</p>
+</div></blockquote>
+<p><strong>bb_rcut</strong>:</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">3.0</span></code></p>
+<p>All bonds which belong to the tagged atoms and are shorter than a cutoff of rcut will be included in the bond-boost potential.</p>
+</div></blockquote>
+<p><strong>bb_stretch_threshold</strong>:</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">0.2</span></code></p>
+<p>Defines the bond-boost dividing surface. It should be smaller than the
+maximum fractional nearest-neighbor bond stretch or compression at any
+transition state.</p>
+</div></blockquote>
+<p><strong>bb_ds_curvature</strong>:</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">0.95</span></code></p>
+<p>The curvature near the bond-boost dividing surface, it should has a value
+&lt;= 1. We recommend the value to be 0.9-0.98.</p>
+</div></blockquote>
+<p class="rubric">References</p>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="voter97-3908" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">1</a><span class="fn-bracket">]</span></span>
+<p>A.F. Voter “Hyperdynamics: Accelerated Molecular Dynamics of Infrequent Events” <em>Phys. Rev. Lett.</em> <strong>78</strong>, 3908 (1997)</p>
+</aside>
+<aside class="footnote brackets" id="miron03-6210" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">2</a><span class="fn-bracket">]</span></span>
+<p>R.A. Miron and K.A. Fichthorn “Accelerated molecular-dynamics of rare events with the bond-boost method” <em>J. Chem. Phys.</em> <strong>119</strong>, 6210 (2003)</p>
+</aside>
+</aside>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+
+<h3><a href="index.html">EON</a></h3>
+<ul class="this-page-menu">
+  <li><a href="download.html">Download</a></li>
+  <li><a href="installation.html">Installation</a></li>
+  <li><a href="documentation.html">Documentation</a></li>
+  <li><a href="tutorials.html">Tutorials</a></li>
+</ul>
+<h3>Development</h3>
+<ul class="this-page-menu">
+  <li><a href="http://theory.cm.utexas.edu/redmine/projects/eon/repository">Source Code Browser</a></li>
+  <li><a href="http://theory.cm.utexas.edu/redmine/projects/eon/issues">Bug Tracker</a></li>
+</ul>
+  <div>
+      <h3>This page</h3>
+      <ul>
+<li><a class="reference internal" href="#">Hyperdynamics</a><ul>
+<li><a class="reference internal" href="#hyperdynamics-options">[Hyperdynamics] Options</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div role="note" aria-label="source link">
+    <!-- <h3>This Page</h3> -->
+    <ul class="this-page-menu">
+      <li><a href="_sources/hyperdynamics.txt"
+            rel="nofollow">Page Source</a></li>
+    </ul>
+   </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  </body>
+</html>

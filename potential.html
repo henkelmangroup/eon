@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Potential &#8212; EON: Long Timescale Dynamics</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/henkv2.css?v=8af8e032" />
+    <link rel="stylesheet" type="text/css" href="_static/henkv2.css?v=8af8e032" />
+    <script src="_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+  </head><body> <!-- relbar1 comes before the document-->
+  <div class="related" role="navigation" aria-label="Related" style="display:flex">
+      <h3>Navigation</h3>
+      <ul>
+        <!-- EMDW: commenting this out because as far as I can tell, multiplying by 0 deletes the links so what's the point?-->
+        <!--
+        -->
+        <!-- this prints the "<root_name>" link-->
+        <!-- EMDW: updated to match template for Sphinx >= 7 -->
+        <!-- NOTE: max_width stops the image resizing. Change this?-->
+         <!-- -->
+            <li class="nav-item nav-item-0">
+              <a href="index.html">
+                <img class="logo" src="_static/eon_logo.png" alt="EON Home" style="position:relative; left: -240px; top: 0px; max-width: none;"/>
+              </a>
+            </li>
+        <!-- EMDW: sidebarsearch is already defined so name it something else-->
+            <li class="rel-search">
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" size="18" placeholder="Where is . . ."/>
+      <input type="submit" value="Search" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script></li>
+      </ul>
+    </div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="potential">
+<span id="id1"></span><h1>Potential<a class="headerlink" href="#potential" title="Link to this heading">¶</a></h1>
+<p><strong>potential</strong>: the type of potential to execute</p>
+<blockquote>
+<div><p>default: <code class="docutils literal notranslate"><span class="pre">lj</span></code></p>
+<p>options:</p>
+<blockquote>
+<div><p><code class="docutils literal notranslate"><span class="pre">vasp</span></code>: Vienna Ab-Initio Simulation Program (VASP) interface. <a class="footnote-reference brackets" href="#vasp" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a></p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">lammps</span></code>: The LAMMPS potentials. Detailed documentation can be found</dt><dd><p>on the <a class="reference internal" href="lammps_potential.html#lammps-potential"><span class="std std-ref">LAMMPS Potential</span></a> page. <a class="footnote-reference brackets" href="#lammps" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a></p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">ase</span></code>: Atomic Simulation Environment (ASE) interface. Detailed</dt><dd><p>can be found on the <a class="reference internal" href="ase_interface.html#ase-interface"><span class="std std-ref">ASE Interface</span></a> page. <a class="footnote-reference brackets" href="#ase" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a></p>
+</dd>
+</dl>
+<p><code class="docutils literal notranslate"><span class="pre">eam_al</span></code>: Embedded atom method parameterized for aluminum.</p>
+<p><code class="docutils literal notranslate"><span class="pre">qsc</span></code>: Quantum Sutton-Chen potential, for FCC metals.</p>
+<p><code class="docutils literal notranslate"><span class="pre">bopfox</span></code>: Bond order potential, for metals.</p>
+<p><code class="docutils literal notranslate"><span class="pre">emt</span></code>: Effective medium theory, for metals.</p>
+<p><code class="docutils literal notranslate"><span class="pre">lj</span></code>: Lennard-Jones potential in reduced unit <a class="footnote-reference brackets" href="#lj" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a></p>
+<p><code class="docutils literal notranslate"><span class="pre">morse_pt</span></code>: Morse potential for platinum.</p>
+<p><code class="docutils literal notranslate"><span class="pre">lenosky_si</span></code>: Lenosky potential, for silicon. <a class="footnote-reference brackets" href="#lenosky" id="id6" role="doc-noteref"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></a></p>
+<p><code class="docutils literal notranslate"><span class="pre">sw_si</span></code>: Stillinger-Weber potential, for silicon. <a class="footnote-reference brackets" href="#swsi" id="id7" role="doc-noteref"><span class="fn-bracket">[</span>6<span class="fn-bracket">]</span></a></p>
+<p><code class="docutils literal notranslate"><span class="pre">tersoff_si</span></code>: Tersoff pair potential with angular terms, for silicon. <a class="footnote-reference brackets" href="#tersoff" id="id8" role="doc-noteref"><span class="fn-bracket">[</span>7<span class="fn-bracket">]</span></a></p>
+<p><code class="docutils literal notranslate"><span class="pre">edip</span></code>: Environment-Dependent Interatomic Potential, for carbon.
+<a class="footnote-reference brackets" href="#edip" id="id9" role="doc-noteref"><span class="fn-bracket">[</span>8<span class="fn-bracket">]</span></a></p>
+<p><code class="docutils literal notranslate"><span class="pre">zpice</span></code>: Water on platinum.</p>
+<p><code class="docutils literal notranslate"><span class="pre">tip4p</span></code>: Point charge model for water. <a class="footnote-reference brackets" href="#tip4p" id="id10" role="doc-noteref"><span class="fn-bracket">[</span>9<span class="fn-bracket">]</span></a></p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">mpi</span></code>: Communicate with a MPI process to calculate energy and forces.</dt><dd><p>More information can be found on the <a class="reference internal" href="mpi_potential.html#mpi-potential"><span class="std std-ref">MPI Potential</span></a> page.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">ext_pot</span></code>: Writes box size and coordinates to the file ‘from_eon_to_ext’</dt><dd><p>Make a system call for the binary ‘ext_pot’, which should read
+the coordinates and return the energy and forces to the file ‘from_ext_to_eon’</p>
+</dd>
+</dl>
+</div></blockquote>
+</div></blockquote>
+<p><strong>log_potential</strong>: If true write timing information about each force call to client.log</p>
+<blockquote>
+<div><dl class="simple">
+<dt>default: <code class="docutils literal notranslate"><span class="pre">true</span></code> if <code class="docutils literal notranslate"><span class="pre">potential</span></code> is <code class="docutils literal notranslate"><span class="pre">mpi</span></code>, <code class="docutils literal notranslate"><span class="pre">vasp</span></code>, <code class="docutils literal notranslate"><span class="pre">bop</span></code>,  or <code class="docutils literal notranslate"><span class="pre">bopfox</span></code></dt><dd><p>otherwise <code class="docutils literal notranslate"><span class="pre">false</span></code></p>
+</dd>
+</dl>
+</div></blockquote>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="vasp" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">1</a><span class="fn-bracket">]</span></span>
+<p>Georg, Kresse, <a class="reference external" href="http://cms.mpi.univie.ac.at/vasp/">“VASP Group, Theoretical Physics Departments, Vienna”</a></p>
+</aside>
+<aside class="footnote brackets" id="lammps" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">2</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="http://http://lammps.sandia.gov/">“Large-scale Atomic/Molecular Massively Parallel Simulator,  Sandia National Laboratories”</a></p>
+</aside>
+<aside class="footnote brackets" id="ase" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id4">3</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="https://ase-lib.org/">“Atomic Simulation Environment”</a></p>
+</aside>
+<aside class="footnote brackets" id="lj" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id5">4</a><span class="fn-bracket">]</span></span>
+<p>Lennard-Jones, J. E. Proc. R. Soc. Lond.A <strong>106</strong> (738): 463–477  doi:<a class="reference external" href="http://dx.doi.org/10.1098%2Frspa.1924.0082">10.1098/rspa.1924.0082</a></p>
+</aside>
+<aside class="footnote brackets" id="lenosky" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id6">5</a><span class="fn-bracket">]</span></span>
+<p>T.J. Lenosky et.al., Modelling Simul. Mater. Sci. Eng., <strong>8</strong>,  825 (2000) doi:<a class="reference external" href="http://dx.doi.org/10.1088/0965-0393/8/6/305">10.1088/0965-0393/8/6/305</a></p>
+</aside>
+<aside class="footnote brackets" id="swsi" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id7">6</a><span class="fn-bracket">]</span></span>
+<p>Frank H. Stillinger and Thomas A. Weber, Phys. Rev. B <strong>31</strong>, 5262–5271 (1985) doi:<a class="reference external" href="http://link.aps.org/doi/10.1103/PhysRevB.31.5262">10.1103/PhysRevB.31.5262</a></p>
+</aside>
+<aside class="footnote brackets" id="tersoff" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id8">7</a><span class="fn-bracket">]</span></span>
+<ol class="upperalpha simple" start="10">
+<li><p>Tersoff, Phys. Rev. B <strong>38</strong>, 9902–9905 (1988) doi:<a class="reference external" href="http://link.aps.org/doi/10.1103/PhysRevB.38.9902">10.1103/PhysRevB.38.9902</a></p></li>
+</ol>
+</aside>
+<aside class="footnote brackets" id="edip" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id9">8</a><span class="fn-bracket">]</span></span>
+<p>João F. Justo et.al., Phys. Rev. B <strong>58</strong>, 2539–2550 (1998) doi:<a class="reference external" href="http://link.aps.org/doi/10.1103/PhysRevB.58.2539">10.1103/PhysRevB.58.2539</a></p>
+</aside>
+<aside class="footnote brackets" id="tip4p" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id10">9</a><span class="fn-bracket">]</span></span>
+<p>Jorgensen, W. L. et.al, J. Chem. Phys 1983, <strong>79</strong>, 926-935. doi:<a class="reference external" href="http://dx.doi.org/10.1063%2F1.445869">10.1063/1.445869</a></p>
+</aside>
+</aside>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+
+<h3><a href="index.html">EON</a></h3>
+<ul class="this-page-menu">
+  <li><a href="download.html">Download</a></li>
+  <li><a href="installation.html">Installation</a></li>
+  <li><a href="documentation.html">Documentation</a></li>
+  <li><a href="tutorials.html">Tutorials</a></li>
+</ul>
+<h3>Development</h3>
+<ul class="this-page-menu">
+  <li><a href="http://theory.cm.utexas.edu/redmine/projects/eon/repository">Source Code Browser</a></li>
+  <li><a href="http://theory.cm.utexas.edu/redmine/projects/eon/issues">Bug Tracker</a></li>
+</ul>
+  <div role="note" aria-label="source link">
+    <!-- <h3>This Page</h3> -->
+    <ul class="this-page-menu">
+      <li><a href="_sources/potential.txt"
+            rel="nofollow">Page Source</a></li>
+    </ul>
+   </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  </body>
+</html>

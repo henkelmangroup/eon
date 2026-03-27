@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Introduction &#8212; EON: Long Timescale Dynamics</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/henkv2.css?v=8af8e032" />
+    <link rel="stylesheet" type="text/css" href="_static/henkv2.css?v=8af8e032" />
+    <script src="_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <link rel="icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+  </head><body> <!-- relbar1 comes before the document-->
+  <div class="related" role="navigation" aria-label="Related" style="display:flex">
+      <h3>Navigation</h3>
+      <ul>
+        <!-- EMDW: commenting this out because as far as I can tell, multiplying by 0 deletes the links so what's the point?-->
+        <!--
+        -->
+        <!-- this prints the "<root_name>" link-->
+        <!-- EMDW: updated to match template for Sphinx >= 7 -->
+        <!-- NOTE: max_width stops the image resizing. Change this?-->
+         <!-- -->
+            <li class="nav-item nav-item-0">
+              <a href="index.html">
+                <img class="logo" src="_static/eon_logo.png" alt="EON Home" style="position:relative; left: -240px; top: 0px; max-width: none;"/>
+              </a>
+            </li>
+        <!-- EMDW: sidebarsearch is already defined so name it something else-->
+            <li class="rel-search">
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" size="18" placeholder="Where is . . ."/>
+      <input type="submit" value="Search" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script></li>
+      </ul>
+    </div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="introduction">
+<span id="installation"></span><h1>Introduction<a class="headerlink" href="#introduction" title="Link to this heading">¶</a></h1>
+<p>The EON project is divided into two separate programs: a server and a client. The client does most of the computations, while the server creates the input files for the EON client.</p>
+</section>
+<section id="dependencies">
+<h1>Dependencies<a class="headerlink" href="#dependencies" title="Link to this heading">¶</a></h1>
+<p>Check your system or cluster for the following required packages:</p>
+<section id="server-requirements">
+<h2>Server Requirements<a class="headerlink" href="#server-requirements" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://www.python.org/">Python</a> (<span class="math notranslate nohighlight">\(\geq 3.5\)</span>)</p></li>
+<li><p><a class="reference external" href="https://numpy.org/">NumPy</a> (<span class="math notranslate nohighlight">\(\geq 1.2.1\)</span>)</p></li>
+<li><p><a class="reference external" href="https://wiki.fysik.dtu.dk/ase/install.html">ASE</a></p></li>
+<li><p><a class="reference external" href="https://pyyaml.org/">PyYaml</a></p></li>
+<li><p><a class="reference external" href="https://mpi4py.readthedocs.io/en/stable/">mpi4py</a> (optional, for MPI communicator)</p></li>
+</ul>
+</section>
+<section id="client-requirements">
+<h2>Client Requirements<a class="headerlink" href="#client-requirements" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>GNU Make</p></li>
+<li><p>G++ (<span class="math notranslate nohighlight">\(\geq 4.0\)</span>, recommended; other C++ compilers may work)</p></li>
+<li><p>Gfortran or Intel Fortran Compiler (optional)</p></li>
+<li><p><a class="reference external" href="https://www.lammps.org/#gsc.tab=0">LAMMPS</a> (optional, for LAMMPS potentials)</p></li>
+<li><p><a class="reference external" href="https://pybind11.readthedocs.io/en/stable/index.html">pybind11</a> (optional, for ASE interface)</p></li>
+</ul>
+</section>
+</section>
+<section id="eon-server-installation">
+<h1>EON Server Installation<a class="headerlink" href="#eon-server-installation" title="Link to this heading">¶</a></h1>
+<section id="user-installation">
+<h2>User Installation<a class="headerlink" href="#user-installation" title="Link to this heading">¶</a></h2>
+<p>We recommend installing EON in your <code class="docutils literal notranslate"><span class="pre">$HOME</span></code> directory. The latest developer version can be downloaded using:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span><span class="nv">$HOME</span>
+svn<span class="w"> </span>co<span class="w"> </span>https://theory.cm.utexas.edu/svn/eon
+</pre></div>
+</div>
+<p>Verify that your <code class="docutils literal notranslate"><span class="pre">$HOME</span></code> directory contains the <code class="docutils literal notranslate"><span class="pre">/eon</span></code> folder using the <code class="docutils literal notranslate"><span class="pre">ls</span></code> command. The <code class="docutils literal notranslate"><span class="pre">/eon</span></code> directory needs to be added to your <code class="docutils literal notranslate"><span class="pre">$PYTHONPATH</span></code> and <code class="docutils literal notranslate"><span class="pre">$PATH</span></code>. Modify your <code class="docutils literal notranslate"><span class="pre">~/.bashrc</span></code> file:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>vim<span class="w"> </span>~/.bashrc
+</pre></div>
+</div>
+<p>Append these lines:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">PYTHONPATH</span><span class="o">=</span><span class="nv">$HOME</span>/eon:<span class="nv">$PYTHONPATH</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span><span class="nv">$HOME</span>/eon/bin:<span class="nv">$PATH</span>
+</pre></div>
+</div>
+<p>Save and reload:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>~/.bashrc
+</pre></div>
+</div>
+<p>Now, install EON using Python’s package manager:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>eon
+pip<span class="w"> </span>install<span class="w"> </span>--user<span class="w"> </span>.<span class="w">  </span><span class="c1"># Note: there&#39;s a period &quot;.&quot; after --user</span>
+</pre></div>
+</div>
+<p>Check installation:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>show<span class="w"> </span>eon
+which<span class="w"> </span>eon
+</pre></div>
+</div>
+<p>Expected output:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Name: eon
+Version: 1.0.0
+Summary:
+Home-page: http://henkelmanlab/eon/
+Author: Henkelman Group
+Location: $HOME/eon
+</pre></div>
+</div>
+<p>Your <code class="docutils literal notranslate"><span class="pre">eon</span></code> executable is located in <code class="docutils literal notranslate"><span class="pre">$HOME/eon/bin</span></code>.</p>
+</section>
+<section id="global-installation">
+<h2>Global Installation<a class="headerlink" href="#global-installation" title="Link to this heading">¶</a></h2>
+<p>For a system-wide installation (requires root access):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>eon
+sudo<span class="w"> </span>python<span class="w"> </span>setup.py<span class="w"> </span>install
+</pre></div>
+</div>
+<p>After installation, verify it with:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>show<span class="w"> </span>eon
+which<span class="w"> </span>eon
+</pre></div>
+</div>
+</section>
+</section>
+<section id="eonclient-installation">
+<h1>EONClient Installation<a class="headerlink" href="#eonclient-installation" title="Link to this heading">¶</a></h1>
+<p>The client source code is located in <code class="docutils literal notranslate"><span class="pre">$HOME/eon/client</span></code>. Build it with:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span><span class="nv">$HOME</span>/eon/client
+make
+</pre></div>
+</div>
+<p>For most installations, move the binary to <code class="docutils literal notranslate"><span class="pre">$PATH</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cp<span class="w"> </span>eonclient<span class="w"> </span>../bin/eonclient
+</pre></div>
+</div>
+<p>Alternatively, specify the client binary path in <code class="docutils literal notranslate"><span class="pre">config.ini</span></code>.</p>
+<section id="fortran-support">
+<h2>Fortran Support<a class="headerlink" href="#fortran-support" title="Link to this heading">¶</a></h2>
+<p>If using Fortran-dependent potentials, a Fortran compiler is required. To compile without Fortran support:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span><span class="nv">NO_FORTRAN</span><span class="o">=</span><span class="m">1</span>
+</pre></div>
+</div>
+<p>For Intel Fortran Compiler (ifort), modify <code class="docutils literal notranslate"><span class="pre">Makefile</span></code>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">FC</span></code> (Fortran compiler)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">FFLAGS</span></code> (Fortran compiler flags)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">FAR</span></code> (Fortran archiver)</p></li>
+</ul>
+</section>
+</section>
+<section id="ase-calculator">
+<h1>ASE Calculator<a class="headerlink" href="#ase-calculator" title="Link to this heading">¶</a></h1>
+<p>To use ASE calculators in EON, additional dependencies and a modified <code class="docutils literal notranslate"><span class="pre">Makefile</span></code> are required. Refer to the <a class="reference external" href="https://theory.cm.utexas.edu/eon/ase_interface.html#ase-interface">ASE Interface</a> documentation.</p>
+</section>
+<section id="lammps-potential">
+<h1>LAMMPS Potential<a class="headerlink" href="#lammps-potential" title="Link to this heading">¶</a></h1>
+<p>To use a LAMMPS potential, build the appropriate library version of LAMMPS. For details, see the <a class="reference external" href="https://theory.cm.utexas.edu/eon/lammps_potential.html#lammps-potential">LAMMPS Potential</a> page.</p>
+</section>
+<section id="mpi-communicator">
+<h1>MPI Communicator<a class="headerlink" href="#mpi-communicator" title="Link to this heading">¶</a></h1>
+<p>For using MPI communicator for parallel jobs, see the <a class="reference external" href="https://theory.cm.utexas.edu/eon/communicator.html#communicator-mpi">MPI Communicator</a> documentation.</p>
+</section>
+<section id="test-run">
+<h1>Test Run<a class="headerlink" href="#test-run" title="Link to this heading">¶</a></h1>
+<p>Test run instructions are available in the <a class="reference external" href="https://theory.cm.utexas.edu/eon/tutorials.html">Tutorial</a> page.</p>
+<p id="id1">Eon is divided up into two separate programs: a server and a client. The client
+does most of the computation (<cite>e.g.</cite> saddle searches, minimizations, and
+molecular dynamics) while the server creates the input for the client and
+processes its results.</p>
+</section>
+<section id="id2">
+<h1>Dependencies<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h1>
+<ul class="simple">
+<li><dl class="simple">
+<dt>Server</dt><dd><ul>
+<li><p><a class="reference external" href="http://www.python.org/download">Python</a> (&gt;=3.5)</p></li>
+<li><p><a class="reference external" href="http://new.scipy.org/download.html">NumPy</a> (&gt;=1.2.1)</p></li>
+<li><p><a class="reference external" href="https://wiki.fysik.dtu.dk/ase/download.html">ASE</a></p></li>
+<li><p><a class="reference external" href="https://pyyaml.org">PyYaml</a></p></li>
+<li><p>(optional, for MPI communicator) <a class="reference external" href="http://mpi4py.scipy.org/">mpi4py</a></p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Client</dt><dd><ul>
+<li><p>GNU Make</p></li>
+<li><p>G++ (&gt;=4.0, other C++ compilers might work)</p></li>
+<li><p>(optional) gfortran or Intel Fortran Compiler</p></li>
+<li><p>(optional, for LAMMPS potentials) <a class="reference external" href="http://lammps.sandia.gov/doc/">LAMMPS</a></p></li>
+<li><p>(optional, for ASE interface) <a class="reference external" href="http://www.python.org/download">Python</a> , <a class="reference external" href="https://pybind11.readthedocs.io/en/stable/index.html">pybind11</a></p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</section>
+<section id="server-installation">
+<h1>Server Installation<a class="headerlink" href="#server-installation" title="Link to this heading">¶</a></h1>
+<p>We recommend installing Eon to your <code class="docutils literal notranslate"><span class="pre">$HOME</span></code> folder. To download the
+latest developer version to your home folder:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span><span class="nv">$HOME</span>
+$<span class="w"> </span>svn<span class="w"> </span>co<span class="w"> </span>https://theory.cm.utexas.edu/svn/eon
+</pre></div>
+</div>
+<p>The directory <code class="docutils literal notranslate"><span class="pre">$HOME/eon</span></code> needs to be added to your <code class="docutils literal notranslate"><span class="pre">$PYTHONPATH</span></code>
+environment variable. It is also recommended to add <code class="docutils literal notranslate"><span class="pre">$HOME/eon/bin</span></code> to your
+<code class="docutils literal notranslate"><span class="pre">$PATH</span></code>. This can be done permanently by appending the following to your
+<code class="docutils literal notranslate"><span class="pre">~/.profile</span></code> file:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">PYTHONPATH</span><span class="o">=</span><span class="nv">$HOME</span>/eon:<span class="nv">$PYTHONPATH</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span><span class="nv">$HOME</span>/eon/bin:<span class="nv">$PATH</span>
+</pre></div>
+</div>
+<p>If you have root permissions, you can install Eon system-wide:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>eon
+$<span class="w"> </span>sudo<span class="w"> </span>python<span class="w"> </span>setup.py<span class="w"> </span>install
+</pre></div>
+</div>
+<p>This will install the eon python module to Python’s site-package directory
+as well as adding the <code class="docutils literal notranslate"><span class="pre">eon</span></code> program to your <code class="docutils literal notranslate"><span class="pre">$PATH</span></code>.</p>
+</section>
+<section id="client-installation">
+<h1>Client Installation<a class="headerlink" href="#client-installation" title="Link to this heading">¶</a></h1>
+<p>The client source code is located in a folder named <code class="docutils literal notranslate"><span class="pre">client</span></code> under the main
+eon directory. For most situations, you will only need to run the make command
+and a binary named <code class="docutils literal notranslate"><span class="pre">client</span></code> will be built in this directory:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>client
+$<span class="w"> </span>make
+</pre></div>
+</div>
+<p>If you wish to use the potentials that depend on fortran you will need a
+fortran compiler. However, this is optional and you can compile the client
+without fortran support by running the command <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">NO_FORTRAN=1</span></code>. If you
+are using gfortran the supplied Makefile should work out of the box. If you are
+using the Intel Fortran Compiler (ifort) you will need to edit the Makefile to
+change <code class="docutils literal notranslate"><span class="pre">FC</span></code> (fortran compiler), <code class="docutils literal notranslate"><span class="pre">FFLAGS</span></code> (fortran compiler flags), and
+<code class="docutils literal notranslate"><span class="pre">FAR</span></code> (fortran archiver) variables to work for your system.</p>
+<p>If you wish to use ASE calculators in EON, the additional dependencies (see above) and a modified Makefile is necessary.
+Detailed documentation can be found on the <a class="reference internal" href="ase_interface.html#ase-interface"><span class="std std-ref">ASE Interface</span></a> page. <a class="footnote-reference brackets" href="#ase1" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a></p>
+<p>If you wish to use a LAMMPS potential, you must first build the appropriate library version of LAMMPS. If the library will be used with a serial version of EON, then build the serial version of LAMMPS–likewise for MPI use.
+Detailed documentation can be found on the <a class="reference internal" href="lammps_potential.html#lammps-potential"><span class="std std-ref">LAMMPS Potential</span></a> page. <a class="footnote-reference brackets" href="#lammps1" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a></p>
+<p>If you want to use the MPI communicator, see the <a class="reference internal" href="communicator.html#communicator-mpi"><span class="std std-ref">MPI Communicator</span></a> page for instructions.</p>
+<p>For most installations, the binary <code class="docutils literal notranslate"><span class="pre">eonclient</span></code> can be copied to a directory in your
+<code class="docutils literal notranslate"><span class="pre">$PATH</span></code>. If you added <code class="docutils literal notranslate"><span class="pre">$HOME/eon/bin</span></code> to your path during the server installation the following command will install the client:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>cp<span class="w"> </span>eonclient<span class="w"> </span>../bin/eonclient
+</pre></div>
+</div>
+<p>Otherwise you will need to give the path to the client binary in your
+<code class="docutils literal notranslate"><span class="pre">config.ini</span></code>.</p>
+<p class="rubric">References</p>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="ase1" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id4">1</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="https://wiki.fysik.dtu.dk/ase/">“Atomic Simulation Environment”</a></p>
+</aside>
+<aside class="footnote brackets" id="lammps1" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id5">2</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="http://lammps.sandia.gov/">“Large-scale Atomic/Molecular Massively Parallel Simulator, Sandia National Laboratories”</a></p>
+</aside>
+</aside>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+
+<h3><a href="index.html">EON</a></h3>
+<ul class="this-page-menu">
+  <li><a href="download.html">Download</a></li>
+  <li><a href="#">Installation</a></li>
+  <li><a href="documentation.html">Documentation</a></li>
+  <li><a href="tutorials.html">Tutorials</a></li>
+</ul>
+<h3>Development</h3>
+<ul class="this-page-menu">
+  <li><a href="http://theory.cm.utexas.edu/redmine/projects/eon/repository">Source Code Browser</a></li>
+  <li><a href="http://theory.cm.utexas.edu/redmine/projects/eon/issues">Bug Tracker</a></li>
+</ul>
+  <div>
+      <h3>This page</h3>
+      <ul>
+<li><a class="reference internal" href="#">Introduction</a></li>
+<li><a class="reference internal" href="#dependencies">Dependencies</a><ul>
+<li><a class="reference internal" href="#server-requirements">Server Requirements</a></li>
+<li><a class="reference internal" href="#client-requirements">Client Requirements</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#eon-server-installation">EON Server Installation</a><ul>
+<li><a class="reference internal" href="#user-installation">User Installation</a></li>
+<li><a class="reference internal" href="#global-installation">Global Installation</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#eonclient-installation">EONClient Installation</a><ul>
+<li><a class="reference internal" href="#fortran-support">Fortran Support</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#ase-calculator">ASE Calculator</a></li>
+<li><a class="reference internal" href="#lammps-potential">LAMMPS Potential</a></li>
+<li><a class="reference internal" href="#mpi-communicator">MPI Communicator</a></li>
+<li><a class="reference internal" href="#test-run">Test Run</a></li>
+<li><a class="reference internal" href="#id2">Dependencies</a></li>
+<li><a class="reference internal" href="#server-installation">Server Installation</a></li>
+<li><a class="reference internal" href="#client-installation">Client Installation</a></li>
+</ul>
+
+  </div>
+  <div role="note" aria-label="source link">
+    <!-- <h3>This Page</h3> -->
+    <ul class="this-page-menu">
+      <li><a href="_sources/installation.txt"
+            rel="nofollow">Page Source</a></li>
+    </ul>
+   </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  </body>
+</html>
