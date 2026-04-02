@@ -100,7 +100,6 @@ void ASE::force(long N, const double *R, const int *atomicNrs,
         double* ptr = static_cast<double*>(buffer.ptr);
         std::copy(ptr, ptr + buffer.size, F);
 
-
     } catch (py::error_already_set& e) {
         fprintf(stderr, "ASE calculator: Python error: %s\n", e.what());
         exit(1);

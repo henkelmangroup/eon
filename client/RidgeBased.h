@@ -38,13 +38,15 @@ public:
     int opt_forceCalls;
     int dimerCalls;
     int inbasin_checks;
+    int n_dof;
     Matter R0;
     Matter R0old;
     Matter Rmin;
     Matter Rdimer;
     std::unique_ptr<MinModeSaddleSearch> dim;
-    AtomMatrix V, hyperF, mode, Nguess, Ftrans;
-    VectorXd N, Nridge, Fridge, F0;
+    std::unique_ptr<ImprovedDimer> idim;
+    AtomMatrix hyperF, mode, Nguess;
+    VectorXd V, dV, N, Nridge, Fridge, F0, Ftrans;
     std::vector<std::shared_ptr<Matter>> traj_dimer;
     
 
@@ -55,7 +57,7 @@ public:
     double get_biasPot();
     double search(double minForce, bool quite, int maxForceCalls, int interval);
     bool inbasin(Matter& Rmin0,const Matter& Rcur);
-    AtomMatrix getdimerforces();
+    VectorXd getdimerforces();
     AtomMatrix rotateFridge(VectorXd Fridge,VectorXd Ncur,VectorXd Nridge);
     std::vector<std::shared_ptr<Matter>> saddleTrajectory();
     bool identical(const Matter* m1, const Matter* m2, const double tolerance);
