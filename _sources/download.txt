@@ -9,24 +9,23 @@ EON is released under the `BSD License`_.
 
 The EIGEN library, which is included with EON, is released under the Mozilla Public License.
 
-A read-only copy of the code can be anonymously checked out of the subversion
-repository with the following command:
+The latest version of the code can be obtained from GitHub via HTTPS with the following command:
 
 .. code-block:: sh
 
-    svn co https://theory.cm.utexas.edu/svn/eon
+    git clone https://github.com/henkelmangroup/eon.git
 
-If you are a developer you can checkout the code using the command:
+If you prefer to use SSH, then the command becomes:
 
 .. code-block:: sh
 
-    svn co svn+ssh://username@theory.cm.utexas.edu/svn/eon
+    git clone git@github.com:henkelmangroup/eon.git
 
 This will fetch a copy of the latest code to a local directory named eon. 
-For more information on subversion read its `online documentation`_.
+For more information on GitHub read its `online documentation`_.
 
 The eon code can also be download directly at `tarfile`_..
 
-.. _online documentation: http://svnbook.red-bean.com/en/1.5/index.html
+.. _online documentation: https://docs.github.com/en/get-started
 .. _BSD License: https://opensource.org/licenses/BSD-3-Clause
 .. _tarfile: http://theory.cm.utexas.edu/code/eon.tgz
