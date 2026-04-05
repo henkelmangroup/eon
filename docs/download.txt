@@ -24,8 +24,9 @@ If you prefer to use SSH, then the command becomes:
 This will fetch a copy of the latest code to a local directory named eon. 
 For more information on GitHub read its `online documentation`_.
 
-The eon code can also be download directly at `tarfile`_..
+The eon code can also be download directly at `tarfile`_.
 
 .. _online documentation: https://docs.github.com/en/get-started
 .. _BSD License: https://opensource.org/licenses/BSD-3-Clause
-.. _tarfile: http://theory.cm.utexas.edu/code/eon.tgz
+.. _tarfile: https://github.com/henkelmangroup/eon/releases/latest/download/eon.tar.gz
+
