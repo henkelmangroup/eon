@@ -10,8 +10,8 @@ sys.path.append(os.path.abspath('.'))
 ###############################################################
 project = u"Eon"                #name
 copyright = f"2010-{date.today().year},  "       # YYYY-YYYY, author
-version = "1.0"                 # short verion X.Y
-release = "1.0"                 # full version, alpha/beta/rc
+version = "1.1"                 # short verion X.Y
+release = "1.1.2549"                 # full version, alpha/beta/rc
 ###############################################################
 ####                BUILD SUPPORT
 ###############################################################

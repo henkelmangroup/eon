@@ -9,9 +9,9 @@ package_dir = {'eon':'eon'}
 package_data = {'eon': ['config.yaml']}
 
 setup(name='eon',
-    version='1.0.0',
+    version='1.1.2549',
     author='Henkelman Group',
-    url='http://henkelmanlab/eon/',
+    url='https://henkelmangroup.github.io/eon/',
     packages=packages,
     package_dir=package_dir,
     package_data=package_data,
