@@ -40,7 +40,7 @@ We recommend installing EON in your ``$HOME`` directory. The latest developer ve
 .. code-block:: bash
 
     cd $HOME
-    svn co https://theory.cm.utexas.edu/svn/eon
+    git clone https://github.com/henkelmangroup/eon.git
 
 Verify that your ``$HOME`` directory contains the ``/eon`` folder using the ``ls`` command. The ``/eon`` directory needs to be added to your ``$PYTHONPATH`` and ``$PATH``. Modify your ``~/.bashrc`` file:
 
@@ -80,13 +80,13 @@ Expected output:
 .. code-block:: text
 
     Name: eon
-    Version: 1.0.0
+    Version: 1.1.2549
     Summary:
-    Home-page: http://henkelmanlab/eon/
+    Home-page: https://henkelmangroup.github.io/eon/
     Author: Henkelman Group
     Location: $HOME/eon
 
-Your ``eon`` executable is located in ``$HOME/eon/bin``.
+NOTE: The version number will differ depending on the current release. Your ``eon`` executable is located in ``$HOME/eon/bin``.
 
 Global Installation
 -------------------
@@ -141,22 +141,22 @@ For Intel Fortran Compiler (ifort), modify ``Makefile``:
 ASE Calculator
 ==============
 
-To use ASE calculators in EON, additional dependencies and a modified ``Makefile`` are required. Refer to the `ASE Interface <https://theory.cm.utexas.edu/eon/ase_interface.html#ase-interface>`__ documentation.
+To use ASE calculators in EON, additional dependencies and a modified ``Makefile`` are required. Refer to the `ASE Interface <https://henkelmangroup.github.io/eon/ase_interface.html#ase-interface>`__ documentation.
 
 LAMMPS Potential
 ================
 
-To use a LAMMPS potential, build the appropriate library version of LAMMPS. For details, see the `LAMMPS Potential <https://theory.cm.utexas.edu/eon/lammps_potential.html#lammps-potential>`__ page.
+To use a LAMMPS potential, build the appropriate library version of LAMMPS. For details, see the `LAMMPS Potential <https://henkelmangroup.github.io/eon/lammps_potential.html#lammps-potential>`__ page.
 
 MPI Communicator
 ================
 
-For using MPI communicator for parallel jobs, see the `MPI Communicator <https://theory.cm.utexas.edu/eon/communicator.html#communicator-mpi>`__ documentation.
+For using MPI communicator for parallel jobs, see the `MPI Communicator <https://henkelmangroup.github.io/eon/communicator.html#communicator-mpi>`__ documentation.
 
 Test Run
 ========
 
-Test run instructions are available in the `Tutorial <https://theory.cm.utexas.edu/eon/tutorials.html>`__ page.
+Test run instructions are available in the `Tutorial <https://henkelmangroup.github.io/eon/tutorials.html>`__ page.
 
 .. _installation:
 
@@ -195,7 +195,7 @@ We recommend installing Eon to your ``$HOME`` folder. To download the
 latest developer version to your home folder::
 
     $ cd $HOME
-    $ svn co https://theory.cm.utexas.edu/svn/eon
+    $ git clone https://github.com/henkelmangroup/eon.git
 
 The directory ``$HOME/eon`` needs to be added to your ``$PYTHONPATH``
 environment variable. It is also recommended to add ``$HOME/eon/bin`` to your

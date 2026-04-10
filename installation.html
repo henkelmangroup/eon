@@ -9,7 +9,7 @@
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="_static/henkv2.css?v=8af8e032" />
     <link rel="stylesheet" type="text/css" href="_static/henkv2.css?v=8af8e032" />
-    <script src="_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="_static/documentation_options.js?v=3960531c"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
@@ -86,7 +86,7 @@
 <h2>User Installation<a class="headerlink" href="#user-installation" title="Link to this heading">¶</a></h2>
 <p>We recommend installing EON in your <code class="docutils literal notranslate"><span class="pre">$HOME</span></code> directory. The latest developer version can be downloaded using:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span><span class="nv">$HOME</span>
-svn<span class="w"> </span>co<span class="w"> </span>https://theory.cm.utexas.edu/svn/eon
+git<span class="w"> </span>clone<span class="w"> </span>https://github.com/henkelmangroup/eon.git
 </pre></div>
 </div>
 <p>Verify that your <code class="docutils literal notranslate"><span class="pre">$HOME</span></code> directory contains the <code class="docutils literal notranslate"><span class="pre">/eon</span></code> folder using the <code class="docutils literal notranslate"><span class="pre">ls</span></code> command. The <code class="docutils literal notranslate"><span class="pre">/eon</span></code> directory needs to be added to your <code class="docutils literal notranslate"><span class="pre">$PYTHONPATH</span></code> and <code class="docutils literal notranslate"><span class="pre">$PATH</span></code>. Modify your <code class="docutils literal notranslate"><span class="pre">~/.bashrc</span></code> file:</p>
@@ -114,14 +114,14 @@ which<span class="w"> </span>eon
 </div>
 <p>Expected output:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Name: eon
-Version: 1.0.0
+Version: 1.1.2549
 Summary:
-Home-page: http://henkelmanlab/eon/
+Home-page: https://henkelmangroup.github.io/eon/
 Author: Henkelman Group
 Location: $HOME/eon
 </pre></div>
 </div>
-<p>Your <code class="docutils literal notranslate"><span class="pre">eon</span></code> executable is located in <code class="docutils literal notranslate"><span class="pre">$HOME/eon/bin</span></code>.</p>
+<p>NOTE: The version number will differ depending on the current release. Your <code class="docutils literal notranslate"><span class="pre">eon</span></code> executable is located in <code class="docutils literal notranslate"><span class="pre">$HOME/eon/bin</span></code>.</p>
 </section>
 <section id="global-installation">
 <h2>Global Installation<a class="headerlink" href="#global-installation" title="Link to this heading">¶</a></h2>
@@ -165,19 +165,19 @@ make
 </section>
 <section id="ase-calculator">
 <h1>ASE Calculator<a class="headerlink" href="#ase-calculator" title="Link to this heading">¶</a></h1>
-<p>To use ASE calculators in EON, additional dependencies and a modified <code class="docutils literal notranslate"><span class="pre">Makefile</span></code> are required. Refer to the <a class="reference external" href="https://theory.cm.utexas.edu/eon/ase_interface.html#ase-interface">ASE Interface</a> documentation.</p>
+<p>To use ASE calculators in EON, additional dependencies and a modified <code class="docutils literal notranslate"><span class="pre">Makefile</span></code> are required. Refer to the <a class="reference external" href="https://henkelmangroup.github.io/eon/ase_interface.html#ase-interface">ASE Interface</a> documentation.</p>
 </section>
 <section id="lammps-potential">
 <h1>LAMMPS Potential<a class="headerlink" href="#lammps-potential" title="Link to this heading">¶</a></h1>
-<p>To use a LAMMPS potential, build the appropriate library version of LAMMPS. For details, see the <a class="reference external" href="https://theory.cm.utexas.edu/eon/lammps_potential.html#lammps-potential">LAMMPS Potential</a> page.</p>
+<p>To use a LAMMPS potential, build the appropriate library version of LAMMPS. For details, see the <a class="reference external" href="https://henkelmangroup.github.io/eon/lammps_potential.html#lammps-potential">LAMMPS Potential</a> page.</p>
 </section>
 <section id="mpi-communicator">
 <h1>MPI Communicator<a class="headerlink" href="#mpi-communicator" title="Link to this heading">¶</a></h1>
-<p>For using MPI communicator for parallel jobs, see the <a class="reference external" href="https://theory.cm.utexas.edu/eon/communicator.html#communicator-mpi">MPI Communicator</a> documentation.</p>
+<p>For using MPI communicator for parallel jobs, see the <a class="reference external" href="https://henkelmangroup.github.io/eon/communicator.html#communicator-mpi">MPI Communicator</a> documentation.</p>
 </section>
 <section id="test-run">
 <h1>Test Run<a class="headerlink" href="#test-run" title="Link to this heading">¶</a></h1>
-<p>Test run instructions are available in the <a class="reference external" href="https://theory.cm.utexas.edu/eon/tutorials.html">Tutorial</a> page.</p>
+<p>Test run instructions are available in the <a class="reference external" href="https://henkelmangroup.github.io/eon/tutorials.html">Tutorial</a> page.</p>
 <p id="id1">Eon is divided up into two separate programs: a server and a client. The client
 does most of the computation (<cite>e.g.</cite> saddle searches, minimizations, and
 molecular dynamics) while the server creates the input for the client and
@@ -215,7 +215,7 @@ processes its results.</p>
 <p>We recommend installing Eon to your <code class="docutils literal notranslate"><span class="pre">$HOME</span></code> folder. To download the
 latest developer version to your home folder:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span><span class="nv">$HOME</span>
-$<span class="w"> </span>svn<span class="w"> </span>co<span class="w"> </span>https://theory.cm.utexas.edu/svn/eon
+$<span class="w"> </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/henkelmangroup/eon.git
 </pre></div>
 </div>
 <p>The directory <code class="docutils literal notranslate"><span class="pre">$HOME/eon</span></code> needs to be added to your <code class="docutils literal notranslate"><span class="pre">$PYTHONPATH</span></code>
