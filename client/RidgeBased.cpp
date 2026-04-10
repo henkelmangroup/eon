@@ -293,7 +293,7 @@ bool RidgeBased::inbasin(Matter& Rmin0,const Matter& Rcur){
   Rmin1.relax();
   opt_forceCalls += Rmin1.getRelaxIterations(); 
   parameters->optMethod = "fire";
-  parameters->optConvergedForce = 0.005; //opt_ediffg
+  parameters->optConvergedForce = 0.01; //0.005 //opt_ediffg
   parameters->optTimeStepInput = 0.1; 
   parameters->optMaxMove = 0.1; 
   parameters->optMaxIterations = 1000;
@@ -307,7 +307,7 @@ bool RidgeBased::inbasin(Matter& Rmin0,const Matter& Rcur){
   parameters->optMaxMove = old_optMaxMove;
 
   //bool same_basin = identical(&Rmin1, &Rmin0, 0.5); Function that is defined only here for testing.
-  bool same_basin = helper_functions::identical(&Rmin1, &Rmin0, 0.5);
+  bool same_basin = helper_functions::identical(&Rmin1, &Rmin0, 0.3);
   //bool same_basin = Rmin1.compare(&Rmin0);
   if (same_basin == false){
     const_cast<Matter&>(Rcur).matter2con("diff_basin.con", true);
@@ -320,20 +320,7 @@ void RidgeBased::step(){
   //log("%s In step function\n", LOG_PREFIX);
   Nguess = Nguess / Nguess.norm();
   steps += 1;
-  //updating the forces parallel to the dimer.
-  //dim->run();//The position and forces will be updated here automatically??
-  //if (dimerCalls == 1){
-  //  F0 = Rdimer.getForces().reshaped<RowMajor>(); //dimer forces
-  //  N = idim->getEigenvector().reshaped(); // dimer mode
-  //}
-  //log("%s steps inside of step function %d\n", LOG_PREFIX, steps);
-  //log("%s checksteps inside of step function %d\n", LOG_PREFIX, checksteps);
-  //log("%s rb_checksteps inside of step function %d\n", LOG_PREFIX, parameters->ridgeBasedCHECKSTEPS);
-  //if (steps <= checksteps-1){
-    //log("%s Right before running getdimerforces\n", LOG_PREFIX);
   Ftrans = RidgeBased::getdimerforces();
-    //log("%s making the dimer min mode search, dimerCalls: %d\n", LOG_PREFIX, dimerCalls);
-  //}
   VectorXd temp_Ftrans = Ftrans;
   dV = temp_Ftrans * dt;
   VectorXd dim_step;
@@ -480,7 +467,7 @@ bool RidgeBased::identical(const Matter* m1, const Matter* m2, const double tole
     AtomMatrix r1 = m1->getPositions();
     AtomMatrix r2 = m2->getPositions();
     r2(2) = 0.00;
-    r1(2) = 0.00;
+    
     //for (int i = 0; i < r1.size(); ++i) {
     //  log("%s r1 [%d]: %f\n", LOG_PREFIX, i, r1(i));
     //  log("%s r2 [%d]: %f\n", LOG_PREFIX, i, r2(i));
