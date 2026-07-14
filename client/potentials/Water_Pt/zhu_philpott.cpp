@@ -535,5 +535,7 @@ void ZhuPhilpott<P>::coulombFull(Water & w1, Water & w2, double & U, double cons
     coulomb(w1.ro_, w2.ro_, w1.fo_, w2.fo_, U, 4.0*qq2overEr);
 }
 
+namespace forcefields {
 template class ZhuPhilpott<zhu_philpott_parameters::Standard>;
 template class ZhuPhilpott<zhu_philpott_parameters::Iceland>;
+}
