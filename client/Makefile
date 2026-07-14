@@ -82,7 +82,13 @@ else
     FFLAGS += $(OPT) -ffpe-trap=invalid,zero,overflow
     FAR = $(CROSS)ar cru
 #    LDFLAGS += -L/usr/local/opt/lib/gcc/7 -lgfortran
-    LDFLAGS += -L/usr/local/Cellar/gcc/9.2.0_3/lib/gcc/9 -lgfortran
+    # Locate the gfortran runtime library automatically instead of hardcoding a
+    # version-specific path; works with Homebrew gcc / any prefix, and on Linux.
+    ifdef OSX
+        LDFLAGS += -L$(dir $(shell $(FC) -print-file-name=libgfortran.dylib)) -lgfortran
+    else
+        LDFLAGS += -L$(dir $(shell $(FC) -print-file-name=libgfortran.so)) -lgfortran
+    endif
     # ifort
     #FC = ifort
     #FFLAGS += $(OPT) -fpe0
